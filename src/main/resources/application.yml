@@ -1,0 +1,6 @@
+server:
+  port: 8080
+validation:
+  film:
+    description:
+      max-length: 200

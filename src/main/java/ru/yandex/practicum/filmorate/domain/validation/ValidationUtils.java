@@ -3,34 +3,35 @@ package ru.yandex.practicum.filmorate.domain.validation;
 import java.util.function.Supplier;
 
 /**
- Utility class providing validation methods for common validation scenarios. */
+ Utility class providing validation methods for common validation scenarios. Contains static methods for checking null
+ values and empty strings. */
 public final class ValidationUtils {
 
   /**
-   Private constructor to prevent instantiation of utility class.
+   Private constructor to prevent instantiation of utility class since all methods are static.
    */
   private ValidationUtils() {}
 
   /**
    Validates that the provided value is not null.
-   @param <E> type of RuntimeException to throw
-   @param value the value to check for null
-   @param errorSupplier supplier of exception to throw if validation fails
-   @throws E if the value is null
+   @param <E> type of RuntimeException to throw if validation fails
+   @param value object to check for null
+   @param errorSupplier supplier that provides the exception to throw if validation fails
+   @throws E the runtime exception supplied by errorSupplier if value is null
    */
-  public <E extends RuntimeException> void requireNotNull(Object value, Supplier<E> errorSupplier) {
+  public static <E extends RuntimeException> void requireNotNull(Object value, Supplier<E> errorSupplier) {
     if (value == null)
       throw errorSupplier.get();
   }
 
   /**
-   Validates that the provided string value is not null or blank.
-   @param <E> type of RuntimeException to throw
-   @param value the string value to validate
-   @param errorSupplier supplier of exception to throw if validation fails
-   @throws E if the string is null or blank
+   Validates that the provided string value is not null or blank (empty or whitespace only).
+   @param <E> type of RuntimeException to throw if validation fails
+   @param value string to validate
+   @param errorSupplier supplier that provides the exception to throw if validation fails
+   @throws E the runtime exception supplied by errorSupplier if value is null or blank
    */
-  public <E extends RuntimeException> void requireNotBLank(String value, Supplier<E> errorSupplier) {
+  public static <E extends RuntimeException> void requireNotBLank(String value, Supplier<E> errorSupplier) {
     if (value == null || value.isBlank())
       throw errorSupplier.get();
   }

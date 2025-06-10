@@ -1,7 +1,7 @@
 package ru.yandex.practicum.filmorate.domain.exception;
 
 /**
- Exception thrown when film data validation fails. Extends ValidationException
+ Exception thrown when film data service fails. Extends ValidationException
  class. */
 public class InvalidFilmDataException extends ValidationException {
     /**

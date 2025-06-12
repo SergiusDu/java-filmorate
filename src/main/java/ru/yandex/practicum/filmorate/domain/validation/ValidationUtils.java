@@ -147,4 +147,24 @@ public final class ValidationUtils {
 
     return value.toLowerCase(Locale.ROOT);
   }
+
+  /**
+   Validates and ensures a proper login format by checking that: - Login is not null or blank - Does not contain any
+   whitespace characters
+   @param <E> The type of runtime exception to throw on validation failure
+   @param value The login string to validate
+   @param exceptionFactory Factory function to create the exception
+   @return The validated login string
+   @throws E if login is invalid: - null or blank - contains whitespace
+   */
+  public static <E extends RuntimeException> String ensureLoginFormat(String value,
+                                                                      Function<String, E> exceptionFactory) {
+    notBlank(value,
+             msg -> exceptionFactory.apply("Login must not be null or blank"));
+    return validate(value,
+                    v -> v.chars()
+                          .noneMatch(Character::isWhitespace),
+                    exceptionFactory,
+                    "Login must not contain spaces");
+  }
 }

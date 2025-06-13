@@ -1,0 +1,81 @@
+### File: http-client/film-api.http
+
+#
+# Requests for the Film API
+#
+
+# ---------------------------------------------------
+# FILM API
+# ---------------------------------------------------
+
+### 1. Create a new film (success case)
+# Save the "id" of the created film to the "filmId" variable.
+POST http://localhost:8088/films
+Content-Type: application/json
+
+{
+  "name": "Dynamic Film: {{$random.words(3)}}",
+  "description": "A dynamically generated film for testing purposes.",
+  "releaseDate": "2023-10-26",
+  "duration": {{$random.integer(1, 1000)}}
+}
+
+> {%
+    client.global.set("filmId", response.body.id);
+%}
+
+### 2. Update an existing film (success case)
+# Use {{filmId}} from the previous response.
+PUT http://localhost:8088/films
+Content-Type: application/json
+
+{
+  "id": "{{filmId}}",
+  "name": "Updated Dynamic Film",
+  "description": "This description has been updated.",
+  "releaseDate": "2023-11-01",
+  "duration": 125
+}
+
+### 3. Get all films
+GET http://localhost:8088/films
+
+
+### 4. ERROR: Create a film with a release date that is too old
+# Use a release date before the "birth" of cinema.
+# Expect a 400 Bad Request error
+POST http://localhost:8088/films
+Content-Type: application/json
+
+{
+  "name": "Prehistoric Cinema",
+  "description": "A film from before films existed.",
+  "releaseDate": "1890-01-01",
+  "duration": 100
+}
+
+
+### 5. ERROR: Create a film with negative duration
+# Expect a 400 Bad Request error due to Positive validation
+POST http://localhost:8088/films
+Content-Type: application/json
+
+{
+  "name": "Negative Time Film",
+  "description": "This film has a negative duration.",
+  "releaseDate": "2020-02-02",
+  "duration": -50
+}
+
+### 6. ERROR: Update a non-existent film
+# Expect a 404 Not Found error
+PUT http://localhost:8088/films
+Content-Type: application/json
+
+{
+  "id": "{{$random.uuid}}",
+  "name": "Phantom Film",
+  "description": "Updating a film that does not exist.",
+  "releaseDate": "2021-01-01",
+  "duration": 95
+}

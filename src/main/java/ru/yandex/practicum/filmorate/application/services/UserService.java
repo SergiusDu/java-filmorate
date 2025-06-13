@@ -5,22 +5,28 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.application.port.in.UserUseCase;
 import ru.yandex.practicum.filmorate.domain.model.User;
 import ru.yandex.practicum.filmorate.domain.port.UserRepository;
+import ru.yandex.practicum.filmorate.infrastructure.web.dto.CreateUserRequest;
+import ru.yandex.practicum.filmorate.infrastructure.web.dto.UpdateUserRequest;
+import ru.yandex.practicum.filmorate.infrastructure.web.mapper.UserMapper;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class UserService implements UserUseCase {
-  UserRepository userRepository;
+  final UserRepository userRepository;
 
   @Override
-  public User addUser(User user) {
-    return userRepository.save(user);
+  public User addUser(CreateUserRequest request) {
+
+    return userRepository.save(UserMapper.toDomain(request,
+                                                   UUID.randomUUID()));
   }
 
   @Override
-  public User updateUser(User user) {
-    return userRepository.update(user);
+  public User updateUser(UpdateUserRequest request) {
+    return userRepository.update(UserMapper.toDomain(request));
   }
 
   @Override

@@ -16,7 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 @Repository
 public class InMemoryFilmRepository implements FilmRepository {
-  Map<UUID, Film> films = new ConcurrentHashMap<>();
+  final Map<UUID, Film> films = new ConcurrentHashMap<>();
 
   @Override
   public Film save(Film film) {

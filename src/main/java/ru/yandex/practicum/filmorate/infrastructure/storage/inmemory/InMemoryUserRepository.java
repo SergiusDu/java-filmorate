@@ -16,8 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 @Repository
 public class InMemoryUserRepository implements UserRepository {
-  Map<UUID, User> users = new ConcurrentHashMap<>();
-
+  final Map<UUID, User> users = new ConcurrentHashMap<>();
 
   @Override
   public User save(User user) {

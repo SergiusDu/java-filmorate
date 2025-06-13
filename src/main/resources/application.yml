@@ -1,6 +1,11 @@
+spring:
+  profiles:
+    active: dev
 server:
   port: 8080
 validation:
   film:
     description:
       max-length: 200
+    release-date:
+      earliest: "1895-12-28"

@@ -1,0 +1,7 @@
+server:
+  port: 8088
+
+logging:
+  level:
+    ru.yandex.practicum.filmorate: DEBUG
+    org.springframework.web: DEBUG

@@ -17,6 +17,7 @@ import java.util.UUID;
 public record User(UUID id,
                    Email email,
                    Login login,
+                   String name,
                    LocalDate birthday) {
   /**
    Validates all fields during record construction.
@@ -29,6 +30,8 @@ public record User(UUID id,
                             msg -> new InvalidUserDataException("User email must not be null"));
     ValidationUtils.notNull(login,
                             msg -> new InvalidUserDataException("User login must not be null"));
+    ValidationUtils.notBlank(name,
+                             msg -> new InvalidUserDataException("User name must not be empty"));
     ValidationUtils.notNull(birthday,
                             msg -> new InvalidUserDataException("User birthday must not be null"));
   }

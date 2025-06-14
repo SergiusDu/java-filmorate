@@ -12,7 +12,7 @@
 ### 1. Create a new user (success case)
 # Send a request to create a user with dynamically generated data.
 # The ">" character after the request means we are running a script after receiving the response.
-# We save the "id" from the response body to a global variable "userId" to use it in the next request.
+# We save the "id" from the response body to a global variable "userId" to use in in the next request.
 POST http://localhost:8088/users
 Content-Type: application/json
 

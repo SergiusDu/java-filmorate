@@ -45,7 +45,7 @@ class ValidationUtilsTest {
 
     @Test
     void shouldReturnTheString_whenStringIsCyrillic() {
-      String validString = "валидная строка";
+      String validString = "valid-line";
       String result = ValidationUtils.notBlank(validString,
                                                InvalidFilmDataException::new);
       assertThat(result).isEqualTo(validString);
@@ -53,7 +53,10 @@ class ValidationUtilsTest {
 
     @ParameterizedTest
     @NullAndEmptySource
-    @ValueSource(strings = {"  ", "\t", "\n"})
+    @ValueSource(strings = {"  ",
+                            "\t",
+                            "\n"
+    })
     void shouldThrowException_forNullEmptyOrBlankStrings(String invalidString) {
       var exception = assertThrows(InvalidFilmDataException.class,
                                    () -> ValidationUtils.notBlank(invalidString,
@@ -117,7 +120,10 @@ class ValidationUtilsTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"login space", " login", "login\t"})
+    @ValueSource(strings = {"login space",
+                            " login",
+                            "login\t"
+    })
     void shouldThrowException_whenLoginContainsWhitespace(String loginWithSpace) {
       var exception = assertThrows(InvalidFilmDataException.class,
                                    () -> ValidationUtils.ensureLoginFormat(loginWithSpace,

@@ -17,15 +17,22 @@ class EmailTest {
     String expectedEmail = "test.user+alias@example.com";
 
     Email email = new Email(rawEmail);
-    
+
     assertThat(email.email()).isEqualTo(expectedEmail);
   }
 
   @ParameterizedTest
   @NullAndEmptySource
-  @ValueSource(strings = {
-      "  ", "plainaddress", "test@example@com", "@example.com", "test@", "test@.com", ".test@example.com",
-      "test" + ".@example" + ".com", "test..test@example.com", "test@example-.com"
+  @ValueSource(strings = {"  ",
+                          "plainaddress",
+                          "test@example@com",
+                          "@example.com",
+                          "test@",
+                          "test@.com",
+                          ".test@example.com",
+                          "test" + ".@example" + ".com",
+                          "test..test@example.com",
+                          "test@example-.com"
   })
   void shouldThrowException_whenEmailIsInvalid(String invalidEmail) {
     assertThrows(InvalidUserDataException.class,

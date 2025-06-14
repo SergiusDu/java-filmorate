@@ -11,7 +11,8 @@ import java.util.UUID;
 
 @Component
 public class FilmMapper {
-  private FilmMapper() {}
+  private FilmMapper() {
+  }
 
   public static FilmResponse toResponse(Film film) {
     return new FilmResponse(film.id(),

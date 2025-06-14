@@ -25,8 +25,11 @@ class LoginTest {
 
   @ParameterizedTest
   @NullAndEmptySource
-  @ValueSource(strings = {
-      "  ", "login space", " login", "login\t", "\nlogin"
+  @ValueSource(strings = {"  ",
+                          "login space",
+                          " login",
+                          "login\t",
+                          "\nlogin"
   })
   void shouldThrowException_whenLoginIsInvalid(String invalidLogin) {
     // when & then

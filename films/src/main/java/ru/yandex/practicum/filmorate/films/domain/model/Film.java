@@ -14,12 +14,11 @@ import java.util.UUID;
  @param description Plot summary or description of the film (non-blank)
  @param releaseDate Date when the film was originally released
  @param duration Total runtime length of the film */
-public record Film
-    (UUID id,
-     String name,
-     String description,
-     LocalDate releaseDate,
-     Duration duration) {
+public record Film(UUID id,
+                   String name,
+                   String description,
+                   LocalDate releaseDate,
+                   Duration duration) {
 
   /**
    Validates all fields during record construction.

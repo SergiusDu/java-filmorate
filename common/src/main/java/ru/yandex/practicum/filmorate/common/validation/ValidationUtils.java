@@ -17,7 +17,8 @@ public final class ValidationUtils {
   /**
    Private constructor to prevent instantiation of utility class since all methods are static.
    */
-  private ValidationUtils() {}
+  private ValidationUtils() {
+  }
 
   /**
    Generic validation method that tests a value against a predicate and throws an exception if validation fails.

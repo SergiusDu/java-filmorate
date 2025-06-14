@@ -28,11 +28,6 @@
             <optional>true</optional>
         </dependency>
         <dependency>
-            <groupId>ru.yandex.practicum</groupId>
-            <artifactId>common</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
-        <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
             <scope>test</scope>

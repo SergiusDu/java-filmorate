@@ -104,7 +104,7 @@ public final class ValidationUtils {
   public static <E extends RuntimeException> String ensureEmailFormat(String value,
                                                                       Function<String, E> exceptionFactory) {
     final Pattern domainLabelPattern = Pattern.compile("^[A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?$");
-    final Pattern localPartPattern = Pattern.compile("^[A-Za-z0-9._%+-]+$");
+    final Pattern localPartPattern = Pattern.compile("^[a-zA-Z0-9]+(?:[._%+-][a-zA-Z0-9]+)*$");
 
     notBlank(value,
              msg -> exceptionFactory.apply("Email must not be null or blank."));

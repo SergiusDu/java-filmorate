@@ -2,8 +2,8 @@ package ru.yandex.practicum.filmorate.films.infrastructure.web.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Past;
 import jakarta.validation.constraints.Positive;
+import ru.yandex.practicum.filmorate.common.validation.ValidReleaseDate;
 
 import java.time.LocalDate;
 
@@ -14,7 +14,8 @@ public record CreateFilmRequest(@NotBlank(message = "Name cannot be empty")
                                 String description,
 
                                 @NotNull(message = "Release date cannot be null")
-                                @Past(message = "Release date must be in the past")
+                                @ValidReleaseDate(message = "Release date must be between the earliest allowed date " +
+                                                            "and today")
                                 LocalDate releaseDate,
 
                                 @Positive(message = "Duration must be positive")

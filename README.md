@@ -70,13 +70,11 @@ automatic application restart on code changes), which significantly speeds up th
 From the project's root directory, run:
 
 ```bash
-# This command starts the app on http://localhost:8088 using the 'dev' profile
-mvn spring-boot:run -pl filmorate-app
+# This command starts the app on http://localhost:8080
+mvn spring-boot:run
 ```
 
 * `mvn spring-boot:run`: This command starts the Spring Boot application.
-* `-pl filmorate-app`: This flag tells Maven to run the goal specifically on the `filmorate-app` module, which is the
-  main application entry point.
 
 #### Running the Packaged Application
 

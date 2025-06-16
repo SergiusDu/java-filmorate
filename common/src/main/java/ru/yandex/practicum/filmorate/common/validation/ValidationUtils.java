@@ -21,6 +21,22 @@ public final class ValidationUtils {
   }
 
   /**
+   Validates that a value is not null.
+   @param <T> The type of the value to validate
+   @param <E> The type of runtime exception to throw
+   @param value The value to check for null
+   @param exceptionFactory Factory function to create the exception
+   @return The validated non-null value
+   @throws E if the value is null
+   */
+  public static <T, E extends RuntimeException> T notNull(T value, Function<String, E> exceptionFactory) {
+    return validate(value,
+                    Objects::nonNull,
+                    exceptionFactory,
+                    "Value must not be null");
+  }
+
+  /**
    Generic validation method that tests a value against a predicate and throws an exception if validation fails.
    @param <T> The type of the value to validate
    @param <E> The type of runtime exception to throw
@@ -44,37 +60,6 @@ public final class ValidationUtils {
   }
 
   /**
-   Validates that a value is not null.
-   @param <T> The type of the value to validate
-   @param <E> The type of runtime exception to throw
-   @param value The value to check for null
-   @param exceptionFactory Factory function to create the exception
-   @return The validated non-null value
-   @throws E if the value is null
-   */
-  public static <T, E extends RuntimeException> T notNull(T value, Function<String, E> exceptionFactory) {
-    return validate(value,
-                    Objects::nonNull,
-                    exceptionFactory,
-                    "Value must not be null");
-  }
-
-  /**
-   Validates that a string is not null or blank.
-   @param <E> The type of runtime exception to throw
-   @param value The string to validate
-   @param exceptionFactory Factory function to create the exception
-   @return The validated non-blank string
-   @throws E if the string is null or blank
-   */
-  public static <E extends RuntimeException> String notBlank(String value, Function<String, E> exceptionFactory) {
-    return validate(value,
-                    v -> v != null && !v.isBlank(),
-                    exceptionFactory,
-                    "String must not be null or blank");
-  }
-
-  /**
    Validates that a duration is positive and not null.
    @param <E> The type of runtime exception to throw
    @param value The duration to validate
@@ -90,17 +75,37 @@ public final class ValidationUtils {
   }
 
   /**
-   Validates and normalizes an email address format according to RFC 5322 standards. The validation checks: - Total
-   email
-   length ≤ 254 characters - Local part: - Length ≤ 64 characters - Contains only letters, numbers and allowed special
-   characters (._%+-) - Domain part: - Contains valid characters (letters, numbers, hyphens) - Has at least one dot
-   separator - Each label starts/ends with letter/number - Labels ≤ 63 characters
+   Validates and normalizes an email address format according to RFC 5322 standards.
+   <p>The validation checks:</p>
+   <ul>
+   <li>Total email length ≤ 254 characters</li>
+   <li>Local part:
+   <ul>
+   <li>Length ≤ 64 characters</li>
+   <li>Contains only letters, numbers and allowed special characters (._%+-)</li>
+   </ul>
+   </li>
+   <li>Domain part:
+   <ul>
+   <li>Contains valid characters (letters, numbers, hyphens)</li>
+   <li>Has at least one dot separator</li>
+   <li>Each label starts/ends with letter/number</li>
+   <li>Labels ≤ 63 characters</li>
+   </ul>
+   </li>
+   </ul>
    @param <E> Type of runtime exception to throw on validation failure
    @param value Email string to validate
    @param exceptionFactory Function to create exception with error message
    @return Validated email converted to lowercase
-   @throws E if email is invalid: - null or blank - exceeds length limits - missing or multiple @ symbols - invalid
-   characters - malformed domain
+   @throws E if email is invalid:
+   <ul>
+   <li>null or blank</li>
+   <li>exceeds length limits</li>
+   <li>missing or multiple @ symbols</li>
+   <li>invalid characters</li>
+   <li>malformed domain</li>
+   </ul>
    */
   public static <E extends RuntimeException> String ensureEmailFormat(String value,
                                                                       Function<String, E> exceptionFactory) {
@@ -147,6 +152,21 @@ public final class ValidationUtils {
     }
 
     return value.toLowerCase(Locale.ROOT);
+  }
+
+  /**
+   Validates that a string is not null or blank.
+   @param <E> The type of runtime exception to throw
+   @param value The string to validate
+   @param exceptionFactory Factory function to create the exception
+   @return The validated non-blank string
+   @throws E if the string is null or blank
+   */
+  public static <E extends RuntimeException> String notBlank(String value, Function<String, E> exceptionFactory) {
+    return validate(value,
+                    v -> v != null && !v.isBlank(),
+                    exceptionFactory,
+                    "String must not be null or blank");
   }
 
   /**

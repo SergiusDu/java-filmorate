@@ -9,14 +9,13 @@ import ru.yandex.practicum.filmorate.common.exception.InvalidFilmDataException;
 
 import java.time.Duration;
 import java.time.LocalDate;
-import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class FilmTest {
 
-  private UUID validId;
+  private int validId;
   private String validName;
   private String validDescription;
   private LocalDate validReleaseDate;
@@ -24,7 +23,7 @@ class FilmTest {
 
   @BeforeEach
   void setUp() {
-    validId = UUID.randomUUID();
+    validId = 1;
     validName = "Inception";
     validDescription = "A mind-bending thriller.";
     validReleaseDate = LocalDate.of(2010,
@@ -47,21 +46,14 @@ class FilmTest {
     assertThat(film.releaseDate()).isEqualTo(validReleaseDate);
     assertThat(film.duration()).isEqualTo(validDuration);
   }
-
-  @Test
-  void shouldThrowException_whenIdIsNull() {
-    var exception = assertThrows(InvalidFilmDataException.class,
-                                 () -> new Film(null,
-                                                validName,
-                                                validDescription,
-                                                validReleaseDate,
-                                                validDuration));
-    assertThat(exception.getMessage()).isEqualTo("Film id must not be null");
-  }
+  
 
   @ParameterizedTest
   @NullAndEmptySource
-  @ValueSource(strings = {"  ", "\t", "\n"})
+  @ValueSource(strings = {"  ",
+                          "\t",
+                          "\n"
+  })
   void shouldThrowException_whenNameIsBlank(String invalidName) {
     var exception = assertThrows(InvalidFilmDataException.class,
                                  () -> new Film(validId,
@@ -74,7 +66,10 @@ class FilmTest {
 
   @ParameterizedTest
   @NullAndEmptySource
-  @ValueSource(strings = {"  ", "\t", "\n"})
+  @ValueSource(strings = {"  ",
+                          "\t",
+                          "\n"
+  })
   void shouldThrowException_whenDescriptionIsBlank(String invalidDescription) {
     var exception = assertThrows(InvalidFilmDataException.class,
                                  () -> new Film(validId,

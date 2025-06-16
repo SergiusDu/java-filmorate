@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.common.config.AppValidationProperties;
 import ru.yandex.practicum.filmorate.common.exception.InvalidFilmDataException;
 import ru.yandex.practicum.filmorate.films.domain.model.Film;
+import ru.yandex.practicum.filmorate.films.domain.port.CreateFilmCommand;
 
 import java.time.LocalDate;
 
@@ -26,6 +27,11 @@ public class FilmValidationService {
   public void validate(Film film) {
     validateDescription(film.description());
     validateReleaseDate(film.releaseDate());
+  }
+
+  public void validate(CreateFilmCommand command) {
+    validateDescription(command.description());
+    validateReleaseDate(command.releaseDate());
   }
 
   private void validateDescription(String description) {

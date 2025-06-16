@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.films.application.port.in.FilmUseCase;
 import ru.yandex.practicum.filmorate.films.domain.model.Film;
+import ru.yandex.practicum.filmorate.films.domain.port.CreateFilmCommand;
 import ru.yandex.practicum.filmorate.films.domain.port.FilmRepository;
 import ru.yandex.practicum.filmorate.films.domain.service.FilmValidationService;
 import ru.yandex.practicum.filmorate.films.infrastructure.web.dto.CreateFilmRequest;
@@ -11,7 +12,6 @@ import ru.yandex.practicum.filmorate.films.infrastructure.web.dto.UpdateFilmRequ
 import ru.yandex.practicum.filmorate.films.infrastructure.web.mapper.FilmMapper;
 
 import java.util.List;
-import java.util.UUID;
 
 
 @Service
@@ -22,10 +22,9 @@ public class FilmService implements FilmUseCase {
 
   @Override
   public Film addFilm(CreateFilmRequest request) {
-    Film film = FilmMapper.toDomain(request,
-                                    UUID.randomUUID());
-    filmValidationService.validate(film);
-    return filmRepository.save(film);
+    CreateFilmCommand createFilmCommand = FilmMapper.toCreateCommand(request);
+    filmValidationService.validate(createFilmCommand);
+    return filmRepository.save(createFilmCommand);
   }
 
   @Override

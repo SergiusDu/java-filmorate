@@ -5,7 +5,6 @@ import ru.yandex.practicum.filmorate.common.validation.ValidationUtils;
 
 import java.time.Duration;
 import java.time.LocalDate;
-import java.util.UUID;
 
 /**
  Represents a film entity containing core information about a movie. All fields are validated to ensure data integrity.
@@ -14,7 +13,7 @@ import java.util.UUID;
  @param description Plot summary or description of the film (non-blank)
  @param releaseDate Date when the film was originally released
  @param duration Total runtime length of the film */
-public record Film(UUID id,
+public record Film(int id,
                    String name,
                    String description,
                    LocalDate releaseDate,

@@ -5,21 +5,28 @@ import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.common.exception.DuplicateResourceException;
 import ru.yandex.practicum.filmorate.common.exception.ResourceNotFoundException;
 import ru.yandex.practicum.filmorate.films.domain.model.Film;
+import ru.yandex.practicum.filmorate.films.domain.port.CreateFilmCommand;
 import ru.yandex.practicum.filmorate.films.domain.port.FilmRepository;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
 @Repository
 public class InMemoryFilmRepository implements FilmRepository {
-  private final Map<UUID, Film> films = new ConcurrentHashMap<>();
+  private final Map<Integer, Film> films = new ConcurrentHashMap<>();
+  private final AtomicInteger idCounter = new AtomicInteger(0);
 
   @Override
-  public Film save(Film film) {
+  public Film save(CreateFilmCommand command) {
+    Film film = new Film(generateId(),
+                         command.name(),
+                         command.description(),
+                         command.releaseDate(),
+                         command.duration());
     if (films.containsKey(film.id())) {
       String errorMessage = String.format("Film already exists with id: %s",
                                           film.id());
@@ -52,7 +59,11 @@ public class InMemoryFilmRepository implements FilmRepository {
   }
 
   @Override
-  public Optional<Film> findById(UUID id) {
+  public Optional<Film> findById(int id) {
     return Optional.ofNullable(films.get(id));
+  }
+
+  private int generateId() {
+    return idCounter.addAndGet(1);
   }
 }

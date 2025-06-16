@@ -4,10 +4,9 @@ import jakarta.validation.constraints.NotNull;
 import ru.yandex.practicum.filmorate.common.validation.ValidReleaseDate;
 
 import java.time.LocalDate;
-import java.util.UUID;
 
 public record UpdateFilmRequest(@NotNull(message = "Film ID cannot be null")
-                                UUID id,
+                                Integer id,
                                 @NotNull(message = "Name cannot be null")
                                 String name,
 

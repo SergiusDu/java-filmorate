@@ -20,7 +20,6 @@ public class UserService implements UserUseCase {
 
   @Override
   public User addUser(CreateUserRequest request) {
-
     return userRepository.save(userMapper.toCommand(request));
   }
 

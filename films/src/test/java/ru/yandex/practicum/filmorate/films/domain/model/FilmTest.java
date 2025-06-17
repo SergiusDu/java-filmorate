@@ -46,7 +46,6 @@ class FilmTest {
     assertThat(film.releaseDate()).isEqualTo(validReleaseDate);
     assertThat(film.duration()).isEqualTo(validDuration);
   }
-  
 
   @ParameterizedTest
   @NullAndEmptySource

@@ -4,8 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.common.config.AppValidationProperties;
 import ru.yandex.practicum.filmorate.common.exception.InvalidFilmDataException;
-import ru.yandex.practicum.filmorate.films.domain.model.Film;
 import ru.yandex.practicum.filmorate.films.domain.port.CreateFilmCommand;
+import ru.yandex.practicum.filmorate.films.domain.port.UpdateFilmCommand;
 
 import java.time.LocalDate;
 
@@ -22,11 +22,6 @@ public class FilmValidationService {
     this.earliestReleaseDate = properties.film()
                                          .releaseDate()
                                          .earliest();
-  }
-
-  public void validate(Film film) {
-    validateDescription(film.description());
-    validateReleaseDate(film.releaseDate());
   }
 
   public void validate(CreateFilmCommand command) {
@@ -50,5 +45,10 @@ public class FilmValidationService {
       log.warn(errorMessage);
       throw new InvalidFilmDataException(errorMessage);
     }
+  }
+
+  public void validate(UpdateFilmCommand command) {
+    validateDescription(command.description());
+    validateReleaseDate(command.releaseDate());
   }
 }

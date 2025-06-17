@@ -17,22 +17,23 @@ import java.util.List;
 @RequiredArgsConstructor
 public class FilmController {
   private final FilmUseCase filmUseCase;
+  private final FilmMapper mapper;
 
   @GetMapping
   public List<FilmResponse> getAllFilms() {
     return filmUseCase.getAllFilms()
                       .stream()
-                      .map(FilmMapper::toResponse)
+                      .map(mapper::toResponse)
                       .toList();
   }
 
   @PostMapping
   public FilmResponse createFilm(@Valid @RequestBody CreateFilmRequest request) {
-    return FilmMapper.toResponse(filmUseCase.addFilm(request));
+    return mapper.toResponse(filmUseCase.addFilm(request));
   }
 
   @PutMapping
   public FilmResponse updateFilm(@Valid @RequestBody UpdateFilmRequest request) {
-    return FilmMapper.toResponse(filmUseCase.updateFilm(request));
+    return mapper.toResponse(filmUseCase.updateFilm(request));
   }
 }

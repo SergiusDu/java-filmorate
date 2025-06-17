@@ -20,12 +20,12 @@ public interface FilmRepository {
   Film save(CreateFilmCommand createFilmCommand);
 
   /**
-   Updates an existing film.
-   @param film Film to update
-   @return Updated film
-   @throws ResourceNotFoundException if film not found
+   Updates an existing film based on the provided update command.
+   @param updateCommand Command containing updated film data
+   @return The updated film entity
+   @throws ResourceNotFoundException if film with specified ID does not exist in the repository
    */
-  Film update(Film film);
+  Film update(UpdateFilmCommand updateCommand);
 
   /**
    Retrieves all films.

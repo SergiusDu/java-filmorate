@@ -39,7 +39,7 @@ public abstract class AbstractInMemoryRepository<T, C, U> {
 
   public final T update(U updateCommand) {
     Integer id = updateIdExtractor.apply(updateCommand);
-    if (!storage.contains(id)) {
+    if (!storage.containsKey(id)) {
       throw new ResourceNotFoundException("Entity with id " + id + " not found");
     }
     T value = updateBuilder.apply(updateCommand);

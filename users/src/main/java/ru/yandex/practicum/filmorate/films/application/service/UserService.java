@@ -11,23 +11,22 @@ import ru.yandex.practicum.filmorate.films.web.dto.UpdateUserRequest;
 import ru.yandex.practicum.filmorate.films.web.mapper.UserMapper;
 
 import java.util.List;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class UserService implements UserUseCase {
-  final UserRepository userRepository;
+  private final UserRepository userRepository;
+  private final UserMapper userMapper;
 
   @Override
   public User addUser(CreateUserRequest request) {
 
-    return userRepository.save(UserMapper.toDomain(request,
-                                                   UUID.randomUUID()));
+    return userRepository.save(userMapper.toCommand(request));
   }
 
   @Override
   public User updateUser(UpdateUserRequest request) {
-    return userRepository.update(UserMapper.toDomain(request));
+    return userRepository.update(userMapper.toCommand(request));
   }
 
   @Override

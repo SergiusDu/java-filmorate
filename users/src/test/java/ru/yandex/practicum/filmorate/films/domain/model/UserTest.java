@@ -10,14 +10,13 @@ import ru.yandex.practicum.filmorate.films.domain.model.value.Email;
 import ru.yandex.practicum.filmorate.films.domain.model.value.Login;
 
 import java.time.LocalDate;
-import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class UserTest {
 
-  private UUID validId;
+  private int validId;
   private Email validEmail;
   private Login validLogin;
   private String validName;
@@ -25,7 +24,7 @@ class UserTest {
 
   @BeforeEach
   void setUp() {
-    validId = UUID.randomUUID();
+    validId = 1;
     validEmail = new Email("test@example.com");
     validLogin = new Login("validlogin");
     validName = "John Doe";
@@ -49,18 +48,6 @@ class UserTest {
     assertThat(user.login()).isEqualTo(validLogin);
     assertThat(user.name()).isEqualTo(validName);
     assertThat(user.birthday()).isEqualTo(validBirthday);
-  }
-
-  @Test
-  void shouldThrowException_whenIdIsNull() {
-    // when & then
-    var exception = assertThrows(InvalidUserDataException.class,
-                                 () -> new User(null,
-                                                validEmail,
-                                                validLogin,
-                                                validName,
-                                                validBirthday));
-    assertThat(exception.getMessage()).isEqualTo("User id must not be null");
   }
 
   @Test
@@ -89,7 +76,10 @@ class UserTest {
 
   @ParameterizedTest
   @NullAndEmptySource
-  @ValueSource(strings = {"  ", "\t", "\n"})
+  @ValueSource(strings = {"  ",
+                          "\t",
+                          "\n"
+  })
   void shouldThrowException_whenNameIsBlank(String invalidName) {
     // when & then
     var exception = assertThrows(InvalidUserDataException.class,

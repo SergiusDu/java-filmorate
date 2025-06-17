@@ -7,7 +7,6 @@ import ru.yandex.practicum.filmorate.films.domain.model.value.Email;
 import ru.yandex.practicum.filmorate.films.domain.model.value.Login;
 
 import java.time.LocalDate;
-import java.util.UUID;
 
 /**
  Represents a user entity containing core user information. All fields are validated during construction.
@@ -15,7 +14,7 @@ import java.util.UUID;
  @param email Email address of the user (validated format)
  @param login Login name of the user (validated format)
  @param birthday Birthdate of the user */
-public record User(UUID id,
+public record User(int id,
                    Email email,
                    Login login,
                    String name,
@@ -25,8 +24,6 @@ public record User(UUID id,
    @throws InvalidUserDataException if any required field is null
    */
   public User {
-    ValidationUtils.notNull(id,
-                            msg -> new InvalidUserDataException("User id must not be null"));
     ValidationUtils.notNull(email,
                             msg -> new InvalidUserDataException("User email must not be null"));
     ValidationUtils.notNull(login,

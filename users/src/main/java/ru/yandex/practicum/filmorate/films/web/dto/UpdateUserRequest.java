@@ -3,10 +3,9 @@ package ru.yandex.practicum.filmorate.films.web.dto;
 import jakarta.validation.constraints.*;
 
 import java.time.LocalDate;
-import java.util.UUID;
 
 public record UpdateUserRequest(@NotNull(message = "Id cannot be null")
-                                UUID id,
+                                Integer id,
 
                                 @NotBlank(message = "Email cannot be empty")
                                 @Email(message = "Invalid email format")

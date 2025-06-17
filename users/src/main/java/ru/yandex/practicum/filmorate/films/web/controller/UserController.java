@@ -17,22 +17,23 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserController {
   private final UserUseCase userUseCase;
+  private final UserMapper userMapper;
 
   @GetMapping
   public List<UserResponse> getAllUsers() {
     return userUseCase.getAllUsers()
                       .stream()
-                      .map(UserMapper::toResponse)
+                      .map(userMapper::toResponse)
                       .toList();
   }
 
   @PostMapping
   public UserResponse createUser(@Valid @RequestBody CreateUserRequest request) {
-    return UserMapper.toResponse(userUseCase.addUser(request));
+    return userMapper.toResponse(userUseCase.addUser(request));
   }
 
   @PutMapping
   public UserResponse updateUser(@Valid @RequestBody UpdateUserRequest request) {
-    return UserMapper.toResponse(userUseCase.updateUser(request));
+    return userMapper.toResponse(userUseCase.updateUser(request));
   }
 }

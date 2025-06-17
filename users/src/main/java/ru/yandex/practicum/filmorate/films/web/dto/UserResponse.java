@@ -1,9 +1,8 @@
 package ru.yandex.practicum.filmorate.films.web.dto;
 
 import java.time.LocalDate;
-import java.util.UUID;
 
-public record UserResponse(UUID id,
+public record UserResponse(Integer id,
                            String email,
                            String login,
                            String name,

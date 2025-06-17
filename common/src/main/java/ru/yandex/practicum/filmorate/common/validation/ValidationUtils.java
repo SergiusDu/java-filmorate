@@ -3,7 +3,6 @@ package ru.yandex.practicum.filmorate.common.validation;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.Duration;
-import java.util.Locale;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -151,7 +150,7 @@ public final class ValidationUtils {
       }
     }
 
-    return value.toLowerCase(Locale.ROOT);
+    return value;
   }
 
   /**

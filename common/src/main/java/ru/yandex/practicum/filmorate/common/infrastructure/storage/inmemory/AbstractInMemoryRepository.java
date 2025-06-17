@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.common.infrastructure.storage.inmemory;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import ru.yandex.practicum.filmorate.common.exception.ResourceNotFoundException;
 
 import java.util.ArrayList;
@@ -11,6 +12,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
+@Slf4j
 @RequiredArgsConstructor
 public abstract class AbstractInMemoryRepository<T, C, U> {
   protected final ConcurrentHashMap<Integer, T> storage = new ConcurrentHashMap<>();
@@ -40,7 +42,9 @@ public abstract class AbstractInMemoryRepository<T, C, U> {
   public final T update(U updateCommand) {
     Integer id = updateIdExtractor.apply(updateCommand);
     if (!storage.containsKey(id)) {
-      throw new ResourceNotFoundException("Entity with id " + id + " not found");
+      String errorMessage = "Entity with id " + id + " not found";
+      log.warn(errorMessage);
+      throw new ResourceNotFoundException(errorMessage);
     }
     T value = updateBuilder.apply(updateCommand);
     storage.put(id,

@@ -54,20 +54,4 @@ public class UserMapper {
                             user.name(),
                             user.birthday());
   }
-
-  public User toDomain(CreateUserRequest request, int id) {
-    return new User(id,
-                    new Email(request.email()),
-                    new Login(request.login()),
-                    request.name() != null ? request.name() : request.login(),
-                    request.birthday());
-  }
-
-  public User toDomain(UpdateUserRequest request) {
-    return new User(request.id(),
-                    new Email(request.email()),
-                    new Login(request.login()),
-                    request.name() != null ? request.name() : request.login(),
-                    request.birthday());
-  }
 }

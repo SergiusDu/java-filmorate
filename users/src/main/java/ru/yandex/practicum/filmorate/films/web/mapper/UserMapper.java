@@ -17,7 +17,7 @@ public class UserMapper {
   public CreateUserCommand toCommand(CreateUserRequest request) {
     return new CreateUserCommand(request.email(),
                                  request.login(),
-                                 request.name(),
+                                 request.name() != null ? request.name() : request.login(),
                                  request.birthday());
   }
 
@@ -25,7 +25,7 @@ public class UserMapper {
     return new UpdateUserCommand(request.id(),
                                  request.email(),
                                  request.login(),
-                                 request.name(),
+                                 request.name() != null ? request.name() : request.login(),
                                  request.birthday());
   }
 
@@ -37,12 +37,12 @@ public class UserMapper {
                     command.birthday());
   }
 
-  public User fromCommand(UpdateUserCommand updateCommand) {
-    return new User(updateCommand.id(),
-                    new Email(updateCommand.email()),
-                    new Login(updateCommand.login()),
-                    updateCommand.name(),
-                    updateCommand.birthday());
+  public User fromCommand(UpdateUserCommand command) {
+    return new User(command.id(),
+                    new Email(command.email()),
+                    new Login(command.login()),
+                    command.name(),
+                    command.birthday());
   }
 
   public UserResponse toResponse(User user) {
@@ -59,7 +59,7 @@ public class UserMapper {
     return new User(id,
                     new Email(request.email()),
                     new Login(request.login()),
-                    request.name(),
+                    request.name() != null ? request.name() : request.login(),
                     request.birthday());
   }
 
@@ -67,7 +67,7 @@ public class UserMapper {
     return new User(request.id(),
                     new Email(request.email()),
                     new Login(request.login()),
-                    request.name(),
+                    request.name() != null ? request.name() : request.login(),
                     request.birthday());
   }
 }

@@ -1,0 +1,82 @@
+### File: http-client/user-api.http
+
+#
+# Requests for the User API
+# We will use variables to pass data between requests.
+#
+
+# ---------------------------------------------------
+# USER API
+# ---------------------------------------------------
+
+### 1. Create a new user (success case)
+# Send a request to create a user with dynamically generated data.
+# The ">" character after the request means we are running a script after receiving the response.
+# We save the "id" from the response body to a global variable "userId" to use in in the next request.
+POST http://localhost:8088/users
+Content-Type: application/json
+
+{
+  "email": "{{$random.email}}",
+  "login": "{{$random.alphabetic(10)}}",
+  "name": "Random Test User",
+  "birthday": "1990-05-15"
+}
+
+> {%
+    client.global.set("userId", response.body.id);
+%}
+
+### 2. Update an existing user (success case)
+# Use the {{userId}} variable we saved from the previous request.
+PUT http://localhost:8088/users
+Content-Type: application/json
+
+{
+  "id": "{{userId}}",
+  "email": "{{$random.email}}",
+  "login": "updatedLogin",
+  "name": "Updated Test User Name",
+  "birthday": "1991-06-20"
+}
+
+### 3. Get all users
+GET http://localhost:8088/users
+
+### 4. ERROR: Create user with an invalid email
+# Expect a 400 Bad Request error
+POST http://localhost:8088/users
+Content-Type: application/json
+
+{
+  "email": "not-an-email",
+  "login": "invalidEmailLogin",
+  "name": "Invalid User",
+  "birthday": "2000-01-01"
+}
+
+### 5. ERROR: Create user with a space in the login
+# Expect a 400 Bad Request error
+POST http://localhost:8088/users
+Content-Type: application/json
+
+{
+  "email": "{{$random.email}}",
+  "login": "invalid login",
+  "name": "Invalid User",
+  "birthday": "2000-01-01"
+}
+
+### 6. ERROR: Update a non-existent user
+# Use a random UUID that is unlikely to exist in the system.
+# Expect a 404 Not Found error
+PUT http://localhost:8088/users
+Content-Type: application/json
+
+{
+  "id": "{{$random.uuid}}",
+  "email": "{{$random.email}}",
+  "login": "nonexistent",
+  "name": "Non Existent User",
+  "birthday": "1999-01-01"
+}

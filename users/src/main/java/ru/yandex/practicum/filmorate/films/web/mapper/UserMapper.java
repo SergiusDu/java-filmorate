@@ -29,7 +29,7 @@ public class UserMapper {
                                  request.birthday());
   }
 
-  public User fromCommand(Integer id, CreateUserCommand command) {
+  public User fromCommand(Long id, CreateUserCommand command) {
     return new User(id,
                     new Email(command.email()),
                     new Login(command.login()),

@@ -5,7 +5,7 @@ import jakarta.validation.constraints.*;
 import java.time.LocalDate;
 
 public record UpdateUserRequest(@NotNull(message = "Id cannot be null")
-                                Integer id,
+                                Long id,
 
                                 @NotBlank(message = "Email cannot be empty")
                                 @Email(message = "Invalid email format")

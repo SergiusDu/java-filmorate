@@ -6,7 +6,7 @@ import ru.yandex.practicum.filmorate.common.validation.ValidReleaseDate;
 import java.time.LocalDate;
 
 public record UpdateFilmRequest(@NotNull(message = "Film ID cannot be null")
-                                Integer id,
+                                Long id,
                                 @NotNull(message = "Name cannot be null")
                                 String name,
 

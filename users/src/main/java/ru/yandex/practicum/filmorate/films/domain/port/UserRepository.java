@@ -20,7 +20,7 @@ public interface UserRepository {
    @param id User ID to find
    @return Optional containing user if found, empty otherwise
    */
-  Optional<User> findById(int id);
+  Optional<User> findById(long id);
 
   /**
    Retrieves all users.

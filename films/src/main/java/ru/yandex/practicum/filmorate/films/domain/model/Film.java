@@ -13,7 +13,7 @@ import java.time.LocalDate;
  @param description Plot summary or description of the film (non-blank)
  @param releaseDate Date when the film was originally released
  @param duration Total runtime length of the film */
-public record Film(int id,
+public record Film(Long id,
                    String name,
                    String description,
                    LocalDate releaseDate,

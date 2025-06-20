@@ -38,5 +38,5 @@ public interface FilmRepository {
    @param id Film ID to find
    @return Optional containing film if found, empty otherwise
    */
-  Optional<Film> findById(int id);
+  Optional<Film> findById(long id);
 }

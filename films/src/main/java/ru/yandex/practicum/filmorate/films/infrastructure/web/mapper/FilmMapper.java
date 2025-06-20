@@ -27,7 +27,7 @@ public class FilmMapper {
                                  request.duration());
   }
 
-  public Film fromCommand(Integer id, CreateFilmCommand command) {
+  public Film fromCommand(Long id, CreateFilmCommand command) {
     return new Film(id,
                     command.name(),
                     command.description(),
@@ -52,7 +52,7 @@ public class FilmMapper {
                                 .toSeconds());
   }
 
-  public Film toDomain(CreateFilmRequest request, int id) {
+  public Film toDomain(CreateFilmRequest request, long id) {
     return new Film(id,
                     request.name(),
                     request.description(),

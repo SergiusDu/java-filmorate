@@ -5,13 +5,13 @@ import ru.yandex.practicum.filmorate.films.domain.model.User;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  Repository interface for managing User entity persistence operations. */
 public interface UserRepository {
 
   User save(CreateUserCommand createCommand);
-
 
   User update(UpdateUserCommand updateCommand);
 
@@ -23,8 +23,10 @@ public interface UserRepository {
   Optional<User> findById(long id);
 
   /**
-   Retrieves all users.
-   @return List of all users
+   Retrieves all films.
+   @return List of all films
    */
   List<User> findAll();
+
+  List<User> findByIds(Set<Long> ids);
 }

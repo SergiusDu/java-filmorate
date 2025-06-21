@@ -4,9 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import ru.yandex.practicum.filmorate.common.exception.ResourceNotFoundException;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BiFunction;
@@ -54,5 +52,14 @@ public abstract class AbstractInMemoryRepository<T, C, U> {
 
   public final Optional<T> findById(long id) {
     return Optional.ofNullable(storage.get(id));
+  }
+
+  public final List<T> findByIds(Set<Long> ids) {
+    if (ids == null || ids.isEmpty())
+      return List.of();
+    return ids.stream()
+              .map(storage::get)
+              .filter(Objects::nonNull)
+              .toList();
   }
 }

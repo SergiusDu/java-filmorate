@@ -27,6 +27,7 @@
         <module>users</module>
         <module>filmorate-app</module>
         <module>friendships</module>
+        <module>likes</module>
     </modules>
 
     <dependencyManagement>

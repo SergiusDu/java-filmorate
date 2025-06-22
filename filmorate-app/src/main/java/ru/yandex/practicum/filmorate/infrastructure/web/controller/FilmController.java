@@ -1,14 +1,14 @@
-package ru.yandex.practicum.filmorate.films.infrastructure.web.controller;
+package ru.yandex.practicum.filmorate.infrastructure.web.controller;
 
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.films.application.port.in.FilmUseCase;
-import ru.yandex.practicum.filmorate.films.infrastructure.web.dto.CreateFilmRequest;
-import ru.yandex.practicum.filmorate.films.infrastructure.web.dto.FilmResponse;
-import ru.yandex.practicum.filmorate.films.infrastructure.web.dto.UpdateFilmRequest;
-import ru.yandex.practicum.filmorate.films.infrastructure.web.mapper.FilmMapper;
+import ru.yandex.practicum.filmorate.infrastructure.web.dto.CreateFilmRequest;
+import ru.yandex.practicum.filmorate.infrastructure.web.dto.FilmResponse;
+import ru.yandex.practicum.filmorate.infrastructure.web.dto.UpdateFilmRequest;
+import ru.yandex.practicum.filmorate.infrastructure.web.mapper.FilmMapper;
 
 import java.util.List;
 
@@ -29,11 +29,11 @@ public class FilmController {
 
   @PostMapping
   public FilmResponse createFilm(@Valid @RequestBody CreateFilmRequest request) {
-    return mapper.toResponse(filmUseCase.addFilm(request));
+    return mapper.toResponse(filmUseCase.addFilm(mapper.toCommand(request)));
   }
 
   @PutMapping
   public FilmResponse updateFilm(@Valid @RequestBody UpdateFilmRequest request) {
-    return mapper.toResponse(filmUseCase.updateFilm(request));
+    return mapper.toResponse(filmUseCase.updateFilm(mapper.toCommand(request)));
   }
 }

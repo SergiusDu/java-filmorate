@@ -1,15 +1,15 @@
 package ru.yandex.practicum.filmorate.films.application.port.in;
 
 import ru.yandex.practicum.filmorate.films.domain.model.Film;
-import ru.yandex.practicum.filmorate.films.infrastructure.web.dto.CreateFilmRequest;
-import ru.yandex.practicum.filmorate.films.infrastructure.web.dto.UpdateFilmRequest;
+import ru.yandex.practicum.filmorate.films.domain.port.CreateFilmCommand;
+import ru.yandex.practicum.filmorate.films.domain.port.UpdateFilmCommand;
 
 import java.util.List;
 
 public interface FilmUseCase {
-  Film addFilm(CreateFilmRequest film);
+  Film addFilm(CreateFilmCommand command);
 
-  Film updateFilm(UpdateFilmRequest film);
+  Film updateFilm(UpdateFilmCommand command);
 
   List<Film> getAllFilms();
 }

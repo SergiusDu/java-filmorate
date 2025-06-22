@@ -1,12 +1,12 @@
-package ru.yandex.practicum.filmorate.films.infrastructure.web.mapper;
+package ru.yandex.practicum.filmorate.infrastructure.web.mapper;
 
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.films.domain.model.Film;
 import ru.yandex.practicum.filmorate.films.domain.port.CreateFilmCommand;
 import ru.yandex.practicum.filmorate.films.domain.port.UpdateFilmCommand;
-import ru.yandex.practicum.filmorate.films.infrastructure.web.dto.CreateFilmRequest;
-import ru.yandex.practicum.filmorate.films.infrastructure.web.dto.FilmResponse;
-import ru.yandex.practicum.filmorate.films.infrastructure.web.dto.UpdateFilmRequest;
+import ru.yandex.practicum.filmorate.infrastructure.web.dto.CreateFilmRequest;
+import ru.yandex.practicum.filmorate.infrastructure.web.dto.FilmResponse;
+import ru.yandex.practicum.filmorate.infrastructure.web.dto.UpdateFilmRequest;
 
 import java.time.Duration;
 

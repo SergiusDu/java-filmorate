@@ -1,13 +1,13 @@
-package ru.yandex.practicum.filmorate.films.infrastructure.web.dto;
+package ru.yandex.practicum.filmorate.infrastructure.web.dto;
 
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
 import ru.yandex.practicum.filmorate.common.validation.ValidReleaseDate;
 
 import java.time.LocalDate;
 
-public record CreateFilmRequest(@NotBlank(message = "Name cannot be empty")
+public record UpdateFilmRequest(@NotNull(message = "Film ID cannot be null")
+                                Long id,
+                                @NotNull(message = "Name cannot be null")
                                 String name,
 
                                 @NotNull(message = "Description cannot be null")
@@ -18,5 +18,5 @@ public record CreateFilmRequest(@NotBlank(message = "Name cannot be empty")
                                                             "and today")
                                 LocalDate releaseDate,
 
-                                @Positive(message = "Duration must be positive")
+                                @NotNull(message = "Duration cannot be null")
                                 long duration) {}

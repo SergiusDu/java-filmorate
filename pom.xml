@@ -26,6 +26,7 @@
         <module>films</module>
         <module>users</module>
         <module>filmorate-app</module>
+        <module>friendships</module>
     </modules>
 
     <dependencyManagement>
@@ -43,6 +44,11 @@
             <dependency>
                 <groupId>ru.yandex.practicum</groupId>
                 <artifactId>users</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ru.yandex.practicum</groupId>
+                <artifactId>friendships</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

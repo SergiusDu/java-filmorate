@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.films.web.dto;
+package ru.yandex.practicum.filmorate.infrastructure.web.dto;
 
 import java.time.LocalDate;
 

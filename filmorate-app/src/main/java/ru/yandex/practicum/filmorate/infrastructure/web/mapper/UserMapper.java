@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.films.web.mapper;
+package ru.yandex.practicum.filmorate.infrastructure.web.mapper;
 
 
 import org.springframework.stereotype.Component;
@@ -7,9 +7,9 @@ import ru.yandex.practicum.filmorate.films.domain.model.value.Email;
 import ru.yandex.practicum.filmorate.films.domain.model.value.Login;
 import ru.yandex.practicum.filmorate.films.domain.port.CreateUserCommand;
 import ru.yandex.practicum.filmorate.films.domain.port.UpdateUserCommand;
-import ru.yandex.practicum.filmorate.films.web.dto.CreateUserRequest;
-import ru.yandex.practicum.filmorate.films.web.dto.UpdateUserRequest;
-import ru.yandex.practicum.filmorate.films.web.dto.UserResponse;
+import ru.yandex.practicum.filmorate.infrastructure.web.dto.CreateUserRequest;
+import ru.yandex.practicum.filmorate.infrastructure.web.dto.UpdateUserRequest;
+import ru.yandex.practicum.filmorate.infrastructure.web.dto.UserResponse;
 
 @Component
 public class UserMapper {

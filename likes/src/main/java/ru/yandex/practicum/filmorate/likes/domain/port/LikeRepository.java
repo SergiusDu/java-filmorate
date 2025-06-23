@@ -1,4 +1,4 @@
-package domain.port;
+package ru.yandex.practicum.filmorate.likes.domain.port;
 
 import java.util.LinkedHashSet;
 import java.util.Set;

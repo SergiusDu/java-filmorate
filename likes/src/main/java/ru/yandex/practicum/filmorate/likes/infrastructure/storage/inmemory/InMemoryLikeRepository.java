@@ -1,8 +1,8 @@
 package ru.yandex.practicum.filmorate.likes.infrastructure.storage.inmemory;
 
-import domain.model.FilmLikeCount;
-import domain.port.LikeRepository;
 import org.springframework.stereotype.Repository;
+import ru.yandex.practicum.filmorate.likes.domain.model.FilmLikeCount;
+import ru.yandex.practicum.filmorate.likes.domain.port.LikeRepository;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;

@@ -1,10 +1,10 @@
 package ru.yandex.practicum.filmorate.likes.infrastructure.storage.inmemory;
 
-import domain.port.LikeRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import ru.yandex.practicum.filmorate.likes.domain.port.LikeRepository;
 
 import java.util.Set;
 

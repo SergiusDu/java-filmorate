@@ -1,10 +1,10 @@
 package ru.yandex.practicum.filmorate.likes.application.service;
 
-import domain.port.LikeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.common.exception.ValidationException;
 import ru.yandex.practicum.filmorate.likes.application.port.in.LikeUseCase;
+import ru.yandex.practicum.filmorate.likes.domain.port.LikeRepository;
 
 import java.util.Set;
 

@@ -16,10 +16,12 @@ public class InMemoryFriendshipRepository implements FriendshipRepository {
   private final Graph<Long, DefaultEdge> friendshipGraph =
       new AsSynchronizedGraph<>(new SimpleGraph<>(DefaultEdge.class));
 
+  @Override
   public boolean addUser(long userId) {
     return friendshipGraph.addVertex(userId);
   }
 
+  @Override
   public boolean deleteUser(long userId) {
     return friendshipGraph.removeVertex(userId);
   }

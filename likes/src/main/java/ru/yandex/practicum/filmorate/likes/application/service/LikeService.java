@@ -11,7 +11,7 @@ import java.util.Set;
 @RequiredArgsConstructor
 @Service
 public class LikeService implements LikeUseCase {
-  LikeRepository likeRepository;
+  private final LikeRepository likeRepository;
 
   @Override
   public boolean addLike(long filmId, long userId) {

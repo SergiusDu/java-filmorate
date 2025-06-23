@@ -10,6 +10,7 @@ import ru.yandex.practicum.filmorate.films.domain.port.UpdateFilmCommand;
 import ru.yandex.practicum.filmorate.films.domain.service.FilmValidationService;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 
@@ -29,6 +30,11 @@ public class FilmService implements FilmUseCase {
   public Film updateFilm(UpdateFilmCommand command) {
     filmValidationService.validate(command);
     return filmRepository.update(command);
+  }
+
+  @Override
+  public Optional<Film> findFilmById(long filmId) {
+    return filmRepository.findById(filmId);
   }
 
   @Override

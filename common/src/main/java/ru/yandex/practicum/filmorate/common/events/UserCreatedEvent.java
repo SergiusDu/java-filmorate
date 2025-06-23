@@ -1,16 +1,22 @@
 package ru.yandex.practicum.filmorate.common.events;
 
+import lombok.Getter;
+import org.springframework.context.ApplicationEvent;
+
 import java.time.Clock;
 
-public class UserCreatedEvent extends AbstractUserEvent {
-  public UserCreatedEvent(Object source, Long userId) {
-    super(source,
-          userId);
+@Getter
+public class UserCreatedEvent extends ApplicationEvent {
+  private final long userId;
+
+  public UserCreatedEvent(Object source, long userId) {
+    super(source);
+    this.userId = userId;
   }
 
-  public UserCreatedEvent(Object source, Clock clock, Long userId) {
+  public UserCreatedEvent(Object source, Clock clock, long userId) {
     super(source,
-          clock,
-          userId);
+          clock);
+    this.userId = userId;
   }
 }

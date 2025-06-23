@@ -27,8 +27,6 @@ public class FilmCompositionService {
 
   public Film createFilm(CreateFilmCommand command) {
     return filmUseCase.addFilm(command);
-
-
   }
 
   public Film updateFilm(UpdateFilmCommand command) {

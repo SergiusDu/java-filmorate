@@ -62,4 +62,14 @@ public abstract class AbstractInMemoryRepository<T, C, U> {
               .filter(Objects::nonNull)
               .toList();
   }
+
+  public List<T> getByIds(Set<Long> ids) {
+    if (ids == null)
+      return List.of();
+    return ids.stream()
+              .toList()
+              .stream()
+              .map(storage::get)
+              .toList();
+  }
 }

@@ -6,7 +6,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -60,7 +59,7 @@ class InMemoryLikeRepositoryTest {
       likeRepository.addLike(2L,
                              100L);
 
-      List<Long> popular = likeRepository.getPopularFilmIds(2);
+      Set<Long> popular = likeRepository.getPopularFilmIds(2);
       assertThat(popular).containsExactly(1L,
                                           2L);
     }
@@ -111,10 +110,10 @@ class InMemoryLikeRepositoryTest {
       likeRepository.removeLike(1L,
                                 100L);
 
-      List<Long> popular = likeRepository.getPopularFilmIds(2);
+      Set<Long> popular = likeRepository.getPopularFilmIds(2);
       assertThat(popular).containsExactly(1L,
                                           2L);
-      assertThat(popular.get(0)).isEqualTo(1L);
+      assertThat(popular.contains(1L)).isTrue();
     }
 
     @Test
@@ -125,7 +124,7 @@ class InMemoryLikeRepositoryTest {
       likeRepository.removeLike(1L,
                                 100L);
 
-      List<Long> popular = likeRepository.getPopularFilmIds(1);
+      Set<Long> popular = likeRepository.getPopularFilmIds(1);
       assertThat(popular).isEmpty();
     }
   }
@@ -137,7 +136,7 @@ class InMemoryLikeRepositoryTest {
     @Test
     @DisplayName("Should return an empty list when no films have likes")
     void shouldReturnEmptyListWhenNoLikes() {
-      List<Long> popular = likeRepository.getPopularFilmIds(10);
+      Set<Long> popular = likeRepository.getPopularFilmIds(10);
       assertThat(popular).isNotNull()
                          .isEmpty();
     }
@@ -160,7 +159,7 @@ class InMemoryLikeRepositoryTest {
       likeRepository.addLike(30L,
                              2L);
 
-      List<Long> popular = likeRepository.getPopularFilmIds(3);
+      Set<Long> popular = likeRepository.getPopularFilmIds(3);
       assertThat(popular).containsExactly(20L,
                                           30L,
                                           10L);
@@ -179,7 +178,7 @@ class InMemoryLikeRepositoryTest {
       likeRepository.addLike(5L,
                              2L);
 
-      List<Long> popular = likeRepository.getPopularFilmIds(2);
+      Set<Long> popular = likeRepository.getPopularFilmIds(2);
       assertThat(popular).containsExactly(5L,
                                           10L);
     }
@@ -194,7 +193,7 @@ class InMemoryLikeRepositoryTest {
       likeRepository.addLike(3L,
                              1L);
 
-      List<Long> popular = likeRepository.getPopularFilmIds(2);
+      Set<Long> popular = likeRepository.getPopularFilmIds(2);
       assertThat(popular).hasSize(2);
     }
 
@@ -206,7 +205,7 @@ class InMemoryLikeRepositoryTest {
       likeRepository.addLike(2L,
                              1L);
 
-      List<Long> popular = likeRepository.getPopularFilmIds(10);
+      Set<Long> popular = likeRepository.getPopularFilmIds(10);
       assertThat(popular).hasSize(2);
     }
 
@@ -215,7 +214,7 @@ class InMemoryLikeRepositoryTest {
     void shouldReturnEmptyForCountZero() {
       likeRepository.addLike(1L,
                              1L);
-      List<Long> popular = likeRepository.getPopularFilmIds(0);
+      Set<Long> popular = likeRepository.getPopularFilmIds(0);
       assertThat(popular).isEmpty();
     }
 

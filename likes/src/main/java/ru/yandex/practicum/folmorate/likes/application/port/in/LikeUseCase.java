@@ -1,6 +1,5 @@
 package ru.yandex.practicum.folmorate.likes.application.port.in;
 
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -25,10 +24,10 @@ public interface LikeUseCase {
   /**
    Gets IDs of most popular films based on number of likes
    @param count number of film IDs to return
-   @return list of film IDs sorted by popularity (most likes first)
+   @return {@link Set} of film IDs sorted by popularity (most likes first)
    @throws ru.yandex.practicum.filmorate.common.exception.ValidationException if count is negative
    */
-  List<Long> getPopularFilmIds(int count);
+  Set<Long> getPopularFilmIds(int count);
 
   /**
    Finds all users who liked a specific film

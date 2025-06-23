@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.common.exception.ValidationException;
 import ru.yandex.practicum.folmorate.likes.application.port.in.LikeUseCase;
 
-import java.util.List;
 import java.util.Set;
 
 @RequiredArgsConstructor
@@ -28,7 +27,7 @@ public class LikeService implements LikeUseCase {
   }
 
   @Override
-  public List<Long> getPopularFilmIds(int count) {
+  public Set<Long> getPopularFilmIds(int count) {
     if (count < 0)
       throw new ValidationException("Count parameter cannot be negative");
     return likeRepository.getPopularFilmIds(count);

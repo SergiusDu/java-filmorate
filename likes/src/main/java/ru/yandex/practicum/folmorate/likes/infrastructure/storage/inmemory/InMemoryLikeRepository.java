@@ -9,6 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.stream.Collectors;
 
 @Repository
 public class InMemoryLikeRepository implements LikeRepository {
@@ -80,19 +81,18 @@ public class InMemoryLikeRepository implements LikeRepository {
   }
 
   @Override
-  public List<Long> getPopularFilmIds(int count) {
+  public LinkedHashSet<Long> getPopularFilmIds(int count) {
     lock.readLock()
         .lock();
     try {
       return popularFilmsIndex.stream()
                               .limit(count)
                               .map(FilmLikeCount::filmId)
-                              .toList();
+                              .collect(Collectors.toCollection(LinkedHashSet::new));
     } finally {
       lock.readLock()
           .unlock();
     }
-
   }
 
   @Override

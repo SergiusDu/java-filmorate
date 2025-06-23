@@ -5,6 +5,7 @@ import ru.yandex.practicum.filmorate.films.domain.port.CreateFilmCommand;
 import ru.yandex.practicum.filmorate.films.domain.port.UpdateFilmCommand;
 
 import java.util.List;
+import java.util.Set;
 
 public interface FilmUseCase {
   Film addFilm(CreateFilmCommand command);
@@ -12,4 +13,6 @@ public interface FilmUseCase {
   Film updateFilm(UpdateFilmCommand command);
 
   List<Film> getAllFilms();
+
+  List<Film> getFilmsByIds(Set<Long> ids);
 }

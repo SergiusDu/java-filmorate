@@ -1,6 +1,6 @@
 package domain.port;
 
-import java.util.List;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
@@ -25,9 +25,9 @@ public interface LikeRepository {
   /**
    Get IDs of most popular films based on number of likes
    @param count number of film IDs to return
-   @return list of film IDs sorted by popularity (most likes first)
+   @return {@link Set} of film IDs sorted by popularity (most likes first)
    */
-  List<Long> getPopularFilmIds(int count);
+  LinkedHashSet<Long> getPopularFilmIds(int count);
 
   /**
    Find all users who liked a specific film

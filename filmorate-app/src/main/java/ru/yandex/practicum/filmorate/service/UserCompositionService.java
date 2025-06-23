@@ -18,11 +18,18 @@ public class UserCompositionService {
   private final FriendshipsUseCase friendshipsUseCase;
 
   public List<User> getFriendsOfUser(long userId) {
+    validateUserExists(userId);
     Set<Long> friendsIds = friendshipsUseCase.getFriends(userId);
     if (friendsIds.isEmpty())
       return Collections.emptyList();
 
     return userUseCase.findUsersByIds(friendsIds);
+  }
+
+  private void validateUserExists(long userId) {
+    if (userUseCase.findUserById(userId)
+                   .isEmpty())
+      throw new ResourceNotFoundException("User with id " + userId + " not found.");
   }
 
   public List<User> getMutualFriends(long userId, long friendId) {

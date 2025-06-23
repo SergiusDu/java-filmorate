@@ -14,6 +14,7 @@ import ru.yandex.practicum.filmorate.films.domain.port.UpdateUserCommand;
 import ru.yandex.practicum.filmorate.films.domain.port.UserRepository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Slf4j
@@ -48,6 +49,11 @@ public class UserService implements UserUseCase {
   @Override
   public List<User> getAllUsers() {
     return userRepository.findAll();
+  }
+
+  @Override
+  public Optional<User> findUserById(long userId) {
+    return userRepository.findById(userId);
   }
 
   @Override

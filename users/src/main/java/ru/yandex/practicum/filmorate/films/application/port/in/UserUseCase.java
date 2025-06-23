@@ -6,6 +6,7 @@ import ru.yandex.practicum.filmorate.films.domain.port.CreateUserCommand;
 import ru.yandex.practicum.filmorate.films.domain.port.UpdateUserCommand;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 public interface UserUseCase {
@@ -14,6 +15,8 @@ public interface UserUseCase {
   User updateUser(UpdateUserCommand user);
 
   List<User> getAllUsers();
+
+  Optional<User> findUserById(long userId);
 
   List<User> findUsersByIds(Set<Long> ids);
 }

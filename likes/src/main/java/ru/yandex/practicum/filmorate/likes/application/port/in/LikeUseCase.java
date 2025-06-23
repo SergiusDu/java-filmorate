@@ -1,4 +1,4 @@
-package ru.yandex.practicum.folmorate.likes.application.port.in;
+package ru.yandex.practicum.filmorate.likes.application.port.in;
 
 import java.util.Set;
 

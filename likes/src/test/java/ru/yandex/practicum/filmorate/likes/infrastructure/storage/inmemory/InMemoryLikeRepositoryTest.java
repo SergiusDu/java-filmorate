@@ -1,4 +1,4 @@
-package ru.yandex.practicum.folmorate.likes.infrastructure.storage.inmemory;
+package ru.yandex.practicum.filmorate.likes.infrastructure.storage.inmemory;
 
 import domain.port.LikeRepository;
 import org.junit.jupiter.api.BeforeEach;

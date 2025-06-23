@@ -7,7 +7,7 @@ import ru.yandex.practicum.filmorate.films.domain.model.Film;
 import ru.yandex.practicum.filmorate.films.domain.port.CreateFilmCommand;
 import ru.yandex.practicum.filmorate.films.domain.port.UpdateFilmCommand;
 import ru.yandex.practicum.filmorate.infrastructure.web.mapper.FilmMapper;
-import ru.yandex.practicum.folmorate.likes.application.port.in.LikeUseCase;
+import ru.yandex.practicum.filmorate.likes.application.port.in.LikeUseCase;
 
 import java.util.List;
 

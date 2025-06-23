@@ -1,4 +1,4 @@
-package ru.yandex.practicum.folmorate.likes.infrastructure.storage.inmemory;
+package ru.yandex.practicum.filmorate.likes.infrastructure.storage.inmemory;
 
 import domain.model.FilmLikeCount;
 import domain.port.LikeRepository;

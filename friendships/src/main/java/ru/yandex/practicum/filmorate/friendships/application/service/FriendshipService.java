@@ -32,7 +32,7 @@ public class FriendshipService implements FriendshipsUseCase {
 
   @Override
   public Set<Long> getFriends(long userId) {
-    return Set.of();
+    return friendshipRepository.findFriendsById(userId);
   }
 
   @Override

@@ -20,14 +20,15 @@ public class FilmCompositionService {
   private final LikeUseCase likeService;
   private final UserUseCase userUseCase;
 
+
   public List<Film> getAllFilms() {
-    return filmUseCase.getAllFilms()
-                      .stream()
-                      .toList();
+    return filmUseCase.getAllFilms();
   }
 
   public Film createFilm(CreateFilmCommand command) {
     return filmUseCase.addFilm(command);
+
+
   }
 
   public Film updateFilm(UpdateFilmCommand command) {

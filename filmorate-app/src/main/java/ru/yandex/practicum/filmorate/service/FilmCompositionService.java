@@ -14,9 +14,9 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class FilmCompositionService {
-  FilmUseCase filmUseCase;
-  LikeUseCase likeService;
-  FilmMapper filmMapper;
+  private final FilmUseCase filmUseCase;
+  private final LikeUseCase likeService;
+  private final FilmMapper filmMapper;
 
   public List<Film> getAllFilms() {
     return filmUseCase.getAllFilms()

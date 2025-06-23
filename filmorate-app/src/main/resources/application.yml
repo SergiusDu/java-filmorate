@@ -3,6 +3,14 @@ spring:
     virtual:
       enabled: true
 
+logging:
+  level:
+    org.zalando.logbook: TRACE
+
+logbook:
+  format:
+    style: json
+
 server:
   port: 8080
 validation:

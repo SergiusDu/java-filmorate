@@ -14,7 +14,7 @@ import java.time.LocalDate;
  @param email Email address of the user (validated format)
  @param login Login name of the user (validated format)
  @param birthday Birthdate of the user */
-public record User(int id,
+public record User(long id,
                    Email email,
                    Login login,
                    String name,

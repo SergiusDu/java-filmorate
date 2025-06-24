@@ -8,11 +8,10 @@ import ru.yandex.practicum.filmorate.films.domain.port.CreateFilmCommand;
 import ru.yandex.practicum.filmorate.films.domain.port.FilmRepository;
 import ru.yandex.practicum.filmorate.films.domain.port.UpdateFilmCommand;
 import ru.yandex.practicum.filmorate.films.domain.service.FilmValidationService;
-import ru.yandex.practicum.filmorate.films.infrastructure.web.dto.CreateFilmRequest;
-import ru.yandex.practicum.filmorate.films.infrastructure.web.dto.UpdateFilmRequest;
-import ru.yandex.practicum.filmorate.films.infrastructure.web.mapper.FilmMapper;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 
 @Service
@@ -20,24 +19,31 @@ import java.util.List;
 public class FilmService implements FilmUseCase {
   final FilmRepository filmRepository;
   private final FilmValidationService filmValidationService;
-  private final FilmMapper mapper;
 
   @Override
-  public Film addFilm(CreateFilmRequest request) {
-    CreateFilmCommand createFilmCommand = mapper.toCommand(request);
-    filmValidationService.validate(createFilmCommand);
-    return filmRepository.save(createFilmCommand);
+  public Film addFilm(CreateFilmCommand command) {
+    filmValidationService.validate(command);
+    return filmRepository.save(command);
   }
 
   @Override
-  public Film updateFilm(UpdateFilmRequest request) {
-    UpdateFilmCommand updateFilmCommand = mapper.toCommand(request);
-    filmValidationService.validate(updateFilmCommand);
-    return filmRepository.update(updateFilmCommand);
+  public Film updateFilm(UpdateFilmCommand command) {
+    filmValidationService.validate(command);
+    return filmRepository.update(command);
+  }
+
+  @Override
+  public Optional<Film> findFilmById(long filmId) {
+    return filmRepository.findById(filmId);
   }
 
   @Override
   public List<Film> getAllFilms() {
     return filmRepository.findAll();
+  }
+
+  @Override
+  public List<Film> getFilmsByIds(Set<Long> ids) {
+    return filmRepository.getByIds(ids);
   }
 }

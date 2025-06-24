@@ -1,7 +1,18 @@
-server:
-  port: 8088
+spring:
+  threads:
+    virtual:
+      enabled: true
 
 logging:
   level:
+    org.zalando.logbook: TRACE
     ru.yandex.practicum.filmorate: DEBUG
     org.springframework.web: DEBUG
+
+logbook:
+  format:
+    style: json
+
+server:
+  port: 8088
+

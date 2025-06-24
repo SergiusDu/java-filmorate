@@ -3,12 +3,12 @@ package ru.yandex.practicum.filmorate.common.exception;
 /**
  Base class for service-related exceptions in the application. Extends RuntimeException to allow unchecked exception
  handling. */
-public abstract class ValidationException extends RuntimeException {
+public class ValidationException extends RuntimeException {
   /**
    Constructs a new service exception with the specified detail message.
    @param message the detail message
    */
-  protected ValidationException(String message) {
+  public ValidationException(String message) {
     super(message);
   }
 
@@ -17,7 +17,7 @@ public abstract class ValidationException extends RuntimeException {
    @param message the detail message
    @param cause the cause of the exception
    */
-  protected ValidationException(String message, Throwable cause) {
+  public ValidationException(String message, Throwable cause) {
     super(message,
           cause);
   }
@@ -26,7 +26,7 @@ public abstract class ValidationException extends RuntimeException {
    Constructs a new service exception with the specified cause.
    @param cause the cause of the exception
    */
-  protected ValidationException(Throwable cause) {
+  public ValidationException(Throwable cause) {
     super(cause);
   }
 
@@ -38,10 +38,7 @@ public abstract class ValidationException extends RuntimeException {
    @param enableSuppression whether suppression is enabled or disabled
    @param writableStackTrace whether the stack trace should be writable
    */
-  protected ValidationException(String message,
-                                Throwable cause,
-                                boolean enableSuppression,
-                                boolean writableStackTrace) {
+  public ValidationException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
     super(message,
           cause,
           enableSuppression,

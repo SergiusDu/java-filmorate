@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class FilmTest {
 
-  private int validId;
+  private long validId;
   private String validName;
   private String validDescription;
   private LocalDate validReleaseDate;

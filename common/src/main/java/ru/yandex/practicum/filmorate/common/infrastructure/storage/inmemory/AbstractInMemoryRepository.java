@@ -4,24 +4,22 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import ru.yandex.practicum.filmorate.common.exception.ResourceNotFoundException;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
 @Slf4j
 @RequiredArgsConstructor
 public abstract class AbstractInMemoryRepository<T, C, U> {
-  protected final ConcurrentHashMap<Integer, T> storage = new ConcurrentHashMap<>();
-  private final AtomicInteger idGenerator = new AtomicInteger(0);
+  protected final ConcurrentHashMap<Long, T> storage = new ConcurrentHashMap<>();
+  private final AtomicLong idGenerator = new AtomicLong(0);
 
-  private final BiFunction<Integer, C, T> createBuilder;
+  private final BiFunction<Long, C, T> createBuilder;
   private final Function<U, T> updateBuilder;
-  private final Function<U, Integer> updateIdExtractor;
-  private final Function<T, Integer> entityIdExtractor;
+  private final Function<U, Long> updateIdExtractor;
+  private final Function<T, Long> entityIdExtractor;
 
   public final T save(C createCommand) {
     T value = createBuilder.apply(generateNextId(),
@@ -31,7 +29,7 @@ public abstract class AbstractInMemoryRepository<T, C, U> {
     return value;
   }
 
-  public final Integer generateNextId() {
+  public final Long generateNextId() {
     return idGenerator.incrementAndGet();
   }
 
@@ -40,7 +38,7 @@ public abstract class AbstractInMemoryRepository<T, C, U> {
   }
 
   public final T update(U updateCommand) {
-    Integer id = updateIdExtractor.apply(updateCommand);
+    Long id = updateIdExtractor.apply(updateCommand);
     if (!storage.containsKey(id)) {
       String errorMessage = "Entity with id " + id + " not found";
       log.warn(errorMessage);
@@ -52,7 +50,26 @@ public abstract class AbstractInMemoryRepository<T, C, U> {
     return value;
   }
 
-  public final Optional<T> findById(int id) {
+  public final Optional<T> findById(long id) {
     return Optional.ofNullable(storage.get(id));
+  }
+
+  public final List<T> findByIds(Set<Long> ids) {
+    if (ids == null || ids.isEmpty())
+      return List.of();
+    return ids.stream()
+              .map(storage::get)
+              .filter(Objects::nonNull)
+              .toList();
+  }
+
+  public List<T> getByIds(Set<Long> ids) {
+    if (ids == null)
+      return List.of();
+    return ids.stream()
+              .toList()
+              .stream()
+              .map(storage::get)
+              .toList();
   }
 }

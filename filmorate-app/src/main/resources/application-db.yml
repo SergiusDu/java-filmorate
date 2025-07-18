@@ -13,7 +13,9 @@ spring:
   main:
     banner-mode: off
 
-
+server:
+  port: 8080
+  
 logging:
   level:
     org.zalando.logbook: WARN

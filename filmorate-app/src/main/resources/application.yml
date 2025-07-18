@@ -19,7 +19,7 @@ logging:
 
 
 server:
-  port: 8088
+  port: 8080
 
 validation:
   film:

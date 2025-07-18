@@ -57,7 +57,9 @@ public class FilmMapper {
                             film.description(),
                             film.releaseDate(),
                             film.duration()
-                                .toSeconds());
+                                .toSeconds(),
+                            film.genres(),
+                            film.mpa());
   }
 
   public Film toDomain(CreateFilmRequest request, long id) {

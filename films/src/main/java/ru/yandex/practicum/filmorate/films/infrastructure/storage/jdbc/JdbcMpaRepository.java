@@ -39,7 +39,7 @@ public class JdbcMpaRepository implements MpaRepository {
                                            command.name(),
                                            command.id());
     if (results.isEmpty()) {
-      throw new ResourceNotFoundException("MPA rating not found: " + command.id());
+      throw new ResourceNotFoundException("MPA mpa not found: " + command.id());
     }
     return results.get(0);
   }

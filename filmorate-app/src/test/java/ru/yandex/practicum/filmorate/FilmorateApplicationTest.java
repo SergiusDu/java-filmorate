@@ -23,7 +23,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -33,7 +32,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 })
 @Sql(scripts = "/cleanup.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 @DisplayName("Filmorate Integration Tests")
-class FilmorateApplicationTests {
+class FilmorateApplicationTest {
 
   @Autowired
   private TestRestTemplate restTemplate;
@@ -143,7 +142,7 @@ class FilmorateApplicationTests {
 
       assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
       assertThat(response.getBody()).isNotNull();
-      assertThat(response.getBody().length).isEqualTo(2);
+      assertThat(response.getBody()).hasSize(2);
     }
   }
 
@@ -321,7 +320,7 @@ class FilmorateApplicationTests {
       assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
       List<Long> popularIds = Arrays.stream(Objects.requireNonNull(response.getBody()))
                                     .map(FilmResponse::id)
-                                    .collect(Collectors.toList());
+                                    .toList();
 
       assertThat(popularIds).containsExactly(f2.id(), f3.id(), f1.id());
     }

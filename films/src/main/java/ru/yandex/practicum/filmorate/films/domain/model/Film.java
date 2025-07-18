@@ -44,7 +44,5 @@ public record Film(Long id,
                              msg -> new InvalidFilmDataException("Film genres must not be empty"));
     ValidationUtils.positive(duration,
                              msg -> new InvalidFilmDataException("Film duration must be positive"));
-    ValidationUtils.notNull(rating,
-                            msg -> new InvalidFilmDataException("Film mpa must not be null"));
   }
 }

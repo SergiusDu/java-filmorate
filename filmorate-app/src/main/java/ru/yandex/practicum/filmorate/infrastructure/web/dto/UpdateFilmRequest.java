@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.infrastructure.web.dto;
 
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import ru.yandex.practicum.filmorate.common.validation.ValidReleaseDate;
 import ru.yandex.practicum.filmorate.films.domain.model.value.Genre;
@@ -25,7 +24,6 @@ public record UpdateFilmRequest(@NotNull(message = "Film ID cannot be null")
                                 @NotNull(message = "Duration cannot be null")
                                 long duration,
 
-                                @NotEmpty(message = "Genres cannot be empty")
                                 Set<Genre> genres,
 
                                 @NotNull(message = "Rating cannot be null")

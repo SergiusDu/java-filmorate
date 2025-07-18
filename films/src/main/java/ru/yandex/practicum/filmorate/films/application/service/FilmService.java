@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.films.application.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.common.exception.ResourceNotFoundException;
 import ru.yandex.practicum.filmorate.films.application.port.in.FilmUseCase;
 import ru.yandex.practicum.filmorate.films.domain.model.Film;
 import ru.yandex.practicum.filmorate.films.domain.model.value.Genre;
@@ -25,12 +26,14 @@ public class FilmService implements FilmUseCase {
 
   @Override
   public Film addFilm(CreateFilmCommand command) {
+    validateFilmDependencies(command.genres(), command.mpa());
     filmValidationService.validate(command);
     return filmRepository.save(command);
   }
 
   @Override
   public Film updateFilm(UpdateFilmCommand command) {
+    validateFilmDependencies(command.genres(), command.mpa());
     filmValidationService.validate(command);
     return filmRepository.update(command);
   }
@@ -73,5 +76,20 @@ public class FilmService implements FilmUseCase {
   @Override
   public Optional<Mpa> getMpaById(long id) {
     return mpaRepository.findById(id);
+  }
+
+  private void validateFilmDependencies(Set<Genre> genres, Mpa mpa) {
+    if (mpa != null && mpaRepository.findById(mpa.id())
+                                    .isEmpty()) {
+      throw new ResourceNotFoundException("Mpa with id " + mpa.id() + " not found");
+    }
+    if (genres != null) {
+      for (Genre genre : genres) {
+        if (genreRepository.findById(genre.id())
+                           .isEmpty()) {
+          throw new ResourceNotFoundException("Genre with id " + genre.id() + " not found");
+        }
+      }
+    }
   }
 }

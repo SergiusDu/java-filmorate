@@ -98,20 +98,19 @@ public class JdbcFilmRepository implements FilmRepository {
     Map<Long, Set<Genre>> genresByFilmId = getGenresForFilmIds(filmIds);
 
     return rows.stream()
-               .map(row ->
-                      {
-                        long filmId = (Long) row.get("film_id");
-                        Set<Genre> genres = genresByFilmId.get(filmId);
+               .map(row -> {
+                 long filmId = (Long) row.get("film_id");
+                 Set<Genre> genres = genresByFilmId.get(filmId);
 
-                        if (genres == null || genres.isEmpty()) {
-                          return null;
-                        }
+                 if (genres == null || genres.isEmpty()) {
+                   return null;
+                 }
 
-                        return new Film(filmId, (String) row.get("name"), (String) row.get("description"),
-                                        ((java.sql.Date) row.get("release_date")).toLocalDate(),
-                                        Duration.ofMinutes((Integer) row.get("duration")), genres,
-                                        new Mpa((Long) row.get("mpa_id"), (String) row.get("mpa_name")));
-                      })
+                 return new Film(filmId, (String) row.get("name"), (String) row.get("description"),
+                                 ((java.sql.Date) row.get("release_date")).toLocalDate(),
+                                 Duration.ofMinutes((Integer) row.get("duration")), genres,
+                                 new Mpa((Long) row.get("mpa_id"), (String) row.get("mpa_name")));
+               })
                .filter(Objects::nonNull)
                .toList();
   }
@@ -126,13 +125,12 @@ public class JdbcFilmRepository implements FilmRepository {
                  "FROM film_genres AS fg JOIN genres AS g ON fg.genre_id = g.genre_id " + "WHERE fg.film_id IN (" +
                  inSql + ")";
 
-    jdbcTemplate.query(sql, rs ->
-      {
-        long filmId = rs.getLong("film_id");
-        Genre genre = new Genre(rs.getLong("genre_id"), rs.getString("name"));
-        genresByFilmId.computeIfAbsent(filmId, k -> new HashSet<>())
-                      .add(genre);
-      }, filmIds.toArray());
+    jdbcTemplate.query(sql, rs -> {
+      long filmId = rs.getLong("film_id");
+      Genre genre = new Genre(rs.getLong("genre_id"), rs.getString("name"));
+      genresByFilmId.computeIfAbsent(filmId, k -> new HashSet<>())
+                    .add(genre);
+    }, filmIds.toArray());
 
     return genresByFilmId;
   }

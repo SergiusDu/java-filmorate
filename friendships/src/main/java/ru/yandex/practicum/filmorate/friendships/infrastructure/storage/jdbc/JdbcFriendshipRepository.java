@@ -21,8 +21,8 @@ public class JdbcFriendshipRepository implements FriendshipRepository {
 
   private final JdbcTemplate jdbcTemplate;
 
-  private final RowMapper<FriendshipEdge> edgeRowMapper =
-      (rs, rowNum) -> new FriendshipEdge(FriendshipStatus.valueOf(rs.getString("status")));
+  private final RowMapper<FriendshipEdge> edgeRowMapper = (rs, rowNum) -> new FriendshipEdge(
+      FriendshipStatus.valueOf(rs.getString("status")));
 
   @Override
   public boolean addVertex(long sourceId) {
@@ -33,40 +33,32 @@ public class JdbcFriendshipRepository implements FriendshipRepository {
   @Override
   public boolean deleteVertex(long sourceId) {
     String sql = "DELETE FROM friendships WHERE user_id = ? OR friend_id = ?";
-    return jdbcTemplate.update(sql,
-                               sourceId,
-                               sourceId) > 0;
+    return jdbcTemplate.update(sql, sourceId, sourceId) > 0;
   }
 
   @Override
   public boolean addEdge(long sourceId, long targetId, FriendshipEdge edge) {
     String sql = "INSERT INTO friendships (user_id, friend_id, status) VALUES (?, ?, ?)";
-    return jdbcTemplate.update(sql,
-                               sourceId,
-                               targetId,
-                               edge.getStatus()
-                                   .name()) > 0;
+    return jdbcTemplate.update(sql, sourceId, targetId, edge.getStatus()
+                                                            .name()) > 0;
   }
 
   @Override
   public Optional<FriendshipEdge> removeEdge(long sourceId, long targetId) {
-    Optional<FriendshipEdge> edge = getEdge(sourceId,
-                                            targetId);
-    if (edge.isEmpty()) {
-      edge = getEdge(targetId,
-                     sourceId);
-      if (edge.isPresent()) {
-        String sql = "DELETE FROM friendships WHERE user_id = ? AND friend_id = ?";
-        jdbcTemplate.update(sql,
-                            targetId,
-                            sourceId);
-      }
-    } else {
+    Optional<FriendshipEdge> edge = getEdge(sourceId, targetId);
+
+    if (edge.isPresent()) {
       String sql = "DELETE FROM friendships WHERE user_id = ? AND friend_id = ?";
-      jdbcTemplate.update(sql,
-                          sourceId,
-                          targetId);
+      jdbcTemplate.update(sql, sourceId, targetId);
     }
+
+    Optional<FriendshipEdge> reverseEdge = getEdge(targetId, sourceId);
+    if (reverseEdge.isPresent() && reverseEdge.get()
+                                              .getStatus() == FriendshipStatus.CONFIRMED) {
+      String sql = "UPDATE friendships SET status = ? WHERE user_id = ? AND friend_id = ?";
+      jdbcTemplate.update(sql, FriendshipStatus.PENDING.name(), targetId, sourceId);
+    }
+
     return edge;
   }
 
@@ -75,20 +67,14 @@ public class JdbcFriendshipRepository implements FriendshipRepository {
     String sql = "(SELECT friend_id FROM friendships WHERE user_id = ?) " + "UNION " +
                  "(SELECT user_id FROM friendships WHERE friend_id = ? AND status = 'CONFIRMED')";
 
-    List<Long> friendIds = jdbcTemplate.queryForList(sql,
-                                                     Long.class,
-                                                     sourceId,
-                                                     sourceId);
+    List<Long> friendIds = jdbcTemplate.queryForList(sql, Long.class, sourceId, sourceId);
     return new HashSet<>(friendIds);
   }
 
   @Override
   public Optional<FriendshipEdge> getEdge(long sourceId, long targetId) {
     String sql = "SELECT * FROM friendships WHERE user_id = ? AND friend_id = ?";
-    List<FriendshipEdge> edges = jdbcTemplate.query(sql,
-                                                    edgeRowMapper,
-                                                    sourceId,
-                                                    targetId);
+    List<FriendshipEdge> edges = jdbcTemplate.query(sql, edgeRowMapper, sourceId, targetId);
     return edges.stream()
                 .findFirst();
   }

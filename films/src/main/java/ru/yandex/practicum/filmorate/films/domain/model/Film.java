@@ -35,7 +35,6 @@ public record Film(Long id,
     ValidationUtils.notBlank(description, msg -> new InvalidFilmDataException("Film description must not be blank"));
     ValidationUtils.notNull(releaseDate, msg -> new InvalidFilmDataException("Film release date must not be null"));
     ValidationUtils.notNull(duration, msg -> new InvalidFilmDataException("Film duration must not be null"));
-    ValidationUtils.notEmpty(genres, msg -> new InvalidFilmDataException("Film genres must not be empty"));
     ValidationUtils.positive(duration, msg -> new InvalidFilmDataException("Film duration must be positive"));
   }
 }

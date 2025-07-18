@@ -57,7 +57,7 @@ public class FilmMapper {
                             film.description(),
                             film.releaseDate(),
                             film.duration()
-                                .toSeconds(),
+                                .toMinutes(),
                             film.genres(),
                             film.mpa());
   }

@@ -45,7 +45,7 @@ public class JdbcMpaRepository implements MpaRepository {
   }
 
   public List<Mpa> findAll() {
-    String sql = "SELECT * FROM mpa_ratings";
+    String sql = "SELECT * FROM mpa_ratings ORDER BY mpa_id";
     return jdbcTemplate.query(sql,
                               MAP_ROW_MAPPER);
   }

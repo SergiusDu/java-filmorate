@@ -14,7 +14,7 @@ public class FilmFactory {
                     command.name(),
                     command.description(),
                     command.releaseDate(),
-                    Duration.ofSeconds(command.duration()),
+                    Duration.ofMinutes(command.duration()),
                     command.genres(),
                     command.mpa());
   }
@@ -24,7 +24,7 @@ public class FilmFactory {
                     command.name(),
                     command.description(),
                     command.releaseDate(),
-                    Duration.ofSeconds(command.duration()),
+                    Duration.ofMinutes(command.duration()),
                     command.genres(),
                     command.mpa());
   }

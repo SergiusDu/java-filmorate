@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
+import ru.yandex.practicum.filmorate.common.exception.ResourceNotFoundException;
 import ru.yandex.practicum.filmorate.films.domain.factory.FilmFactory;
 import ru.yandex.practicum.filmorate.films.domain.model.Film;
 import ru.yandex.practicum.filmorate.films.domain.model.value.Genre;
@@ -48,9 +49,13 @@ public class JdbcFilmRepository implements FilmRepository {
   public Film update(UpdateFilmCommand command) {
     String sql = "UPDATE films SET name = ?, description = ?, release_date = ?, duration = ?, mpa_id = ? " +
                  "WHERE film_id = ?";
-    jdbcTemplate.update(sql, command.name(), command.description(), command.releaseDate(), command.duration(),
-                        command.mpa()
-                               .id(), command.id());
+    int rowsAffected = jdbcTemplate.update(sql, command.name(), command.description(), command.releaseDate(),
+                                           command.duration(), command.mpa()
+                                                                      .id(), command.id());
+
+    if (rowsAffected == 0) {
+      throw new ResourceNotFoundException("Film with id " + command.id() + " not found.");
+    }
 
     updateFilmGenres(command.id(), command.genres());
     return filmFactory.update(command);
@@ -119,12 +124,12 @@ public class JdbcFilmRepository implements FilmRepository {
     String inSql = String.join(",", Collections.nCopies(filmIds.size(), "?"));
     String sql = "SELECT fg.film_id, g.genre_id, g.name " +
                  "FROM film_genres AS fg JOIN genres AS g ON fg.genre_id = g.genre_id " + "WHERE fg.film_id IN (" +
-                 inSql + ")";
+                 inSql + ") ORDER BY g.genre_id ASC";
 
     jdbcTemplate.query(sql, rs -> {
       long filmId = rs.getLong("film_id");
       Genre genre = new Genre(rs.getLong("genre_id"), rs.getString("name"));
-      genresByFilmId.computeIfAbsent(filmId, k -> new HashSet<>())
+      genresByFilmId.computeIfAbsent(filmId, k -> new LinkedHashSet<>())
                     .add(genre);
     }, filmIds.toArray());
 

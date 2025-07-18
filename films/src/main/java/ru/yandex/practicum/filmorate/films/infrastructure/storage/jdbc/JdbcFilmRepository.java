@@ -102,16 +102,12 @@ public class JdbcFilmRepository implements FilmRepository {
                  long filmId = (Long) row.get("film_id");
                  Set<Genre> genres = genresByFilmId.get(filmId);
 
-                 if (genres == null || genres.isEmpty()) {
-                   return null;
-                 }
 
                  return new Film(filmId, (String) row.get("name"), (String) row.get("description"),
                                  ((java.sql.Date) row.get("release_date")).toLocalDate(),
                                  Duration.ofMinutes((Integer) row.get("duration")), genres,
                                  new Mpa((Long) row.get("mpa_id"), (String) row.get("mpa_name")));
                })
-               .filter(Objects::nonNull)
                .toList();
   }
 

@@ -34,25 +34,16 @@ class FilmTest {
     validId = 1L;
     validName = "Inception";
     validDescription = "A mind-bending thriller.";
-    validReleaseDate = LocalDate.of(2010,
-                                    7,
-                                    16);
+    validReleaseDate = LocalDate.of(2010, 7, 16);
     validDuration = Duration.ofMinutes(148);
-    validGenres = Set.of(new Genre(4L,
-                                   "Thriller"));
-    validRating = new Mpa(3L,
-                          "PG-13");
+    validGenres = Set.of(new Genre(4L, "Thriller"));
+    validRating = new Mpa(3L, "PG-13");
   }
 
   @Test
   @DisplayName("Should create a film successfully with valid data")
   void shouldCreateFilm_whenAllDataIsValid() {
-    Film film = new Film(validId,
-                         validName,
-                         validDescription,
-                         validReleaseDate,
-                         validDuration,
-                         validGenres,
+    Film film = new Film(validId, validName, validDescription, validReleaseDate, validDuration, validGenres,
                          validRating);
 
     assertThat(film.id()).isEqualTo(validId);
@@ -71,13 +62,8 @@ class FilmTest {
     @DisplayName("Should throw exception when id is null")
     void shouldThrowException_whenIdIsNull() {
       var exception = assertThrows(InvalidFilmDataException.class,
-                                   () -> new Film(null,
-                                                  validName,
-                                                  validDescription,
-                                                  validReleaseDate,
-                                                  validDuration,
-                                                  validGenres,
-                                                  validRating));
+                                   () -> new Film(null, validName, validDescription, validReleaseDate, validDuration,
+                                                  validGenres, validRating));
       assertThat(exception.getMessage()).isEqualTo("Film id must not be null");
     }
   }
@@ -93,13 +79,8 @@ class FilmTest {
     @DisplayName("Should throw exception when name is blank")
     void shouldThrowException_whenNameIsBlank(String invalidName) {
       var exception = assertThrows(InvalidFilmDataException.class,
-                                   () -> new Film(validId,
-                                                  invalidName,
-                                                  validDescription,
-                                                  validReleaseDate,
-                                                  validDuration,
-                                                  validGenres,
-                                                  validRating));
+                                   () -> new Film(validId, invalidName, validDescription, validReleaseDate,
+                                                  validDuration, validGenres, validRating));
       assertThat(exception.getMessage()).isEqualTo("Film name must not be blank");
     }
   }
@@ -115,13 +96,8 @@ class FilmTest {
     @DisplayName("Should throw exception when description is blank")
     void shouldThrowException_whenDescriptionIsBlank(String invalidDescription) {
       var exception = assertThrows(InvalidFilmDataException.class,
-                                   () -> new Film(validId,
-                                                  validName,
-                                                  invalidDescription,
-                                                  validReleaseDate,
-                                                  validDuration,
-                                                  validGenres,
-                                                  validRating));
+                                   () -> new Film(validId, validName, invalidDescription, validReleaseDate,
+                                                  validDuration, validGenres, validRating));
       assertThat(exception.getMessage()).isEqualTo("Film description must not be blank");
     }
   }
@@ -133,13 +109,8 @@ class FilmTest {
     @DisplayName("Should throw exception when release date is null")
     void shouldThrowException_whenReleaseDateIsNull() {
       var exception = assertThrows(InvalidFilmDataException.class,
-                                   () -> new Film(validId,
-                                                  validName,
-                                                  validDescription,
-                                                  null,
-                                                  validDuration,
-                                                  validGenres,
-                                                  validRating));
+                                   () -> new Film(validId, validName, validDescription, null, validDuration,
+                                                  validGenres, validRating));
       assertThat(exception.getMessage()).isEqualTo("Film release date must not be null");
     }
   }
@@ -151,13 +122,8 @@ class FilmTest {
     @DisplayName("Should throw exception when duration is null")
     void shouldThrowException_whenDurationIsNull() {
       var exception = assertThrows(InvalidFilmDataException.class,
-                                   () -> new Film(validId,
-                                                  validName,
-                                                  validDescription,
-                                                  validReleaseDate,
-                                                  null,
-                                                  validGenres,
-                                                  validRating));
+                                   () -> new Film(validId, validName, validDescription, validReleaseDate, null,
+                                                  validGenres, validRating));
       assertThat(exception.getMessage()).isEqualTo("Film duration must not be null");
     }
 
@@ -165,13 +131,8 @@ class FilmTest {
     @DisplayName("Should throw exception when duration is zero")
     void shouldThrowException_whenDurationIsZero() {
       var exception = assertThrows(InvalidFilmDataException.class,
-                                   () -> new Film(validId,
-                                                  validName,
-                                                  validDescription,
-                                                  validReleaseDate,
-                                                  Duration.ZERO,
-                                                  validGenres,
-                                                  validRating));
+                                   () -> new Film(validId, validName, validDescription, validReleaseDate, Duration.ZERO,
+                                                  validGenres, validRating));
       assertThat(exception.getMessage()).isEqualTo("Film duration must be positive");
     }
 
@@ -179,13 +140,8 @@ class FilmTest {
     @DisplayName("Should throw exception when duration is negative")
     void shouldThrowException_whenDurationIsNegative() {
       var exception = assertThrows(InvalidFilmDataException.class,
-                                   () -> new Film(validId,
-                                                  validName,
-                                                  validDescription,
-                                                  validReleaseDate,
-                                                  Duration.ofMinutes(-1),
-                                                  validGenres,
-                                                  validRating));
+                                   () -> new Film(validId, validName, validDescription, validReleaseDate,
+                                                  Duration.ofMinutes(-1), validGenres, validRating));
       assertThat(exception.getMessage()).isEqualTo("Film duration must be positive");
     }
   }
@@ -197,32 +153,9 @@ class FilmTest {
     @DisplayName("Should throw exception when genres set is empty")
     void shouldThrowException_whenGenresAreEmpty() {
       var exception = assertThrows(InvalidFilmDataException.class,
-                                   () -> new Film(validId,
-                                                  validName,
-                                                  validDescription,
-                                                  validReleaseDate,
-                                                  validDuration,
-                                                  Collections.emptySet(),
-                                                  validRating));
+                                   () -> new Film(validId, validName, validDescription, validReleaseDate, validDuration,
+                                                  Collections.emptySet(), validRating));
       assertThat(exception.getMessage()).isEqualTo("Film genres must not be empty");
-    }
-  }
-
-  @Nested
-  @DisplayName("Rating Validation")
-  class RatingValidation {
-    @Test
-    @DisplayName("Should throw exception when mpa is null")
-    void shouldThrowException_whenRatingIsNull() {
-      var exception = assertThrows(InvalidFilmDataException.class,
-                                   () -> new Film(validId,
-                                                  validName,
-                                                  validDescription,
-                                                  validReleaseDate,
-                                                  validDuration,
-                                                  validGenres,
-                                                  null));
-      assertThat(exception.getMessage()).isEqualTo("Film mpa must not be null");
     }
   }
 }

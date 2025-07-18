@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.infrastructure.web.dto;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import ru.yandex.practicum.filmorate.common.validation.ValidReleaseDate;
@@ -25,7 +24,6 @@ public record CreateFilmRequest(@NotBlank(message = "Name cannot be empty")
                                 @Positive(message = "Duration must be positive")
                                 long duration,
 
-                                @NotEmpty(message = "Genres cannot be empty")
                                 Set<Genre> genres,
 
                                 @NotNull(message = "Rating cannot be null")

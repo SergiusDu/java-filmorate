@@ -17,4 +17,6 @@ public interface FriendshipRepository {
   Set<Long> finedEdgesByVertexId(long sourceId);
 
   Optional<FriendshipEdge> getEdge(long sourceId, long targetId);
+
+  boolean updateEdge(long sourceId, long targetId, FriendshipEdge edge);
 }

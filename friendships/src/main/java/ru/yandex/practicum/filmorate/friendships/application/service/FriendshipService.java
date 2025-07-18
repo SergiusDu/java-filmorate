@@ -23,10 +23,8 @@ public class FriendshipService implements FriendshipsUseCase {
 
   @Override
   public void addFriend(long userId, long friendId) {
-    Optional<FriendshipEdge> directEdge = friendshipRepository.getEdge(userId,
-                                                                       friendId);
-    Optional<FriendshipEdge> reversedEdge = friendshipRepository.getEdge(friendId,
-                                                                         userId);
+    Optional<FriendshipEdge> directEdge = friendshipRepository.getEdge(userId, friendId);
+    Optional<FriendshipEdge> reversedEdge = friendshipRepository.getEdge(friendId, userId);
     if (directEdge.isPresent() || reversedEdge.isPresent() && reversedEdge.get()
                                                                           .getStatus() == FriendshipStatus.CONFIRMED) {
       throw new IllegalStateException("Friendship request is pending or has confirmed status");
@@ -34,22 +32,15 @@ public class FriendshipService implements FriendshipsUseCase {
 
     if (reversedEdge.isPresent() && reversedEdge.get()
                                                 .getStatus() == FriendshipStatus.PENDING) {
-      friendshipRepository.removeEdge(userId,
-                                      friendId);
-      friendshipRepository.addEdge(friendId,
-                                   userId,
-                                   new FriendshipEdge(FriendshipStatus.CONFIRMED));
+      friendshipRepository.updateEdge(friendId, userId, new FriendshipEdge(FriendshipStatus.CONFIRMED));
     } else {
-      friendshipRepository.addEdge(userId,
-                                   friendId,
-                                   new FriendshipEdge(FriendshipStatus.PENDING));
+      friendshipRepository.addEdge(userId, friendId, new FriendshipEdge(FriendshipStatus.PENDING));
     }
   }
 
   @Override
   public void removeFriend(long userId, long friendId) {
-    friendshipRepository.removeEdge(userId,
-                                    friendId);
+    friendshipRepository.removeEdge(userId, friendId);
   }
 
   @Override

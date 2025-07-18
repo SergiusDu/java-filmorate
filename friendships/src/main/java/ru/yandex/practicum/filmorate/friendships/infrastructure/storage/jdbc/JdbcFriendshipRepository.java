@@ -78,4 +78,11 @@ public class JdbcFriendshipRepository implements FriendshipRepository {
     return edges.stream()
                 .findFirst();
   }
+
+  @Override
+  public boolean updateEdge(long sourceId, long targetId, FriendshipEdge edge) {
+    String sql = "UPDATE friendships SET status = ? WHERE user_id = ? AND friend_id = ?";
+    return jdbcTemplate.update(sql, edge.getStatus()
+                                        .name(), sourceId, targetId) > 0;
+  }
 }

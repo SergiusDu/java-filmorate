@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.likes.infrastructure.storage.inmemory;
 
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.likes.domain.model.FilmLikeCount;
 import ru.yandex.practicum.filmorate.likes.domain.port.LikeRepository;
@@ -12,6 +13,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Collectors;
 
 @Repository
+@Profile("in-memory")
 public class InMemoryLikeRepository implements LikeRepository {
   private final Map<Long, Set<Long>> likesByFilm = new ConcurrentHashMap<>();
   private final TreeSet<FilmLikeCount> popularFilmsIndex;

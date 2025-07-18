@@ -8,9 +8,9 @@ import java.util.Optional;
 
 @Component
 public interface MpaRepository {
-  Mpa save(CreateGenreCommand command);
+  Mpa save(CreateMpaCommand command);
 
-  Mpa update(UpdateGenreCommand command);
+  Mpa update(UpdateMpaCommand command);
 
   List<Mpa> findAll();
 

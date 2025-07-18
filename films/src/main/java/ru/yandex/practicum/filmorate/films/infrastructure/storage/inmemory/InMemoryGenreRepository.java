@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.films.infrastructure.storage.inmemory;
 
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.common.infrastructure.storage.inmemory.AbstractInMemoryRepository;
 import ru.yandex.practicum.filmorate.films.domain.factory.GenreFactory;
@@ -9,6 +10,7 @@ import ru.yandex.practicum.filmorate.films.domain.port.GenreRepository;
 import ru.yandex.practicum.filmorate.films.domain.port.UpdateGenreCommand;
 
 @Repository
+@Profile("in-memory")
 public class InMemoryGenreRepository extends AbstractInMemoryRepository<Genre, CreateGenreCommand,
     UpdateGenreCommand> implements GenreRepository {
 

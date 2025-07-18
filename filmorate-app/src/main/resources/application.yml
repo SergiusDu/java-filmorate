@@ -2,17 +2,21 @@ spring:
   threads:
     virtual:
       enabled: true
+  profiles:
+    active: db
+  config:
+    import: "optional:application-db.yml,optional:application-in-memory.yml" # Импортируем конфигурации профилей
 
 logging:
   level:
     org.zalando.logbook: TRACE
-
-logbook:
-  format:
-    style: json
+    org.springframework.web: DEBUG
+    ru.yandex.practicum.filmorate: DEBUG
+    org.springframework.jdbc: DEBUG
 
 server:
-  port: 8080
+  port: 8088
+
 validation:
   film:
     description:

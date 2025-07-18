@@ -4,6 +4,7 @@ import org.jgrapht.Graph;
 import org.jgrapht.Graphs;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.concurrent.AsSynchronizedGraph;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.friendships.domain.model.FriendshipEdge;
 import ru.yandex.practicum.filmorate.friendships.domain.port.FriendshipRepository;
@@ -13,6 +14,7 @@ import java.util.Optional;
 import java.util.Set;
 
 @Repository
+@Profile("in-memory")
 public class InMemoryFriendshipRepository implements FriendshipRepository {
   private final Graph<Long, FriendshipEdge> friendshipGraph =
       new AsSynchronizedGraph<>(new DefaultDirectedGraph<>(FriendshipEdge.class));

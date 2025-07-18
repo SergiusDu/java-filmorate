@@ -1,15 +1,20 @@
 package ru.yandex.practicum.filmorate.friendships.domain.port;
 
+import ru.yandex.practicum.filmorate.friendships.domain.model.FriendshipEdge;
+
+import java.util.Optional;
 import java.util.Set;
 
 public interface FriendshipRepository {
-  boolean addUser(long userId);
+  boolean addVertex(long sourceId);
 
-  boolean deleteUser(long userId);
+  boolean deleteVertex(long sourceId);
 
-  void addFriend(long userId, long friendId);
+  boolean addEdge(long sourceId, long targetId, FriendshipEdge edge);
 
-  void removeFriend(long userId, long friendId);
+  Optional<FriendshipEdge> removeEdge(long sourceId, long targetId);
 
-  Set<Long> findFriendsById(long userId);
+  Set<Long> finedEdgesByVertexId(long sourceId);
+
+  Optional<FriendshipEdge> getEdge(long sourceId, long targetId);
 }

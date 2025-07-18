@@ -1,6 +1,8 @@
 package ru.yandex.practicum.filmorate.films.application.port.in;
 
 import ru.yandex.practicum.filmorate.films.domain.model.Film;
+import ru.yandex.practicum.filmorate.films.domain.model.value.Genre;
+import ru.yandex.practicum.filmorate.films.domain.model.value.Mpa;
 import ru.yandex.practicum.filmorate.films.domain.port.CreateFilmCommand;
 import ru.yandex.practicum.filmorate.films.domain.port.UpdateFilmCommand;
 
@@ -18,4 +20,12 @@ public interface FilmUseCase {
   List<Film> getAllFilms();
 
   List<Film> getFilmsByIds(Set<Long> ids);
+
+  List<Genre> getGeners();
+
+  Optional<Genre> getGenreById(long id);
+
+  List<Mpa> getMpas();
+
+  Optional<Mpa> getMpaById(long id);
 }

@@ -16,7 +16,9 @@ public class FilmMapper {
     return new CreateFilmCommand(request.name(),
                                  request.description(),
                                  request.releaseDate(),
-                                 request.duration());
+                                 request.duration(),
+                                 request.genres(),
+                                 request.mpa());
   }
 
   public UpdateFilmCommand toCommand(UpdateFilmRequest request) {
@@ -24,7 +26,9 @@ public class FilmMapper {
                                  request.name(),
                                  request.description(),
                                  request.releaseDate(),
-                                 request.duration());
+                                 request.duration(),
+                                 request.genres(),
+                                 request.mpa());
   }
 
   public Film fromCommand(Long id, CreateFilmCommand command) {
@@ -32,7 +36,9 @@ public class FilmMapper {
                     command.name(),
                     command.description(),
                     command.releaseDate(),
-                    Duration.ofSeconds(command.duration()));
+                    Duration.ofSeconds(command.duration()),
+                    command.genres(),
+                    command.mpa());
   }
 
   public Film fromCommand(UpdateFilmCommand command) {
@@ -40,7 +46,9 @@ public class FilmMapper {
                     command.name(),
                     command.description(),
                     command.releaseDate(),
-                    Duration.ofSeconds(command.duration()));
+                    Duration.ofSeconds(command.duration()),
+                    command.genres(),
+                    command.mpa());
   }
 
   public FilmResponse toResponse(Film film) {
@@ -57,7 +65,9 @@ public class FilmMapper {
                     request.name(),
                     request.description(),
                     request.releaseDate(),
-                    Duration.ofSeconds(request.duration()));
+                    Duration.ofSeconds(request.duration()),
+                    request.genres(),
+                    request.mpa());
   }
 
   public Film toDomain(UpdateFilmRequest request) {
@@ -65,6 +75,8 @@ public class FilmMapper {
                     request.name(),
                     request.description(),
                     request.releaseDate(),
-                    Duration.ofSeconds(request.duration()));
+                    Duration.ofSeconds(request.duration()),
+                    request.genres(),
+                    request.mpa());
   }
 }

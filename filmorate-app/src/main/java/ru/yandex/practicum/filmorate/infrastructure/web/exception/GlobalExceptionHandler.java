@@ -56,7 +56,7 @@ public class GlobalExceptionHandler {
                                    .collect(Collectors.toMap(FieldError::getField,
                                                              fieldError -> fieldError.getDefaultMessage() != null
                                                                            ? fieldError.getDefaultMessage()
-                                                                           : "Invalid value"));
+                                                                           : "Invalid name"));
     return new ResponseEntity<>(new ValidationErrorResponse(errors),
                                 HttpStatus.BAD_REQUEST);
   }

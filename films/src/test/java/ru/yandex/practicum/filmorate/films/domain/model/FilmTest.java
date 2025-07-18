@@ -52,7 +52,7 @@ class FilmTest {
     assertThat(film.releaseDate()).isEqualTo(validReleaseDate);
     assertThat(film.duration()).isEqualTo(validDuration);
     assertThat(film.genres()).isEqualTo(validGenres);
-    assertThat(film.rating()).isEqualTo(validRating);
+    assertThat(film.mpa()).isEqualTo(validRating);
   }
 
   @Nested

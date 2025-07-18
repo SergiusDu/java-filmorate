@@ -10,3 +10,15 @@ spring:
   sql:
     init:
       mode: always
+  main:
+    banner-mode: off
+
+
+logging:
+  level:
+    org.zalando.logbook: WARN
+    org.springframework.web: WARN
+    ru.yandex.practicum.filmorate: WARN
+    org.springframework.jdbc: WARN
+    org.springframework.boot: WARN
+    org.springframework: WARN

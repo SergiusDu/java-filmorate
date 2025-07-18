@@ -4,10 +4,10 @@ package ru.yandex.practicum.filmorate.infrastructure.web.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.infrastructure.web.dto.*;
+import ru.yandex.practicum.filmorate.infrastructure.web.dto.CreateFilmRequest;
+import ru.yandex.practicum.filmorate.infrastructure.web.dto.FilmResponse;
+import ru.yandex.practicum.filmorate.infrastructure.web.dto.UpdateFilmRequest;
 import ru.yandex.practicum.filmorate.infrastructure.web.mapper.FilmMapper;
-import ru.yandex.practicum.filmorate.infrastructure.web.mapper.GenreMapper;
-import ru.yandex.practicum.filmorate.infrastructure.web.mapper.MpaMapper;
 import ru.yandex.practicum.filmorate.service.FilmCompositionService;
 
 import java.util.List;
@@ -18,8 +18,6 @@ import java.util.List;
 public class FilmController {
   private final FilmCompositionService filmCompositionService;
   private final FilmMapper filmMapper;
-  private final GenreMapper genreMapper;
-  private final MpaMapper mpaMapper;
 
   @GetMapping
   public List<FilmResponse> getAllFilms() {
@@ -57,31 +55,5 @@ public class FilmController {
                                  .stream()
                                  .map(filmMapper::toResponse)
                                  .toList();
-  }
-
-  @GetMapping("/genre")
-  public List<GenreResponse> getGenres() {
-    return filmCompositionService.getGenres()
-                                 .stream()
-                                 .map(genreMapper::toResponse)
-                                 .toList();
-  }
-
-  @GetMapping("/genre/{id}")
-  public GenreResponse getGenre(@PathVariable long id) {
-    return genreMapper.toResponse(filmCompositionService.getGenreById(id));
-  }
-
-  @GetMapping("/mpa")
-  public List<MpaResponse> getMpas() {
-    return filmCompositionService.getMpas()
-                                 .stream()
-                                 .map(mpaMapper::toResponse)
-                                 .toList();
-  }
-
-  @GetMapping("/mpa/{id}")
-  public MpaResponse getMpaById(@PathVariable long id) {
-    return mpaMapper.toResponse(filmCompositionService.getMpaById(id));
   }
 }

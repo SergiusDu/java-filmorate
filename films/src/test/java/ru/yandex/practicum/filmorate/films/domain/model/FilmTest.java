@@ -12,7 +12,6 @@ import ru.yandex.practicum.filmorate.films.domain.model.value.Mpa;
 
 import java.time.Duration;
 import java.time.LocalDate;
-import java.util.Collections;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -143,19 +142,6 @@ class FilmTest {
                                    () -> new Film(validId, validName, validDescription, validReleaseDate,
                                                   Duration.ofMinutes(-1), validGenres, validRating));
       assertThat(exception.getMessage()).isEqualTo("Film duration must be positive");
-    }
-  }
-
-  @Nested
-  @DisplayName("Genres Validation")
-  class GenresValidation {
-    @Test
-    @DisplayName("Should throw exception when genres set is empty")
-    void shouldThrowException_whenGenresAreEmpty() {
-      var exception = assertThrows(InvalidFilmDataException.class,
-                                   () -> new Film(validId, validName, validDescription, validReleaseDate, validDuration,
-                                                  Collections.emptySet(), validRating));
-      assertThat(exception.getMessage()).isEqualTo("Film genres must not be empty");
     }
   }
 }

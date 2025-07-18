@@ -46,6 +46,11 @@ public class FilmService implements FilmUseCase {
   }
 
   @Override
+  public Optional<Film> getFilmById(long id) {
+    return filmRepository.findById(id);
+  }
+
+  @Override
   public List<Film> getFilmsByIds(Set<Long> ids) {
     return filmRepository.getByIds(ids);
   }

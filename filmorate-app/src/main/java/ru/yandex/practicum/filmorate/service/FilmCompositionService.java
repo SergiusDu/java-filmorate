@@ -84,4 +84,9 @@ public class FilmCompositionService {
     return filmUseCase.getMpaById(id)
                       .orElseThrow(() -> new ResourceNotFoundException("Mpa with id " + id + " not found"));
   }
+
+  public Film getFilmById(long id) {
+    return filmUseCase.findFilmById(id)
+                      .orElseThrow(() -> new ResourceNotFoundException("Film with id " + id + " not found"));
+  }
 }

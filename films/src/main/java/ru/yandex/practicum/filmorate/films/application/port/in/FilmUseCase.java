@@ -19,6 +19,8 @@ public interface FilmUseCase {
 
   List<Film> getAllFilms();
 
+  Optional<Film> getFilmById(long id);
+
   List<Film> getFilmsByIds(Set<Long> ids);
 
   List<Genre> getGeners();

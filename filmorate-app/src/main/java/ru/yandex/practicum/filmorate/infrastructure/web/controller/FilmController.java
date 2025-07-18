@@ -54,4 +54,9 @@ public class FilmController {
                                  .map(filmMapper::toResponse)
                                  .toList();
   }
+
+  @GetMapping("/{id}")
+  public FilmResponse getFilmById(@PathVariable long id) {
+    return filmMapper.toResponse(filmCompositionService.getFilmById(id));
+  }
 }

@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.films.domain.model;
 
+import lombok.Builder;
 import ru.yandex.practicum.filmorate.common.exception.InvalidFilmDataException;
 import ru.yandex.practicum.filmorate.common.validation.ValidationUtils;
 import ru.yandex.practicum.filmorate.films.domain.model.value.Genre;
@@ -10,14 +11,17 @@ import java.time.LocalDate;
 import java.util.Set;
 
 /**
- A record representing a film with validated core information.
- @param id The unique identifier for the film. Must not be null.
- @param name The title of the film. Must not be blank.
- @param description The plot summary or description of the film. Must not be blank.
- @param releaseDate The original release date of the film. Must not be null.
- @param duration The total runtime length of the film. Must not be null and must be positive.
- @param genres The set of genres classifying the film (e.g. Comedy, Drama, etc.). Optional.
- @param mpa The MPAA mpa classification of the film (G, PG, PG-13, etc.). Must not be null. */
+ Represents a film record with validated core information. This record can be constructed using a builder pattern
+ through
+ {@code @Builder} annotation. All fields are validated during construction to ensure data integrity.
+ @param id The unique identifier for the film (non-null)
+ @param name The title of the film (non-blank)
+ @param description The plot summary or description of the film (non-blank)
+ @param releaseDate The original release date of the film (non-null)
+ @param duration The total runtime length of the film (non-null, positive)
+ @param genres The set of genres classifying the film (optional)
+ @param mpa The MPAA rating classification of the film */
+@Builder
 public record Film(Long id,
                    String name,
                    String description,

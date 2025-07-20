@@ -9,7 +9,6 @@ import ru.yandex.practicum.filmorate.infrastructure.web.dto.CreateFilmRequest;
 import ru.yandex.practicum.filmorate.infrastructure.web.dto.FilmResponse;
 import ru.yandex.practicum.filmorate.infrastructure.web.dto.UpdateFilmRequest;
 
-import java.time.Duration;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -18,24 +17,21 @@ import java.util.stream.Collectors;
 @Component
 public class FilmMapper {
   public CreateFilmCommand toCommand(CreateFilmRequest request) {
-    return new CreateFilmCommand(request.name(),
-                                 request.description(),
-                                 request.releaseDate(),
-                                 request.duration(),
-                                 request.genres(),
-                                 request.mpa());
+    return new CreateFilmCommand(request.name(), request.description(), request.releaseDate(), request.duration(),
+                                 request.genres(), request.mpa());
   }
 
   public UpdateFilmCommand toCommand(UpdateFilmRequest request) {
-    return new UpdateFilmCommand(request.id(),
-                                 request.name(),
-                                 request.description(),
-                                 request.releaseDate(),
-                                 request.duration(),
-                                 request.genres(),
-                                 request.mpa());
+    return UpdateFilmCommand.builder()
+                            .id(request.id())
+                            .name(request.name())
+                            .description(request.description())
+                            .releaseDate(request.releaseDate())
+                            .duration(request.duration())
+                            .genres(request.genres())
+                            .mpa(request.mpa())
+                            .build();
   }
-
 
   public FilmResponse toResponse(Film film) {
     final Set<Genre> genres = film.genres();
@@ -48,14 +44,15 @@ public class FilmMapper {
                            .sorted(Comparator.comparing(Genre::id))
                            .collect(Collectors.toCollection(LinkedHashSet::new));
     }
-
-    return new FilmResponse(film.id(),
-                            film.name(),
-                            film.description(),
-                            film.releaseDate(),
-                            film.duration()
-                                .toMinutes(),
-                            sortedGenres,
-                            film.mpa());
+    return FilmResponse.builder()
+                       .id(film.id())
+                       .name(film.name())
+                       .description(film.description())
+                       .releaseDate(film.releaseDate())
+                       .duration(film.duration()
+                                     .toMinutes())
+                       .genres(sortedGenres)
+                       .mpa(film.mpa())
+                       .build();
   }
 }

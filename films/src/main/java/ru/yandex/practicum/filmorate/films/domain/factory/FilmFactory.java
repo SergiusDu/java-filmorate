@@ -10,22 +10,26 @@ import java.time.Duration;
 @Component
 public class FilmFactory {
   public Film create(long id, CreateFilmCommand command) {
-    return new Film(id,
-                    command.name(),
-                    command.description(),
-                    command.releaseDate(),
-                    Duration.ofMinutes(command.duration()),
-                    command.genres(),
-                    command.mpa());
+    return Film.builder()
+               .id(id)
+               .name(command.name())
+               .description(command.description())
+               .releaseDate(command.releaseDate())
+               .duration(Duration.ofMinutes(command.duration()))
+               .genres(command.genres())
+               .mpa(command.mpa())
+               .build();
   }
 
   public Film update(UpdateFilmCommand command) {
-    return new Film(command.id(),
-                    command.name(),
-                    command.description(),
-                    command.releaseDate(),
-                    Duration.ofMinutes(command.duration()),
-                    command.genres(),
-                    command.mpa());
+    return Film.builder()
+               .id(command.id())
+               .name(command.name())
+               .description(command.description())
+               .releaseDate(command.releaseDate())
+               .duration(Duration.ofMinutes(command.duration()))
+               .genres(command.genres())
+               .mpa(command.mpa())
+               .build();
   }
 }

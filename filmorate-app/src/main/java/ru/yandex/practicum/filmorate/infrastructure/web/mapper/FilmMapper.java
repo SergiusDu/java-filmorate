@@ -36,25 +36,6 @@ public class FilmMapper {
                                  request.mpa());
   }
 
-  public Film fromCommand(Long id, CreateFilmCommand command) {
-    return new Film(id,
-                    command.name(),
-                    command.description(),
-                    command.releaseDate(),
-                    Duration.ofMinutes(command.duration()),
-                    command.genres(),
-                    command.mpa());
-  }
-
-  public Film fromCommand(UpdateFilmCommand command) {
-    return new Film(command.id(),
-                    command.name(),
-                    command.description(),
-                    command.releaseDate(),
-                    Duration.ofMinutes(command.duration()),
-                    command.genres(),
-                    command.mpa());
-  }
 
   public FilmResponse toResponse(Film film) {
     final Set<Genre> genres = film.genres();

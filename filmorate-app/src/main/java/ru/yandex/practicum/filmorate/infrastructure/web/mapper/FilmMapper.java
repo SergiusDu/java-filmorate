@@ -58,24 +58,4 @@ public class FilmMapper {
                             sortedGenres,
                             film.mpa());
   }
-
-  public Film toDomain(CreateFilmRequest request, long id) {
-    return new Film(id,
-                    request.name(),
-                    request.description(),
-                    request.releaseDate(),
-                    Duration.ofMinutes(request.duration()),
-                    request.genres(),
-                    request.mpa());
-  }
-
-  public Film toDomain(UpdateFilmRequest request) {
-    return new Film(request.id(),
-                    request.name(),
-                    request.description(),
-                    request.releaseDate(),
-                    Duration.ofMinutes(request.duration()),
-                    request.genres(),
-                    request.mpa());
-  }
 }

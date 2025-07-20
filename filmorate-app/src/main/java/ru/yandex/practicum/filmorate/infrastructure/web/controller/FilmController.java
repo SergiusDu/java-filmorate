@@ -17,43 +17,46 @@ import java.util.List;
 @RequiredArgsConstructor
 public class FilmController {
   private final FilmCompositionService filmCompositionService;
-  private final FilmMapper mapper;
+  private final FilmMapper filmMapper;
 
   @GetMapping
   public List<FilmResponse> getAllFilms() {
     return filmCompositionService.getAllFilms()
                                  .stream()
-                                 .map(mapper::toResponse)
+                                 .map(filmMapper::toResponse)
                                  .toList();
   }
 
   @PostMapping
   public FilmResponse createFilm(@Valid @RequestBody CreateFilmRequest request) {
-    return mapper.toResponse(filmCompositionService.createFilm(mapper.toCommand(request)));
+    return filmMapper.toResponse(filmCompositionService.createFilm(filmMapper.toCommand(request)));
   }
 
   @PutMapping
   public FilmResponse updateFilm(@Valid @RequestBody UpdateFilmRequest request) {
-    return mapper.toResponse(filmCompositionService.updateFilm(mapper.toCommand(request)));
+    return filmMapper.toResponse(filmCompositionService.updateFilm(filmMapper.toCommand(request)));
   }
 
   @PutMapping("/{id}/like/{userId}")
   public void likeFilm(@PathVariable long id, @PathVariable long userId) {
-    filmCompositionService.addLike(id,
-                                   userId);
+    filmCompositionService.addLike(id, userId);
   }
 
   @DeleteMapping("/{id}/like/{userId}")
   public void deleteLike(@PathVariable long id, @PathVariable long userId) {
-    filmCompositionService.removeLike(id,
-                                      userId);
+    filmCompositionService.removeLike(id, userId);
   }
 
   @GetMapping("/popular")
   public List<FilmResponse> getPopularFilms(@RequestParam(defaultValue = "10") int count) {
     return filmCompositionService.getPopularFilms(count)
                                  .stream()
-                                 .map(mapper::toResponse)
+                                 .map(filmMapper::toResponse)
                                  .toList();
+  }
+
+  @GetMapping("/{id}")
+  public FilmResponse getFilmById(@PathVariable long id) {
+    return filmMapper.toResponse(filmCompositionService.getFilmById(id));
   }
 }

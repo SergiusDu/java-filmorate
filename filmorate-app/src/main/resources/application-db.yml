@@ -1,0 +1,26 @@
+spring:
+  config:
+    activate:
+      on-profile: db
+  datasource:
+    url: jdbc:h2:file:./db/filmorate
+    driverClassName: org.h2.Driver
+    username: sa
+    password: password
+  sql:
+    init:
+      mode: always
+  main:
+    banner-mode: off
+
+server:
+  port: 8080
+  
+logging:
+  level:
+    org.zalando.logbook: WARN
+    org.springframework.web: WARN
+    ru.yandex.practicum.filmorate: WARN
+    org.springframework.jdbc: WARN
+    org.springframework.boot: WARN
+    org.springframework: WARN

@@ -2,69 +2,57 @@ package ru.yandex.practicum.filmorate.infrastructure.web.mapper;
 
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.films.domain.model.Film;
+import ru.yandex.practicum.filmorate.films.domain.model.value.Genre;
 import ru.yandex.practicum.filmorate.films.domain.port.CreateFilmCommand;
 import ru.yandex.practicum.filmorate.films.domain.port.UpdateFilmCommand;
 import ru.yandex.practicum.filmorate.infrastructure.web.dto.CreateFilmRequest;
 import ru.yandex.practicum.filmorate.infrastructure.web.dto.FilmResponse;
 import ru.yandex.practicum.filmorate.infrastructure.web.dto.UpdateFilmRequest;
 
-import java.time.Duration;
+import java.util.Comparator;
+import java.util.LinkedHashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Component
 public class FilmMapper {
   public CreateFilmCommand toCommand(CreateFilmRequest request) {
-    return new CreateFilmCommand(request.name(),
-                                 request.description(),
-                                 request.releaseDate(),
-                                 request.duration());
+    return new CreateFilmCommand(request.name(), request.description(), request.releaseDate(), request.duration(),
+                                 request.genres(), request.mpa());
   }
 
   public UpdateFilmCommand toCommand(UpdateFilmRequest request) {
-    return new UpdateFilmCommand(request.id(),
-                                 request.name(),
-                                 request.description(),
-                                 request.releaseDate(),
-                                 request.duration());
-  }
-
-  public Film fromCommand(Long id, CreateFilmCommand command) {
-    return new Film(id,
-                    command.name(),
-                    command.description(),
-                    command.releaseDate(),
-                    Duration.ofSeconds(command.duration()));
-  }
-
-  public Film fromCommand(UpdateFilmCommand command) {
-    return new Film(command.id(),
-                    command.name(),
-                    command.description(),
-                    command.releaseDate(),
-                    Duration.ofSeconds(command.duration()));
+    return UpdateFilmCommand.builder()
+                            .id(request.id())
+                            .name(request.name())
+                            .description(request.description())
+                            .releaseDate(request.releaseDate())
+                            .duration(request.duration())
+                            .genres(request.genres())
+                            .mpa(request.mpa())
+                            .build();
   }
 
   public FilmResponse toResponse(Film film) {
-    return new FilmResponse(film.id(),
-                            film.name(),
-                            film.description(),
-                            film.releaseDate(),
-                            film.duration()
-                                .toSeconds());
-  }
+    final Set<Genre> genres = film.genres();
+    final Set<Genre> sortedGenres;
 
-  public Film toDomain(CreateFilmRequest request, long id) {
-    return new Film(id,
-                    request.name(),
-                    request.description(),
-                    request.releaseDate(),
-                    Duration.ofSeconds(request.duration()));
-  }
-
-  public Film toDomain(UpdateFilmRequest request) {
-    return new Film(request.id(),
-                    request.name(),
-                    request.description(),
-                    request.releaseDate(),
-                    Duration.ofSeconds(request.duration()));
+    if (genres == null) {
+      sortedGenres = null;
+    } else {
+      sortedGenres = genres.stream()
+                           .sorted(Comparator.comparing(Genre::id))
+                           .collect(Collectors.toCollection(LinkedHashSet::new));
+    }
+    return FilmResponse.builder()
+                       .id(film.id())
+                       .name(film.name())
+                       .description(film.description())
+                       .releaseDate(film.releaseDate())
+                       .duration(film.duration()
+                                     .toMinutes())
+                       .genres(sortedGenres)
+                       .mpa(film.mpa())
+                       .build();
   }
 }

@@ -15,123 +15,83 @@ has a distinct responsibility:
   repository interfaces, and the web controller for the `/films` endpoint.
 * `users`: Implements all business logic related to users. This includes the domain model, application services,
   repository interfaces, and the web controller for the `/users` endpoint.
+* `friendships`: A module responsible for the friendship logic between users.
+* `likes`: A module for managing film likes.
 * `filmorate-app`: The main application module. It brings all the other modules together, contains the main application
   class (`FilmorateApplication`), and is responsible for building the final executable JAR file.
 
-## Technologies Used
+## Database Schema
 
-* **Java 22**
+Below is the database schema diagram, showing the tables and their relationships.
+
+![Filmorate DB Diagram](docs/db-diagram.png)
+
+## Technologies
+
+* **Java 21**
 * **Spring Boot 3.x**
-* **Apache Maven** for dependency management and build automation
-* **JUnit 5** & **AssertJ** for unit testing
-* **Lombok** to reduce boilerplate code
+* **Apache Maven** for dependency management and build automation.
+* **JUnit 5** & **AssertJ** for unit testing.
+* **Lombok** to reduce boilerplate code.
+* **H2 Database** as an in-memory database.
 
 ## Prerequisites
 
 Before you begin, ensure you have the following installed on your system:
 
-* **Java Development Kit (JDK)** version 22 or later.
+* **Java Development Kit (JDK)** version 21 or later.
 * **Apache Maven**.
 
 ## How to Run the Project
 
-Follow these steps to get the application running on your local machine.
-
 ### 1. Clone the Repository
 
-First, clone the project repository from GitHub to your local machine:
-
-```bash
 git clone https://github.com/SergiusDu/java-filmorate.git
 cd java-filmorate
-```
 
 ### 2. Build the Project
 
-Navigate to the root directory of the project (where the main `pom.xml` is located) and run the following Maven command.
-This will compile the code, run tests, and package all modules.
+Navigate to the root directory of the project and run the following Maven command. This will compile the code, run
+tests, and package all modules.
 
-```bash
 mvn clean install
-```
-
-This command cleans the `target` directories, then builds all the modules (`common`, `films`, `users`, and
-`filmorate-app`) in the correct order.
 
 ### 3. Run the Application
 
-You can run the application in two ways:
+You can run the application using the `db` profile to work with the H2 database.
 
-#### Running in Development Mode (Dev Start)
+java -jar filmorate-app/target/filmorate-app-0.0.1-SNAPSHOT.jar --spring.profiles.active=db
 
-This mode is recommended for active development. It uses the Spring Boot Maven plugin and enables hot-reloading (
-automatic application restart on code changes), which significantly speeds up the development cycle.
-
-From the project's root directory, run:
-
-```bash
-# This command starts the app on http://localhost:8080
-mvn spring-boot:run
-```
-
-* `mvn spring-boot:run`: This command starts the Spring Boot application.
-
-#### Running the Packaged Application
-
-This mode runs the compiled JAR file, which is how the application would typically be run in a production or testing
-environment.
-
-First, ensure you have built the project with `mvn clean install`. Then, run the following command:
-
-```bash
-# By default, this also starts the app on http://localhost:8088
-# because the 'dev' profile is active in the JAR's configuration.
-java -jar filmorate-app/target/filmorate-app-0.0.1-SNAPSHOT.jar
-```
+The application will be available at `http://localhost:8080`.
 
 ## API Endpoints
 
 The service exposes the following REST endpoints.
 
-### Film Endpoints
+### Films
 
 * `GET /films`: Retrieves a list of all films.
 * `POST /films`: Adds a new film.
 * `PUT /films`: Updates an existing film.
+* `GET /films/{id}`: Retrieves a film by its ID.
+* `PUT /films/{id}/like/{userId}`: Adds a like to a film.
+* `DELETE /films/{id}/like/{userId}`: Removes a like from a film.
+* `GET /films/popular`: Retrieves a list of the most popular films.
 
-**Example `POST /films` body:**
-
-```json
-{
-  "name": "Inception",
-  "description": "A thief who steals corporate secrets through the use of dream-sharing technology...",
-  "releaseDate": "2010-07-16",
-  "duration": 148
-}
-```
-
-### User Endpoints
+### Users
 
 * `GET /users`: Retrieves a list of all users.
 * `POST /users`: Adds a new user.
 * `PUT /users`: Updates an existing user.
+* `GET /users/{id}`: Retrieves a user by their ID.
+* `PUT /users/{id}/friends/{friendId}`: Adds a user as a friend.
+* `DELETE /users/{id}/friends/{friendId}`: Removes a user from friends.
+* `GET /users/{id}/friends`: Retrieves a list of a user's friends.
+* `GET /users/{id}/friends/common/{otherId}`: Retrieves a list of common friends with another user.
 
-**Example `POST /users` body:**
+### Genres and MPA Ratings
 
-```json
-{
-  "email": "contact@user.com",
-  "login": "userLogin",
-  "name": "John Doe",
-  "birthday": "1990-01-15"
-}
-```
-
-## Configuration
-
-Application settings can be configured in the `src/main/resources/` directory of the `filmorate-app` module:
-
-* `application.yml`: Default configuration, including validation rules (e.g., max film description length, earliest
-  release date).
-* `application-dev.yml`: Development-specific profile. It is activated by default and sets the server port to `8088` and
-  enables `DEBUG` logging.
+* `GET /genres`: Retrieves a list of all genres.
+* `GET /genres/{id}`: Retrieves a genre by its ID.
+* `GET /mpa`: Retrieves a list of all MPA ratings.
+* `GET /mpa/{id}`: Retrieves an MPA rating by its ID.

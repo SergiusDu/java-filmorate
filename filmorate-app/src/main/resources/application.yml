@@ -2,17 +2,25 @@ spring:
   threads:
     virtual:
       enabled: true
-
+  profiles:
+    active: db
+  config:
+    import: "optional:application-db.yml,optional:application-in-memory.yml"
+  main:
+    banner-mode: off
 logging:
   level:
     org.zalando.logbook: TRACE
+    org.springframework.web: DEBUG
+    ru.yandex.practicum.filmorate: DEBUG
+    org.springframework.jdbc: DEBUG
+    org.springframework.boot: WARN
+    org.springframework: WARN
 
-logbook:
-  format:
-    style: json
 
 server:
   port: 8080
+
 validation:
   film:
     description:

@@ -7,6 +7,8 @@ import ru.yandex.practicum.filmorate.common.exception.ValidationException;
 import ru.yandex.practicum.filmorate.films.application.port.in.FilmUseCase;
 import ru.yandex.practicum.filmorate.films.application.port.in.UserUseCase;
 import ru.yandex.practicum.filmorate.films.domain.model.Film;
+import ru.yandex.practicum.filmorate.films.domain.model.value.Genre;
+import ru.yandex.practicum.filmorate.films.domain.model.value.Mpa;
 import ru.yandex.practicum.filmorate.films.domain.port.CreateFilmCommand;
 import ru.yandex.practicum.filmorate.films.domain.port.UpdateFilmCommand;
 import ru.yandex.practicum.filmorate.likes.application.port.in.LikeUseCase;
@@ -63,5 +65,28 @@ public class FilmCompositionService {
     if (count < 0)
       throw new ValidationException("Count parameter cannot be negative");
     return filmUseCase.getFilmsByIds(likeService.getPopularFilmIds(count));
+  }
+
+  public List<Genre> getGenres() {
+    return filmUseCase.getGeners();
+  }
+
+  public Genre getGenreById(long id) {
+    return filmUseCase.getGenreById(id)
+                      .orElseThrow(() -> new ResourceNotFoundException("Genre with id " + id + " not found"));
+  }
+
+  public List<Mpa> getMpas() {
+    return filmUseCase.getMpas();
+  }
+
+  public Mpa getMpaById(long id) {
+    return filmUseCase.getMpaById(id)
+                      .orElseThrow(() -> new ResourceNotFoundException("Mpa with id " + id + " not found"));
+  }
+
+  public Film getFilmById(long id) {
+    return filmUseCase.findFilmById(id)
+                      .orElseThrow(() -> new ResourceNotFoundException("Film with id " + id + " not found"));
   }
 }

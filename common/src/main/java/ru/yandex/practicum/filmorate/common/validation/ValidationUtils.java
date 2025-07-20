@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.common.validation;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.Duration;
+import java.util.Collection;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -166,6 +167,23 @@ public final class ValidationUtils {
                     v -> v != null && !v.isBlank(),
                     exceptionFactory,
                     "String must not be null or blank");
+  }
+
+  /**
+   Validates that a collection is not empty.
+   @param <T> The type of elements in the collection
+   @param <E> The type of runtime exception to throw
+   @param collection The collection to validate
+   @param exceptionFactory Factory function to create the exception
+   @return The validated non-empty collection
+   @throws E if the collection is empty
+   */
+  public static <T, E extends RuntimeException> Collection<T> notEmpty(Collection<T> collection,
+                                                                       Function<String, E> exceptionFactory) {
+    return validate(collection,
+                    c -> c != null && !c.isEmpty(),
+                    exceptionFactory,
+                    "Collection must not be empty");
   }
 
   /**

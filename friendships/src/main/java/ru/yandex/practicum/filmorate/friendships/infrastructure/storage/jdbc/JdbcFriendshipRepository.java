@@ -21,30 +21,24 @@ public class JdbcFriendshipRepository implements FriendshipRepository {
 
   private final JdbcTemplate jdbcTemplate;
 
-  private final RowMapper<FriendshipEdge> edgeRowMapper = (rs, rowNum) -> new FriendshipEdge(
-      FriendshipStatus.valueOf(rs.getString("status")));
+  private final RowMapper<FriendshipEdge> edgeRowMapper
+      = (rs, rowNum) -> new FriendshipEdge(FriendshipStatus.valueOf(rs.getString("status")));
 
   @Override
-  public boolean addVertex(long sourceId) {
-    // In the relational database model the vertex will exist.
-    return true;
-  }
-
-  @Override
-  public boolean deleteVertex(long sourceId) {
-    String sql = "DELETE FROM friendships WHERE user_id = ? OR friend_id = ?";
-    return jdbcTemplate.update(sql, sourceId, sourceId) > 0;
-  }
-
-  @Override
-  public boolean addEdge(long sourceId, long targetId, FriendshipEdge edge) {
+  public boolean addEdge(long sourceId,
+                         long targetId,
+                         FriendshipEdge edge) {
     String sql = "INSERT INTO friendships (user_id, friend_id, status) VALUES (?, ?, ?)";
-    return jdbcTemplate.update(sql, sourceId, targetId, edge.getStatus()
-                                                            .name()) > 0;
+    return jdbcTemplate.update(sql,
+                               sourceId,
+                               targetId,
+                               edge.getStatus()
+                                   .name()) > 0;
   }
 
   @Override
-  public Optional<FriendshipEdge> removeEdge(long sourceId, long targetId) {
+  public Optional<FriendshipEdge> removeEdge(long sourceId,
+                                             long targetId) {
     Optional<FriendshipEdge> edge = getEdge(sourceId, targetId);
 
     if (edge.isPresent()) {
@@ -72,7 +66,8 @@ public class JdbcFriendshipRepository implements FriendshipRepository {
   }
 
   @Override
-  public Optional<FriendshipEdge> getEdge(long sourceId, long targetId) {
+  public Optional<FriendshipEdge> getEdge(long sourceId,
+                                          long targetId) {
     String sql = "SELECT * FROM friendships WHERE user_id = ? AND friend_id = ?";
     List<FriendshipEdge> edges = jdbcTemplate.query(sql, edgeRowMapper, sourceId, targetId);
     return edges.stream()
@@ -80,9 +75,14 @@ public class JdbcFriendshipRepository implements FriendshipRepository {
   }
 
   @Override
-  public boolean updateEdge(long sourceId, long targetId, FriendshipEdge edge) {
+  public boolean updateEdge(long sourceId,
+                            long targetId,
+                            FriendshipEdge edge) {
     String sql = "UPDATE friendships SET status = ? WHERE user_id = ? AND friend_id = ?";
-    return jdbcTemplate.update(sql, edge.getStatus()
-                                        .name(), sourceId, targetId) > 0;
+    return jdbcTemplate.update(sql,
+                               edge.getStatus()
+                                   .name(),
+                               sourceId,
+                               targetId) > 0;
   }
 }

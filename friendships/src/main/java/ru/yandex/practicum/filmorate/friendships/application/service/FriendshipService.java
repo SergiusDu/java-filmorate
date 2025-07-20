@@ -16,13 +16,10 @@ import java.util.stream.Collectors;
 public class FriendshipService implements FriendshipsUseCase {
   private final FriendshipRepository friendshipRepository;
 
-  @Override
-  public boolean addUser(long userId) {
-    return friendshipRepository.addVertex(userId);
-  }
 
   @Override
-  public void addFriend(long userId, long friendId) {
+  public void addFriend(long userId,
+                        long friendId) {
     Optional<FriendshipEdge> directEdge = friendshipRepository.getEdge(userId, friendId);
     Optional<FriendshipEdge> reversedEdge = friendshipRepository.getEdge(friendId, userId);
     if (directEdge.isPresent() || reversedEdge.isPresent() && reversedEdge.get()
@@ -39,7 +36,8 @@ public class FriendshipService implements FriendshipsUseCase {
   }
 
   @Override
-  public void removeFriend(long userId, long friendId) {
+  public void removeFriend(long userId,
+                           long friendId) {
     friendshipRepository.removeEdge(userId, friendId);
   }
 
@@ -49,7 +47,8 @@ public class FriendshipService implements FriendshipsUseCase {
   }
 
   @Override
-  public Set<Long> getMutualFriends(long userId, long friendId) {
+  public Set<Long> getMutualFriends(long userId,
+                                    long friendId) {
     Set<Long> userFriends = friendshipRepository.finedEdgesByVertexId(userId);
     if (userFriends.isEmpty())
       return Set.of();

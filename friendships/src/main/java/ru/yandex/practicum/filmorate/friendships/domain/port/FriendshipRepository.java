@@ -6,17 +6,20 @@ import java.util.Optional;
 import java.util.Set;
 
 public interface FriendshipRepository {
-  boolean addVertex(long sourceId);
 
-  boolean deleteVertex(long sourceId);
+  boolean addEdge(long sourceId,
+                  long targetId,
+                  FriendshipEdge edge);
 
-  boolean addEdge(long sourceId, long targetId, FriendshipEdge edge);
-
-  Optional<FriendshipEdge> removeEdge(long sourceId, long targetId);
+  Optional<FriendshipEdge> removeEdge(long sourceId,
+                                      long targetId);
 
   Set<Long> finedEdgesByVertexId(long sourceId);
 
-  Optional<FriendshipEdge> getEdge(long sourceId, long targetId);
+  Optional<FriendshipEdge> getEdge(long sourceId,
+                                   long targetId);
 
-  boolean updateEdge(long sourceId, long targetId, FriendshipEdge edge);
+  boolean updateEdge(long sourceId,
+                     long targetId,
+                     FriendshipEdge edge);
 }

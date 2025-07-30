@@ -19,8 +19,6 @@ public interface FilmUseCase {
 
   List<Film> getAllFilms();
 
-  Optional<Film> getFilmById(long id);
-
   List<Film> getFilmsByIds(Set<Long> ids);
 
   List<Genre> getGeners();
@@ -30,4 +28,6 @@ public interface FilmUseCase {
   List<Mpa> getMpas();
 
   Optional<Mpa> getMpaById(long id);
+
+  List<Film> getCommonFilms(long userId, long friendId);
 }

@@ -28,6 +28,4 @@ public interface FilmUseCase {
   List<Mpa> getMpas();
 
   Optional<Mpa> getMpaById(long id);
-
-  List<Film> getCommonFilms(long userId, long friendId);
 }

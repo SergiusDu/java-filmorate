@@ -13,7 +13,10 @@ import ru.yandex.practicum.filmorate.films.domain.port.UpdateFilmCommand;
 import ru.yandex.practicum.filmorate.likes.application.port.in.LikeUseCase;
 import ru.yandex.practicum.filmorate.users.application.port.in.UserUseCase;
 
+import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -92,10 +95,26 @@ public class FilmCompositionService {
                       .orElseThrow(() -> new ResourceNotFoundException("Film with id " + id + " not found"));
   }
 
+
   public List<Film> getCommonFilms(long userId, long friendId) {
     validateUserId(userId);
     validateUserId(friendId);
 
-    return filmUseCase.getCommonFilms(userId, friendId);
+    Set<Long> userLikes = likeService.findLikedFilms(userId);
+    Set<Long> friendLikes = likeService.findLikedFilms(friendId);
+
+    Set<Long> commonFilmIds = new HashSet<>(userLikes);
+    commonFilmIds.retainAll(friendLikes);
+
+    if (commonFilmIds.isEmpty()) {
+      return List.of();
+    }
+
+    return filmUseCase.getFilmsByIds(commonFilmIds).stream()
+            .sorted(Comparator.comparingInt(
+                    film -> -likeService.findUsersWhoLikedFilm(film.id()).size()
+            ))
+            .toList();
   }
+
 }

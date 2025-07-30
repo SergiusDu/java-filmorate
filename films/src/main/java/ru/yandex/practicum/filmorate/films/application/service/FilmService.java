@@ -17,6 +17,7 @@ import java.util.Set;
 @Service
 @RequiredArgsConstructor
 public class FilmService implements FilmUseCase {
+
   private final FilmRepository filmRepository;
   private final GenreRepository genreRepository;
   private final MpaRepository mpaRepository;
@@ -40,10 +41,6 @@ public class FilmService implements FilmUseCase {
   public Optional<Film> findFilmById(long filmId) {
     return filmRepository.findById(filmId);
   }
-
-  // Повтор метода getFilmById → объединён с findFilmById выше (одинаковый функционал)
-  // @Override
-  // public Optional<Film> getFilmById(long id) { return filmRepository.findById(id); }
 
   @Override
   public List<Film> getAllFilms() {
@@ -75,16 +72,11 @@ public class FilmService implements FilmUseCase {
     return mpaRepository.findById(id);
   }
 
-  // Новый метод для фичи «Общие фильмы» (sorted by popularity)
-  @Override
-  public List<Film> getCommonFilms(long userId, long friendId) {
-    return filmRepository.findCommonFilmsSortedByLikes(userId, friendId);
-  }
-
   private void validateFilmDependencies(Set<Genre> genres, Mpa mpa) {
     if (mpa != null && mpaRepository.findById(mpa.id()).isEmpty()) {
       throw new ResourceNotFoundException("Mpa with id " + mpa.id() + " not found");
     }
+
     if (genres != null) {
       for (Genre genre : genres) {
         if (genreRepository.findById(genre.id()).isEmpty()) {

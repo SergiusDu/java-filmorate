@@ -46,11 +46,4 @@ public interface FilmRepository {
    */
   List<Film> getByIds(Set<Long> ids);
 
-  /**
-   * Retrieves films that were liked by both users and sorts them by the total number of likes in descending order.
-   * @param userId ID of the first user
-   * @param friendId ID of the second user
-   * @return list of commonly liked films sorted by popularity
-   */
-  List<Film> findCommonFilmsSortedByLikes(long userId, long friendId);
 }

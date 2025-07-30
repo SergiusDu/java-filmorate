@@ -35,4 +35,13 @@ public interface LikeUseCase {
    @return set of user IDs who liked the film
    */
   Set<Long> findUsersWhoLikedFilm(long filmId);
+
+  /**
+   * Retrieves all film IDs that were liked by the specified user.
+   *
+   * @param userId the ID of the user
+   * @return a set of film IDs liked by the user
+   */
+  Set<Long> findLikedFilms(long userId);
+
 }

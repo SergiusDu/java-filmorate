@@ -89,4 +89,11 @@ public class FilmCompositionService {
     return filmUseCase.findFilmById(id)
                       .orElseThrow(() -> new ResourceNotFoundException("Film with id " + id + " not found"));
   }
+
+  public List<Film> getCommonFilms(long userId, long friendId) {
+    validateUserId(userId);
+    validateUserId(friendId);
+
+    return filmUseCase.getCommonFilms(userId, friendId);
+  }
 }

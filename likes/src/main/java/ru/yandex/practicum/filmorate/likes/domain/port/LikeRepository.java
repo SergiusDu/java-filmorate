@@ -42,4 +42,6 @@ public interface LikeRepository {
    @return true if film exists in repository, false otherwise
    */
   boolean contains(long filmId);
+
+  Set<Long> findLikedFilms(long userId);
 }

@@ -94,19 +94,6 @@ public class JdbcFilmRepository implements FilmRepository {
             .toList();
   }
 
-  @Override
-  public List<Film> findCommonFilmsSortedByLikes(long userId, long friendId) {
-    String sql = BASE_FILM_QUERY +
-            " JOIN likes fl1 ON f.film_id = fl1.film_id " +
-            " JOIN likes fl2 ON f.film_id = fl2.film_id " +
-            " WHERE fl1.user_id = ? AND fl2.user_id = ? " +
-            " GROUP BY f.film_id, m.mpa_id, m.name " +
-            " ORDER BY COUNT(*) DESC";
-
-    // Finds films liked by both users and sorts them by total number of likes (popularity)
-    return mapRowsToFilms(jdbcTemplate.queryForList(sql, userId, friendId));
-  }
-
   private List<Film> mapRowsToFilms(List<Map<String, Object>> rows) {
     if (rows.isEmpty()) {
       return List.of();

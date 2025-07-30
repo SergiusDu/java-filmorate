@@ -16,12 +16,12 @@ import java.util.List;
 @RequiredArgsConstructor
 public class FilmController {
 
-  private final FilmCompositionService filmService;
+  private final FilmCompositionService filmCompositionService;
   private final FilmMapper filmMapper;
 
   @GetMapping
   public List<FilmResponse> getAllFilms() {
-    return filmService.getAllFilms()
+    return filmCompositionService.getAllFilms()
             .stream()
             .map(filmMapper::toResponse)
             .toList();
@@ -29,27 +29,27 @@ public class FilmController {
 
   @PostMapping
   public FilmResponse createFilm(@Valid @RequestBody CreateFilmRequest request) {
-    return filmMapper.toResponse(filmService.createFilm(filmMapper.toCommand(request)));
+    return filmMapper.toResponse(filmCompositionService.createFilm(filmMapper.toCommand(request)));
   }
 
   @PutMapping
   public FilmResponse updateFilm(@Valid @RequestBody UpdateFilmRequest request) {
-    return filmMapper.toResponse(filmService.updateFilm(filmMapper.toCommand(request)));
+    return filmMapper.toResponse(filmCompositionService.updateFilm(filmMapper.toCommand(request)));
   }
 
   @PutMapping("/{id}/like/{userId}")
   public void likeFilm(@PathVariable long id, @PathVariable long userId) {
-    filmService.addLike(id, userId);
+    filmCompositionService.addLike(id, userId);
   }
 
   @DeleteMapping("/{id}/like/{userId}")
   public void deleteLike(@PathVariable long id, @PathVariable long userId) {
-    filmService.removeLike(id, userId);
+    filmCompositionService.removeLike(id, userId);
   }
 
   @GetMapping("/popular")
   public List<FilmResponse> getPopularFilms(@RequestParam(defaultValue = "10") int count) {
-    return filmService.getPopularFilms(count)
+    return filmCompositionService.getPopularFilms(count)
             .stream()
             .map(filmMapper::toResponse)
             .toList();
@@ -57,13 +57,13 @@ public class FilmController {
 
   @GetMapping("/{id}")
   public FilmResponse getFilmById(@PathVariable long id) {
-    return filmMapper.toResponse(filmService.getFilmById(id));
+    return filmMapper.toResponse(filmCompositionService.getFilmById(id));
   }
 
   @GetMapping("/common")
   public List<FilmResponse> getCommonFilms(@RequestParam long userId,
                                            @RequestParam long friendId) {
-    return filmService.getCommonFilms(userId, friendId)
+    return filmCompositionService.getCommonFilms(userId, friendId)
             .stream()
             .map(filmMapper::toResponse)
             .toList();

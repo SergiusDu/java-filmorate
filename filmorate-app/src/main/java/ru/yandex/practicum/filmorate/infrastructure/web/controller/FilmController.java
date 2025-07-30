@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.infrastructure.web.controller;
 
-
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -16,47 +15,57 @@ import java.util.List;
 @RequestMapping("/films")
 @RequiredArgsConstructor
 public class FilmController {
-  private final FilmCompositionService filmCompositionService;
+
+  private final FilmCompositionService filmService;
   private final FilmMapper filmMapper;
 
   @GetMapping
   public List<FilmResponse> getAllFilms() {
-    return filmCompositionService.getAllFilms()
-                                 .stream()
-                                 .map(filmMapper::toResponse)
-                                 .toList();
+    return filmService.getAllFilms()
+            .stream()
+            .map(filmMapper::toResponse)
+            .toList();
   }
 
   @PostMapping
   public FilmResponse createFilm(@Valid @RequestBody CreateFilmRequest request) {
-    return filmMapper.toResponse(filmCompositionService.createFilm(filmMapper.toCommand(request)));
+    return filmMapper.toResponse(filmService.createFilm(filmMapper.toCommand(request)));
   }
 
   @PutMapping
   public FilmResponse updateFilm(@Valid @RequestBody UpdateFilmRequest request) {
-    return filmMapper.toResponse(filmCompositionService.updateFilm(filmMapper.toCommand(request)));
+    return filmMapper.toResponse(filmService.updateFilm(filmMapper.toCommand(request)));
   }
 
   @PutMapping("/{id}/like/{userId}")
   public void likeFilm(@PathVariable long id, @PathVariable long userId) {
-    filmCompositionService.addLike(id, userId);
+    filmService.addLike(id, userId);
   }
 
   @DeleteMapping("/{id}/like/{userId}")
   public void deleteLike(@PathVariable long id, @PathVariable long userId) {
-    filmCompositionService.removeLike(id, userId);
+    filmService.removeLike(id, userId);
   }
 
   @GetMapping("/popular")
   public List<FilmResponse> getPopularFilms(@RequestParam(defaultValue = "10") int count) {
-    return filmCompositionService.getPopularFilms(count)
-                                 .stream()
-                                 .map(filmMapper::toResponse)
-                                 .toList();
+    return filmService.getPopularFilms(count)
+            .stream()
+            .map(filmMapper::toResponse)
+            .toList();
   }
 
   @GetMapping("/{id}")
   public FilmResponse getFilmById(@PathVariable long id) {
-    return filmMapper.toResponse(filmCompositionService.getFilmById(id));
+    return filmMapper.toResponse(filmService.getFilmById(id));
+  }
+
+  @GetMapping("/common")
+  public List<FilmResponse> getCommonFilms(@RequestParam long userId,
+                                           @RequestParam long friendId) {
+    return filmService.getCommonFilms(userId, friendId)
+            .stream()
+            .map(filmMapper::toResponse)
+            .toList();
   }
 }

@@ -65,7 +65,7 @@ public class FilmController {
   @ResponseStatus(HttpStatus.NO_CONTENT)
   public void deleteFilm(@PathVariable long id) {
     filmCompositionService.deleteFilmById(id);
-
+  }
   @GetMapping("/common")
   public List<FilmResponse> getCommonFilms(@RequestParam long userId,
                                            @RequestParam long friendId) {

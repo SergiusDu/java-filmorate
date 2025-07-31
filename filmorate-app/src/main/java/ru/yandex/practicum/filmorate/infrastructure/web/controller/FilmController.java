@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.infrastructure.web.controller;
 
-
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -17,15 +16,16 @@ import java.util.List;
 @RequestMapping("/films")
 @RequiredArgsConstructor
 public class FilmController {
+
   private final FilmCompositionService filmCompositionService;
   private final FilmMapper filmMapper;
 
   @GetMapping
   public List<FilmResponse> getAllFilms() {
     return filmCompositionService.getAllFilms()
-                                 .stream()
-                                 .map(filmMapper::toResponse)
-                                 .toList();
+            .stream()
+            .map(filmMapper::toResponse)
+            .toList();
   }
 
   @PostMapping
@@ -51,9 +51,9 @@ public class FilmController {
   @GetMapping("/popular")
   public List<FilmResponse> getPopularFilms(@RequestParam(defaultValue = "10") int count) {
     return filmCompositionService.getPopularFilms(count)
-                                 .stream()
-                                 .map(filmMapper::toResponse)
-                                 .toList();
+            .stream()
+            .map(filmMapper::toResponse)
+            .toList();
   }
 
   @GetMapping("/{id}")
@@ -65,5 +65,13 @@ public class FilmController {
   @ResponseStatus(HttpStatus.NO_CONTENT)
   public void deleteFilm(@PathVariable long id) {
     filmCompositionService.deleteFilmById(id);
+
+  @GetMapping("/common")
+  public List<FilmResponse> getCommonFilms(@RequestParam long userId,
+                                           @RequestParam long friendId) {
+    return filmCompositionService.getCommonFilms(userId, friendId)
+            .stream()
+            .map(filmMapper::toResponse)
+            .toList();
   }
 }

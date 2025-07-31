@@ -12,14 +12,15 @@ import java.time.Duration;
 public class FilmFactory {
   public Film create(long id, CreateFilmCommand command) {
     return Film.builder()
-               .id(id)
-               .name(command.name())
-               .description(command.description())
-               .releaseDate(command.releaseDate())
-               .duration(Duration.ofMinutes(command.duration()))
-               .genres(command.genres())
-               .mpa(command.mpa())
-               .build();
+            .id(id)
+            .name(command.name())
+            .description(command.description())
+            .releaseDate(command.releaseDate())
+            .duration(Duration.ofMinutes(command.duration()))
+            .genres(command.genres())
+            .mpa(command.mpa())
+            .isDeleted(false)
+            .build();
   }
 
   public Film update(UpdateFilmCommand command) {
@@ -31,6 +32,7 @@ public class FilmFactory {
                .duration(Duration.ofMinutes(command.duration()))
                .genres(command.genres())
                .mpa(command.mpa())
-               .build();
+            .isDeleted(false)
+            .build();
   }
 }

@@ -11,7 +11,7 @@ import ru.yandex.practicum.filmorate.reaction.domain.port.ReactionRepository;
 public class ReactionService implements ReactionUseCase {
 
     private final ReactionRepository reactionRepository;
-
+/*
     @Override
     public boolean addLike(long reviewId, long userId) {
         return reactionRepository.addLike(reviewId, userId);
@@ -30,5 +30,5 @@ public class ReactionService implements ReactionUseCase {
     @Override
     public boolean removeDislike(long reviewId, long userId) {
         return reactionRepository.removeDislike(reviewId, userId);
-    }
+    } */
 }

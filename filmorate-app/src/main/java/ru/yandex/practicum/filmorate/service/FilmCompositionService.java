@@ -93,8 +93,9 @@ public class FilmCompositionService {
   }
 
   public void deleteFilmById(long filmId) {
-    if (filmUseCase.findFilmById(filmId).isPresent()) {
-      filmUseCase.deleteFilmById(filmId);
+    if (filmUseCase.findFilmById(filmId).isEmpty()) {
+      throw new ResourceNotFoundException("Film with id " + filmId + " not found.");
     }
+    filmUseCase.deleteFilmById(filmId);
   }
 }

@@ -144,6 +144,30 @@ class FilmorateApplicationTest {
       assertThat(response.getBody()).isNotNull();
       assertThat(response.getBody()).hasSize(2);
     }
+
+    @Test
+    @DisplayName("Should delete an existing user")
+    void shouldDeleteUser() {
+      CreateUserRequest request = new CreateUserRequest("deleteuser@test.com", "deluser", "Delete User",
+              LocalDate.of(1990, 1, 1));
+      UserResponse createdUser = createUser(request);
+
+      ResponseEntity<Void> deleteResponse = restTemplate.exchange(
+              "/users/{id}", HttpMethod.DELETE, null, Void.class, createdUser.id());
+      assertThat(deleteResponse.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+
+      ResponseEntity<ErrorResponse> getResponse = restTemplate.getForEntity(
+              "/users/{id}", ErrorResponse.class, createdUser.id());
+      assertThat(getResponse.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+    }
+
+    @Test
+    @DisplayName("Should return 404 when deleting non-existent user")
+    void shouldReturnNotFoundWhenDeletingNonExistentUser() {
+      ResponseEntity<ErrorResponse> response = restTemplate.exchange(
+              "/users/{id}", HttpMethod.DELETE, null, ErrorResponse.class, 999999L);
+      assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+    }
   }
 
   @Nested
@@ -323,6 +347,31 @@ class FilmorateApplicationTest {
                                     .toList();
 
       assertThat(popularIds).containsExactly(f2.id(), f3.id(), f1.id());
+    }
+
+    @Test
+    @DisplayName("Should delete an existing film")
+    void shouldDeleteFilm() {
+      CreateFilmRequest request = new CreateFilmRequest(
+              "Delete Movie", "Test film for deletion", LocalDate.of(2020, 1, 1), 120,
+              Set.of(new Genre(1L, "Комедия")), new Mpa(1L, "G"));
+      FilmResponse createdFilm = createFilm(request);
+
+      ResponseEntity<Void> deleteResponse = restTemplate.exchange(
+              "/films/{id}", HttpMethod.DELETE, null, Void.class, createdFilm.id());
+      assertThat(deleteResponse.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+
+      ResponseEntity<ErrorResponse> getResponse = restTemplate.getForEntity(
+              "/films/{id}", ErrorResponse.class, createdFilm.id());
+      assertThat(getResponse.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+    }
+
+    @Test
+    @DisplayName("Should return 404 when deleting non-existent film")
+    void shouldReturnNotFoundWhenDeletingNonExistentFilm() {
+      ResponseEntity<ErrorResponse> response = restTemplate.exchange(
+              "/films/{id}", HttpMethod.DELETE, null, ErrorResponse.class, 999999L);
+      assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
     }
   }
 

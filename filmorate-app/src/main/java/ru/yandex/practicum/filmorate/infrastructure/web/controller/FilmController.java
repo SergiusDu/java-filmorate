@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.infrastructure.web.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.infrastructure.web.dto.CreateFilmRequest;
 import ru.yandex.practicum.filmorate.infrastructure.web.dto.FilmResponse;
@@ -61,6 +62,7 @@ public class FilmController {
   }
 
   @DeleteMapping("/{id}")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
   public void deleteFilm(@PathVariable long id) {
     filmCompositionService.deleteFilmById(id);
   }

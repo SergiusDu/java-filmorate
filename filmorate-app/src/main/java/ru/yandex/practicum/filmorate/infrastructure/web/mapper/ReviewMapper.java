@@ -11,7 +11,7 @@ import ru.yandex.practicum.filmorate.infrastructure.web.dto.UpdateReviewRequest;
 @Component
 public class ReviewMapper {
     public CreateReviewCommand toCommand(CreateReviewRequest request) {
-        return new CreateReviewCommand(request.content(), request.isPositive(), request.useful(), request.userId(),
+        return new CreateReviewCommand(request.content(), request.isPositive(), request.userId(),
                 request.filmId());
     }
 

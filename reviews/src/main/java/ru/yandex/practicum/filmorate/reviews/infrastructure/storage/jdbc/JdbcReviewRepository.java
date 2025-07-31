@@ -2,9 +2,11 @@ package ru.yandex.practicum.filmorate.reviews.infrastructure.storage.jdbc;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
+import org.yaml.snakeyaml.constructor.DuplicateKeyException;
 import ru.yandex.practicum.filmorate.common.exception.ResourceNotFoundException;
 import ru.yandex.practicum.filmorate.reviews.domain.factory.ReviewFactory;
 import ru.yandex.practicum.filmorate.reviews.domain.model.Review;
@@ -18,7 +20,7 @@ import java.util.*;
 @Repository
 @RequiredArgsConstructor
 @Profile("db")
-    public class JdbcReviewRepository implements ReviewRepository {
+public class JdbcReviewRepository implements ReviewRepository {
     private final JdbcTemplate jdbcTemplate;
     private final ReviewFactory reviewFactory;
 
@@ -70,6 +72,7 @@ import java.util.*;
 
     @Override
     public List<Review> getAllReviews() {
+
         return mapRowsToReviews(jdbcTemplate.queryForList("SELECT * FROM reviews"));
     }
 
@@ -92,21 +95,56 @@ import java.util.*;
 
     @Override
     public boolean addLikeToReview(long reviewId, long userId) {
-        return false;
+        String sql = "INSERT INTO reactions (reaction, review_id, user_id) VALUES(?, ?, ?)";
+        try {
+            jdbcTemplate.update(sql, "LIKE", reviewId, userId);
+            String updateUseful = "UPDATE reviews SET useful = useful + 1 WHERE review_id = ?";
+            int rowsUpdated = jdbcTemplate.update(updateUseful, reviewId);
+            if (rowsUpdated > 0) {
+                System.out.println("Successfully incremented useful count for review ID: " + reviewId);
+            } else {
+                System.out.println("No review found with ID: " + reviewId);
+            }
+            return true;
+        } catch (DuplicateKeyException | DataAccessException e) {
+            return false;
+        }
     }
 
     @Override
     public boolean addDislikeToReview(long reviewId, long userId) {
-        return false;
+        String sql = "INSERT INTO reactions (reaction, review_id, user_id) VALUES(?, ?, ?)";
+        try {
+            jdbcTemplate.update(sql, "DISLIKE", reviewId, userId);
+            String updateUseful = "UPDATE reviews SET useful = useful - 1 WHERE review_id = ?";
+            jdbcTemplate.update(updateUseful, reviewId);
+            return true;
+        } catch (DuplicateKeyException | DataAccessException e) {
+            return false;
+        }
     }
 
     @Override
     public boolean removeLikeFromReview(long reviewId, long userId) {
-        return false;
+        String sql = "DELETE FROM reactions WHERE review_id = ? AND film_id = ?";
+        try {
+            String updateUseful = "UPDATE reviews SET useful = useful - 1 WHERE review_id = ?";
+            jdbcTemplate.update(updateUseful, reviewId);
+        } catch (DataAccessException e) {
+            return false;
+        }
+        return jdbcTemplate.update(sql, userId, reviewId) > 0;
     }
 
     @Override
     public boolean removeDislikeFromReview(long reviewId, long userId) {
-        return false;
+        String sql = "DELETE FROM reactions WHERE review_id = ? AND film_id = ?";
+        try {
+            String updateUseful = "UPDATE reviews SET useful = useful + 1 WHERE review_id = ?";
+            jdbcTemplate.update(updateUseful, reviewId);
+        } catch (DataAccessException e) {
+            return false;
+        }
+        return jdbcTemplate.update(sql, userId, reviewId) > 0;
     }
 }

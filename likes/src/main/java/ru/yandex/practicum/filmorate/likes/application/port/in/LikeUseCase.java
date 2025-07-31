@@ -46,5 +46,4 @@ public interface LikeUseCase {
   Set<Long> findLikedFilms(long userId);
 
   Map<Long, Integer> getLikeCountsForFilms(Set<Long> filmIds);
-
 }

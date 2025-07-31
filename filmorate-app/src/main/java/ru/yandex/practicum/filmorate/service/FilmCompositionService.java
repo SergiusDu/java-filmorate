@@ -92,8 +92,11 @@ public class FilmCompositionService {
                       .orElseThrow(() -> new ResourceNotFoundException("Film with id " + id + " not found"));
   }
 
-
   public List<Film> getCommonFilms(long userId, long friendId) {
+    if (userId == friendId) {
+      throw new ValidationException("User cannot be compared with themselves.");
+    }
+
     validateUserId(userId);
     validateUserId(friendId);
 
@@ -103,14 +106,16 @@ public class FilmCompositionService {
     Set<Long> commonFilmIds = new HashSet<>(userLikes);
     commonFilmIds.retainAll(friendLikes);
 
-    if (commonFilmIds.isEmpty()) return List.of();
+    if (commonFilmIds.isEmpty()) {
+      return List.of();
+    }
 
-    List<Film> films = filmUseCase.getFilmsByIds(commonFilmIds);
+    List<Film> commonFilms = filmUseCase.getFilmsByIds(commonFilmIds);
     Map<Long, Integer> likeCounts = likeService.getLikeCountsForFilms(commonFilmIds);
 
-    return films.stream()
+    return commonFilms.stream()
             .sorted(Comparator.comparingInt(
-                    f -> -likeCounts.getOrDefault(f.id(), 0)
+                    film -> -likeCounts.getOrDefault(film.id(), 0)
             ))
             .toList();
   }

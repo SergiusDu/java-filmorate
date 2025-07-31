@@ -13,7 +13,7 @@ import ru.yandex.practicum.filmorate.reaction.domain.port.ReactionRepository;
 @Profile("db")
 public class JdbcReactionRepository implements ReactionRepository {
     private final JdbcTemplate jdbcTemplate;
-
+/*
     @Override
     public boolean addLike(long reviewId, long userId) {
         String sql = "INSERT INTO reactions (reaction, review_id, user_id) VALUES(?, ?, ?)";
@@ -62,5 +62,5 @@ public class JdbcReactionRepository implements ReactionRepository {
             return false;
         }
         return jdbcTemplate.update(sql, userId, reviewId) > 0;
-    }
+    } */
 }

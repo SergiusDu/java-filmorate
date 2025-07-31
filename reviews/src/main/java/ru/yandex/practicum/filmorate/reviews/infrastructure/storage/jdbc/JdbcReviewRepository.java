@@ -72,7 +72,6 @@ public class JdbcReviewRepository implements ReviewRepository {
 
     @Override
     public List<Review> getAllReviews() {
-
         return mapRowsToReviews(jdbcTemplate.queryForList("SELECT * FROM reviews"));
     }
 
@@ -95,9 +94,7 @@ public class JdbcReviewRepository implements ReviewRepository {
 
     @Override
     public boolean addLikeToReview(long reviewId, long userId) {
-        String sql = "INSERT INTO reactions (reaction, review_id, user_id) VALUES(?, ?, ?)";
         try {
-            jdbcTemplate.update(sql, "LIKE", reviewId, userId);
             String updateUseful = "UPDATE reviews SET useful = useful + 1 WHERE review_id = ?";
             int rowsUpdated = jdbcTemplate.update(updateUseful, reviewId);
             if (rowsUpdated > 0) {
@@ -105,7 +102,12 @@ public class JdbcReviewRepository implements ReviewRepository {
             } else {
                 System.out.println("No review found with ID: " + reviewId);
             }
-            return true;
+            Optional<Review> reviewOpt = getReviewById(reviewId);
+            if(reviewOpt.isPresent()) {
+                Review review = reviewOpt.get();
+                System.out.println("Useful after update " + review.useful());
+            }
+           return true;
         } catch (DuplicateKeyException | DataAccessException e) {
             return false;
         }
@@ -113,9 +115,7 @@ public class JdbcReviewRepository implements ReviewRepository {
 
     @Override
     public boolean addDislikeToReview(long reviewId, long userId) {
-        String sql = "INSERT INTO reactions (reaction, review_id, user_id) VALUES(?, ?, ?)";
         try {
-            jdbcTemplate.update(sql, "DISLIKE", reviewId, userId);
             String updateUseful = "UPDATE reviews SET useful = useful - 1 WHERE review_id = ?";
             jdbcTemplate.update(updateUseful, reviewId);
             return true;
@@ -126,25 +126,23 @@ public class JdbcReviewRepository implements ReviewRepository {
 
     @Override
     public boolean removeLikeFromReview(long reviewId, long userId) {
-        String sql = "DELETE FROM reactions WHERE review_id = ? AND film_id = ?";
         try {
             String updateUseful = "UPDATE reviews SET useful = useful - 1 WHERE review_id = ?";
             jdbcTemplate.update(updateUseful, reviewId);
+            return true;
         } catch (DataAccessException e) {
             return false;
         }
-        return jdbcTemplate.update(sql, userId, reviewId) > 0;
     }
 
     @Override
     public boolean removeDislikeFromReview(long reviewId, long userId) {
-        String sql = "DELETE FROM reactions WHERE review_id = ? AND film_id = ?";
         try {
             String updateUseful = "UPDATE reviews SET useful = useful + 1 WHERE review_id = ?";
             jdbcTemplate.update(updateUseful, reviewId);
+            return true;
         } catch (DataAccessException e) {
             return false;
         }
-        return jdbcTemplate.update(sql, userId, reviewId) > 0;
     }
 }

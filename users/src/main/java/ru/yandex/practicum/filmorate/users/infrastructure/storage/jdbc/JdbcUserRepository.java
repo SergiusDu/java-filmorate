@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.films.infrastructure.storage.jdbc;
+package ru.yandex.practicum.filmorate.users.infrastructure.storage.jdbc;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
@@ -7,13 +7,13 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.common.exception.ResourceNotFoundException;
-import ru.yandex.practicum.filmorate.films.domain.factory.UserFactory;
-import ru.yandex.practicum.filmorate.films.domain.model.User;
-import ru.yandex.practicum.filmorate.films.domain.model.value.Email;
-import ru.yandex.practicum.filmorate.films.domain.model.value.Login;
-import ru.yandex.practicum.filmorate.films.domain.port.CreateUserCommand;
-import ru.yandex.practicum.filmorate.films.domain.port.UpdateUserCommand;
-import ru.yandex.practicum.filmorate.films.domain.port.UserRepository;
+import ru.yandex.practicum.filmorate.users.domain.factory.UserFactory;
+import ru.yandex.practicum.filmorate.users.domain.model.User;
+import ru.yandex.practicum.filmorate.users.domain.model.value.Email;
+import ru.yandex.practicum.filmorate.users.domain.model.value.Login;
+import ru.yandex.practicum.filmorate.users.domain.port.CreateUserCommand;
+import ru.yandex.practicum.filmorate.users.domain.port.UpdateUserCommand;
+import ru.yandex.practicum.filmorate.users.domain.port.UserRepository;
 
 import java.util.List;
 import java.util.Map;

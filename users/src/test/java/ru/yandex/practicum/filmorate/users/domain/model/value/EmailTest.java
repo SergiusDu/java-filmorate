@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.films.domain.model.value;
+package ru.yandex.practicum.filmorate.users.domain.model.value;
 
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;

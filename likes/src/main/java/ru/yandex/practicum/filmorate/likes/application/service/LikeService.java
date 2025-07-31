@@ -6,6 +6,7 @@ import ru.yandex.practicum.filmorate.common.exception.ValidationException;
 import ru.yandex.practicum.filmorate.likes.application.port.in.LikeUseCase;
 import ru.yandex.practicum.filmorate.likes.domain.port.LikeRepository;
 
+import java.util.Map;
 import java.util.Set;
 
 @RequiredArgsConstructor
@@ -41,5 +42,10 @@ public class LikeService implements LikeUseCase {
   @Override
   public Set<Long> findLikedFilms(long userId) {
     return likeRepository.findLikedFilms(userId);
+  }
+
+  @Override
+  public Map<Long, Integer> getLikeCountsForFilms(Set<Long> filmIds) {
+    return likeRepository.getLikeCountsForFilms(filmIds);
   }
 }

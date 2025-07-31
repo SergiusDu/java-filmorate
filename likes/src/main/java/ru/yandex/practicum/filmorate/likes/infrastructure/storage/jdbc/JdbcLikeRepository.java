@@ -64,4 +64,21 @@ public class JdbcLikeRepository implements LikeRepository {
     List<Long> filmIds = jdbcTemplate.queryForList(sql, Long.class, userId);
     return new HashSet<>(filmIds);
   }
+
+  @Override
+  public Map<Long, Integer> getLikeCountsForFilms(Set<Long> filmIds) {
+    if (filmIds == null || filmIds.isEmpty()) return Map.of();
+
+    String inSql = String.join(",", Collections.nCopies(filmIds.size(), "?"));
+    String sql = "SELECT film_id, COUNT(user_id) AS like_count " +
+            "FROM likes WHERE film_id IN (" + inSql + ") " +
+            "GROUP BY film_id";
+
+    Map<Long, Integer> result = new HashMap<>();
+    jdbcTemplate.query(sql, rs -> {
+      result.put(rs.getLong("film_id"), rs.getInt("like_count"));
+    }, filmIds.toArray());
+
+    return result;
+  }
 }

@@ -13,10 +13,7 @@ import ru.yandex.practicum.filmorate.films.domain.port.UpdateFilmCommand;
 import ru.yandex.practicum.filmorate.likes.application.port.in.LikeUseCase;
 import ru.yandex.practicum.filmorate.users.application.port.in.UserUseCase;
 
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -106,13 +103,14 @@ public class FilmCompositionService {
     Set<Long> commonFilmIds = new HashSet<>(userLikes);
     commonFilmIds.retainAll(friendLikes);
 
-    if (commonFilmIds.isEmpty()) {
-      return List.of();
-    }
+    if (commonFilmIds.isEmpty()) return List.of();
 
-    return filmUseCase.getFilmsByIds(commonFilmIds).stream()
+    List<Film> films = filmUseCase.getFilmsByIds(commonFilmIds);
+    Map<Long, Integer> likeCounts = likeService.getLikeCountsForFilms(commonFilmIds);
+
+    return films.stream()
             .sorted(Comparator.comparingInt(
-                    film -> -likeService.findUsersWhoLikedFilm(film.id()).size()
+                    f -> -likeCounts.getOrDefault(f.id(), 0)
             ))
             .toList();
   }

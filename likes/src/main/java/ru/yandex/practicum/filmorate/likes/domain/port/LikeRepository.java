@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.likes.domain.port;
 
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -44,4 +45,12 @@ public interface LikeRepository {
   boolean contains(long filmId);
 
   Set<Long> findLikedFilms(long userId);
+
+  /**
+   * Returns a map of filmId -> number of likes for each film from the given set.
+   *
+   * @param filmIds set of film IDs
+   * @return map where key = film ID, value = total number of likes
+   */
+  Map<Long, Integer> getLikeCountsForFilms(Set<Long> filmIds);
 }

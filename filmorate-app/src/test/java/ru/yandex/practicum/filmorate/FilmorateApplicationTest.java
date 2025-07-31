@@ -413,39 +413,34 @@ class FilmorateApplicationTest {
       assertThat(response.getBody()[0].name()).isEqualTo("Film 2");
     }
 
-    @Nested
-    @DisplayName("Like API Tests")
-    class LikeTests {
+    @Test
+    @DisplayName("Should add a like to a film")
+    void shouldAddLike() {
+      UserResponse user = createUser(new CreateUserRequest("user@a.com", "user", "User", LocalDate.of(1990, 1, 1)));
+      FilmResponse film = createFilm(
+              new CreateFilmRequest("Film", "d", LocalDate.of(2000, 1, 1), 120, Set.of(new Genre(1L, "Комедия")),
+                      new Mpa(1L, "G")));
 
-      @Test
-      @DisplayName("Should add a like to a film")
-      void shouldAddLike() {
-        UserResponse user = createUser(new CreateUserRequest("user@a.com", "user", "User", LocalDate.of(1990, 1, 1)));
-        FilmResponse film = createFilm(
-                new CreateFilmRequest("Film", "d", LocalDate.of(2000, 1, 1), 120, Set.of(new Genre(1L, "Комедия")),
-                        new Mpa(1L, "G")));
+      ResponseEntity<Void> response = restTemplate.exchange("/films/{id}/like/{userId}", HttpMethod.PUT, null,
+              Void.class, film.id(), user.id());
 
-        ResponseEntity<Void> response = restTemplate.exchange("/films/{id}/like/{userId}", HttpMethod.PUT, null,
-                Void.class, film.id(), user.id());
-
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-      }
-
-      @Test
-      @DisplayName("Should remove a like from a film")
-      void shouldRemoveLike() {
-        UserResponse user = createUser(new CreateUserRequest("user@a.com", "user", "User", LocalDate.of(1990, 1, 1)));
-        FilmResponse film = createFilm(
-                new CreateFilmRequest("Film", "d", LocalDate.of(2000, 1, 1), 120, Set.of(new Genre(1L, "Комедия")),
-                        new Mpa(1L, "G")));
-        restTemplate.put("/films/{id}/like/{userId}", null, film.id(), user.id());
-
-        ResponseEntity<Void> response = restTemplate.exchange("/films/{id}/like/{userId}", HttpMethod.DELETE, null,
-                Void.class, film.id(), user.id());
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-      }
+      assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 
+    @Test
+    @DisplayName("Should remove a like from a film")
+    void shouldRemoveLike() {
+      UserResponse user = createUser(new CreateUserRequest("user@a.com", "user", "User", LocalDate.of(1990, 1, 1)));
+      FilmResponse film = createFilm(
+              new CreateFilmRequest("Film", "d", LocalDate.of(2000, 1, 1), 120, Set.of(new Genre(1L, "Комедия")),
+                      new Mpa(1L, "G")));
+      restTemplate.put("/films/{id}/like/{userId}", null, film.id(), user.id());
+
+      ResponseEntity<Void> response = restTemplate.exchange("/films/{id}/like/{userId}", HttpMethod.DELETE, null,
+              Void.class, film.id(), user.id());
+      assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+    }
+  }
     @Nested
     @DisplayName("MPA API Tests")
     class MpaTests {
@@ -512,4 +507,3 @@ class FilmorateApplicationTest {
       }
     }
   }
-}

@@ -61,8 +61,7 @@ public class JdbcLikeRepository implements LikeRepository {
   @Override
   public Set<Long> findLikedFilms(long userId) {
     String sql = "SELECT film_id FROM likes WHERE user_id = ?";
-    List<Long> filmIds = jdbcTemplate.queryForList(sql, Long.class, userId);
-    return new HashSet<>(filmIds);
+    return new HashSet<>(jdbcTemplate.queryForList(sql, Long.class, userId));
   }
 
   @Override
@@ -79,6 +78,20 @@ public class JdbcLikeRepository implements LikeRepository {
       result.put(rs.getLong("film_id"), rs.getInt("like_count"));
     }, filmIds.toArray());
 
+    return result;
+  }
+
+  @Override
+  public Map<Long, Set<Long>> findAllUserFilmLikes() {
+    String sql = "SELECT user_id, film_id FROM likes";
+    List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql);
+
+    Map<Long, Set<Long>> result = new HashMap<>();
+    for (Map<String, Object> row : rows) {
+      Long userId = ((Number) row.get("user_id")).longValue();
+      Long filmId = ((Number) row.get("film_id")).longValue();
+      result.computeIfAbsent(userId, k -> new HashSet<>()).add(filmId);
+    }
     return result;
   }
 }

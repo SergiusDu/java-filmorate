@@ -57,11 +57,4 @@ public class JdbcLikeRepository implements LikeRepository {
     Integer count = jdbcTemplate.queryForObject(sql, Integer.class, filmId);
     return count != null && count > 0;
   }
-
-  @Override
-  public Set<Long> findLikedFilms(long userId) {
-    String sql = "SELECT film_id FROM likes WHERE user_id = ?";
-    List<Long> filmIds = jdbcTemplate.queryForList(sql, Long.class, userId);
-    return new HashSet<>(filmIds);
-  }
 }

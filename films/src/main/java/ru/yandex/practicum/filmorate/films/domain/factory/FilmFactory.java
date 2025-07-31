@@ -7,7 +7,6 @@ import ru.yandex.practicum.filmorate.films.domain.port.UpdateFilmCommand;
 
 import java.time.Duration;
 
-
 @Component
 public class FilmFactory {
   public Film create(long id, CreateFilmCommand command) {

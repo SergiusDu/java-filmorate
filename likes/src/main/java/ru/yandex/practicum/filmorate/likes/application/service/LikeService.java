@@ -37,9 +37,4 @@ public class LikeService implements LikeUseCase {
   public Set<Long> findUsersWhoLikedFilm(long filmId) {
     return likeRepository.findUsersWhoLikedFilm(filmId);
   }
-
-  @Override
-  public Set<Long> findLikedFilms(long userId) {
-    return likeRepository.findLikedFilms(userId);
-  }
 }

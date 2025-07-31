@@ -14,13 +14,14 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+
 @Service
 @RequiredArgsConstructor
 public class FilmService implements FilmUseCase {
-
   private final FilmRepository filmRepository;
   private final GenreRepository genreRepository;
   private final MpaRepository mpaRepository;
+
   private final FilmValidationService filmValidationService;
 
   @Override
@@ -45,6 +46,11 @@ public class FilmService implements FilmUseCase {
   @Override
   public List<Film> getAllFilms() {
     return filmRepository.findAll();
+  }
+
+  @Override
+  public Optional<Film> getFilmById(long id) {
+    return filmRepository.findById(id);
   }
 
   @Override
@@ -73,13 +79,14 @@ public class FilmService implements FilmUseCase {
   }
 
   private void validateFilmDependencies(Set<Genre> genres, Mpa mpa) {
-    if (mpa != null && mpaRepository.findById(mpa.id()).isEmpty()) {
+    if (mpa != null && mpaRepository.findById(mpa.id())
+                                    .isEmpty()) {
       throw new ResourceNotFoundException("Mpa with id " + mpa.id() + " not found");
     }
-
     if (genres != null) {
       for (Genre genre : genres) {
-        if (genreRepository.findById(genre.id()).isEmpty()) {
+        if (genreRepository.findById(genre.id())
+                           .isEmpty()) {
           throw new ResourceNotFoundException("Genre with id " + genre.id() + " not found");
         }
       }

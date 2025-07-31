@@ -49,6 +49,10 @@ public class ReviewCompositionService {
     }
 
     public boolean addLikeToReview(long reviewId, long userId) {
+        /* вариант без модуля reactions
+        Review review = getReviewById(reviewId);
+        Integer useful = review.useful();
+        updateReview(new UpdateReviewCommand(reviewId, review.content(), review.isPositive(), useful + 1, review.filmId(), review.userId()));*/
         return reviewUseCase.addLikeToReview(reviewId, userId);
     }
 

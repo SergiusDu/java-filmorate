@@ -14,11 +14,12 @@ public record Review(Long reviewId,
     /**
      Validates some Review fields. If invalid
      @throws InvalidReviewDataException
+     If useful is NULL (like in the case of entity creation), it is set to default value 0
      */
     public Review {
         ValidationUtils.notNull(reviewId, msg -> new InvalidReviewDataException("Review id must not be null"));
         ValidationUtils.notBlank(content, msg -> new InvalidReviewDataException("Review content must not be blank"));
         ValidationUtils.notNull(isPositive, msg -> new InvalidReviewDataException("Review isPositive field must not null"));
-        ValidationUtils.notNull(useful, msg -> new InvalidReviewDataException("Review useful must not be null"));
+        if (useful == null) useful = 0;
     }
 }

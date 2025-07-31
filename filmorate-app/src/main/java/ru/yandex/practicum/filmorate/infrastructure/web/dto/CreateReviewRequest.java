@@ -9,9 +9,6 @@ public record CreateReviewRequest(@NotBlank(message = "Content cannot be empty")
                                  @NotNull(message = "Is positive field cannot be null")
                                  boolean isPositive,
 
-                                 @NotNull(message = "Useful cannot be null")
-                                 Integer useful,
-
                                  @NotNull(message = "User id cannot be null")
                                  Long userId,
 

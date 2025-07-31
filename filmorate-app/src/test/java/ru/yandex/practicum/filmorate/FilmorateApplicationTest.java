@@ -17,6 +17,8 @@ import ru.yandex.practicum.filmorate.films.domain.model.value.Mpa;
 import ru.yandex.practicum.filmorate.infrastructure.web.dto.*;
 import ru.yandex.practicum.filmorate.infrastructure.web.exception.ErrorResponse;
 import ru.yandex.practicum.filmorate.infrastructure.web.exception.ValidationErrorResponse;
+import ru.yandex.practicum.filmorate.reaction.domain.model.Reaction;
+import ru.yandex.practicum.filmorate.reviews.domain.model.Review;
 
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -25,6 +27,8 @@ import java.util.Objects;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles({"test",
@@ -422,6 +426,153 @@ class FilmorateApplicationTest {
     void shouldReturnNotFoundForUnknownGenreId() {
       ResponseEntity<ErrorResponse> response = restTemplate.getForEntity("/genres/9999", ErrorResponse.class);
       assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+    }
+  }
+
+  @Nested
+  @DisplayName("Review API Tests")
+  class ReviewTests {
+
+    @Test
+    @DisplayName("Create Review")
+    void shouldCreateReview() {
+      UserResponse user = createUser(new CreateUserRequest("newuser@mail.com", "user", "user", LocalDate.of(1990, 1, 1)));
+      FilmResponse film = createFilm(
+              new CreateFilmRequest("Film", "description", LocalDate.of(2000, 1, 1), 120, Set.of(new Genre(1L, "Комедия")),
+                      new Mpa(1L, "G")));
+
+      CreateReviewRequest createReviewRequest =
+              new CreateReviewRequest("positive review", true, user.id(), film.id());
+      ResponseEntity<ReviewResponse> response =
+              restTemplate.postForEntity("/reviews", createReviewRequest, ReviewResponse.class);
+
+      assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+      assertThat(response.getBody()).extracting("content").isEqualTo("positive review");
+      assertThat(response.getBody()).extracting("isPositive").isEqualTo(true);
+      assertThat(response.getBody()).extracting("useful").isEqualTo(0);
+    }
+
+    @Test
+    @DisplayName("Update Review")
+    void shouldUpdateReview() {
+      UserResponse user = createUser(new CreateUserRequest("newuser@mail.com", "user", "user", LocalDate.of(1990, 1, 1)));
+      FilmResponse film = createFilm(
+              new CreateFilmRequest("Film", "description", LocalDate.of(2000, 1, 1), 120, Set.of(new Genre(1L, "Комедия")),
+                      new Mpa(1L, "G")));
+
+      CreateReviewRequest createReviewRequest =
+              new CreateReviewRequest("positive review", true, user.id(), film.id());
+      ResponseEntity<ReviewResponse> response =
+              restTemplate.postForEntity("/reviews", createReviewRequest, ReviewResponse.class);
+
+      assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+      ReviewResponse review = response.getBody();
+      long reviewId = review.reviewId();
+
+      UpdateReviewRequest updateReviewRequest =
+              new UpdateReviewRequest(reviewId, "new content", true, 1, user.id(), film.id());
+      ResponseEntity<ReviewResponse> responseUpdate =
+              restTemplate.exchange("/reviews", HttpMethod.PUT,
+                      new HttpEntity<>(updateReviewRequest),
+                      ReviewResponse.class);
+
+      assertThat(responseUpdate.getStatusCode()).isEqualTo(HttpStatus.OK);
+      assertThat(responseUpdate.getBody()).extracting("content").isEqualTo("new content");
+      assertThat(responseUpdate.getBody()).extracting("useful").isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("Should get Review by id, filmId, count")
+    void getReviewByParams() {
+      UserResponse user = createUser(new CreateUserRequest("newuser@mail.com", "user", "user", LocalDate.of(1990, 1, 1)));
+      FilmResponse film = createFilm(
+              new CreateFilmRequest("Film", "description", LocalDate.of(2000, 1, 1), 120, Set.of(new Genre(1L, "Комедия")),
+                      new Mpa(1L, "G")));
+
+      CreateReviewRequest createReviewRequest =
+              new CreateReviewRequest("positive review", true, user.id(), film.id());
+      ResponseEntity<ReviewResponse> response =
+              restTemplate.postForEntity("/reviews", createReviewRequest, ReviewResponse.class);
+
+      assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+      ReviewResponse review = response.getBody();
+
+      ResponseEntity<ReviewResponse> getResponse = restTemplate.
+              getForEntity("/reviews/{reviewId}", ReviewResponse.class, review.reviewId());
+      assertThat(getResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+      ResponseEntity<ReviewResponse[]> reviewFromFilmGetResponse = restTemplate.
+              getForEntity("/reviews?filmId={filmId}&count=2", ReviewResponse[].class, film.id());
+      assertThat(reviewFromFilmGetResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+      ResponseEntity<ReviewResponse[]> reviewFromCountGetResponse = restTemplate.
+              getForEntity("/reviews?count=2", ReviewResponse[].class, film.id());
+      assertThat(reviewFromCountGetResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
+    }
+
+    @Test
+    @DisplayName("Should delete Review")
+    void deleteSelectedReview() {
+      UserResponse user = createUser(new CreateUserRequest("newuser@mail.com", "user", "user", LocalDate.of(1990, 1, 1)));
+      FilmResponse film = createFilm(
+              new CreateFilmRequest("Film", "description", LocalDate.of(2000, 1, 1), 120, Set.of(new Genre(1L, "Комедия")),
+                      new Mpa(1L, "G")));
+
+      CreateReviewRequest createReviewRequest =
+              new CreateReviewRequest("positive review", true, user.id(), film.id());
+      ResponseEntity<ReviewResponse> response =
+              restTemplate.postForEntity("/reviews", createReviewRequest, ReviewResponse.class);
+
+      assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+      ResponseEntity<Void> deleteResponse = restTemplate.exchange("/reviews/{id}", HttpMethod.DELETE, null,
+              Void.class, response.getBody().reviewId());
+      assertThat(deleteResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
+    }
+
+    @Test
+    @DisplayName("Check reactions adding and removing")
+    void shouldProcessReactions() {
+      UserResponse user = createUser(new CreateUserRequest("newuser@mail.com", "user", "user", LocalDate.of(1990, 1, 1)));
+      FilmResponse film = createFilm(
+              new CreateFilmRequest("Film", "description", LocalDate.of(2000, 1, 1), 120, Set.of(new Genre(1L, "Комедия")),
+                      new Mpa(1L, "G")));
+
+      CreateReviewRequest createReviewRequest =
+              new CreateReviewRequest("positive review", true, user.id(), film.id());
+      ResponseEntity<ReviewResponse> response =
+              restTemplate.postForEntity("/reviews", createReviewRequest, ReviewResponse.class);
+
+      assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+      ReviewResponse review = response.getBody();
+      Integer usefulStartValue = review.useful();
+      restTemplate.put("/reviews/{id}/like/{userId}", null, review.reviewId(), user.id());
+      ResponseEntity<ReviewResponse> getResponseAfterLike = restTemplate.
+              getForEntity("/reviews/{reviewId}", ReviewResponse.class, review.reviewId());
+      assertThat(getResponseAfterLike.getStatusCode()).isEqualTo(HttpStatus.OK);
+      assertNotNull(getResponseAfterLike.getBody(), "Review response body is null");
+      assertEquals(usefulStartValue + 1, getResponseAfterLike.getBody().useful(), "Useful did not increment correctly");
+
+      restTemplate.delete("/reviews/{id}/like/{userId}", null, review.reviewId(), user.id());
+      ResponseEntity<ReviewResponse> getResponseAfterLikeRemove = restTemplate.
+              getForEntity("/reviews/{reviewId}", ReviewResponse.class, review.reviewId());
+      assertThat(getResponseAfterLikeRemove.getStatusCode()).isEqualTo(HttpStatus.OK);
+      assertEquals(getResponseAfterLike.getBody().useful() - 1, getResponseAfterLikeRemove.getBody().useful());
+
+      restTemplate.delete("/reviews/{id}/dislike/{userId}", null, review.reviewId(), user.id());
+      ResponseEntity<ReviewResponse> getResponseAfterDislike = restTemplate.
+              getForEntity("/reviews/{reviewId}", ReviewResponse.class, review.reviewId());
+      assertThat(getResponseAfterDislike.getStatusCode()).isEqualTo(HttpStatus.OK);
+      assertEquals(getResponseAfterLikeRemove.getBody().useful() - 1, getResponseAfterDislike.getBody().useful());
+
+      restTemplate.delete("/reviews/{id}/dislike/{userId}", null, review.reviewId(), user.id());
+      ResponseEntity<ReviewResponse> getResponseAfterDislikeRemove = restTemplate.
+              getForEntity("/reviews/{reviewId}", ReviewResponse.class, review.reviewId());
+      assertThat(getResponseAfterDislikeRemove.getStatusCode()).isEqualTo(HttpStatus.OK);
+      assertEquals(getResponseAfterDislike.getBody().useful() + 1, getResponseAfterDislikeRemove.getBody().useful());
     }
   }
 }

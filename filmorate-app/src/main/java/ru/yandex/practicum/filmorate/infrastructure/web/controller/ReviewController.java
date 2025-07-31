@@ -31,7 +31,7 @@ public class ReviewController {
         reviewCompositionService.removeReview(id);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/{reviewId}")
     public ReviewResponse getReviewById(@PathVariable long reviewId) {
         return reviewMapper.toResponse(reviewCompositionService.getReviewById(reviewId));
     }

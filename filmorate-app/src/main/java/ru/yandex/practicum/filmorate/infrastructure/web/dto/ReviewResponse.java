@@ -8,4 +8,4 @@ public record ReviewResponse(Long reviewId,
                             boolean isPositive,
                             Integer useful,
                             Long userId,
-                            Long filmId ) {}
+                            Long filmId) {}

@@ -14,7 +14,9 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class ReviewService implements ReviewUseCase {
+
     private final ReviewRepository reviewRepository;
+
     @Override
     public Review addReview(CreateReviewCommand command) {
         return reviewRepository.addReview(command);

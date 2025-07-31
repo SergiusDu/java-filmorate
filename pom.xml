@@ -25,8 +25,7 @@
         <module>friendships</module>
         <module>likes</module>
         <module>reviews</module>
-        <module>review_reaction</module>
-        <module>review_dislikes</module>
+        <module>reaction</module>
     </modules>
     <dependencyManagement>
         <dependencies>

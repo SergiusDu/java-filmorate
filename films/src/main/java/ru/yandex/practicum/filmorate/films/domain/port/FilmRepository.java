@@ -47,4 +47,11 @@ public interface FilmRepository {
    @return List of films matching the provided IDs
    */
   List<Film> getByIds(Set<Long> ids);
+
+  /**
+   Deletes a film by ID.
+   @param id ID of the film to delete
+   @throws ResourceNotFoundException if the film doesn't exist
+   */
+  void deleteById(long id);
 }

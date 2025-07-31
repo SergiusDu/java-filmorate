@@ -147,4 +147,15 @@ public class JdbcFilmRepository implements FilmRepository {
       jdbcTemplate.batchUpdate("INSERT INTO film_genres (film_id, genre_id) VALUES (?, ?)", batchArgs);
     }
   }
+
+  @Override
+  public void deleteById(long filmId) {
+    // явно удаляем лайки из таблицы likes
+    jdbcTemplate.update("DELETE FROM likes WHERE film_id = ?", filmId);
+
+    int rows = jdbcTemplate.update("DELETE FROM films WHERE film_id = ?", filmId);
+    if (rows == 0) {
+      throw new ResourceNotFoundException("Film with id " + filmId + " not found.");
+    }
+  }
 }

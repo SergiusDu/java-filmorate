@@ -62,4 +62,18 @@ public class UserCompositionService {
     friendshipsUseCase.removeFriend(userId,
                                     friendId);
   }
+
+  public User getUserById(long id) {
+    return userUseCase.findUserById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("User with id " + id + " not found."));
+  }
+
+
+  public void deleteUserById(long userId) {
+    if (userUseCase.findUserById(userId).isEmpty()) {
+      throw new ResourceNotFoundException("User with id " + userId + " not found.");
+    }
+    userUseCase.deleteUserById(userId);
+  }
+
 }

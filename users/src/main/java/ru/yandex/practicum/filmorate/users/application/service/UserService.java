@@ -60,4 +60,9 @@ public class UserService implements UserUseCase {
   public List<User> findUsersByIds(Set<Long> ids) {
     return userRepository.findByIds(ids);
   }
+
+  @Override
+  public void deleteUserById(long userId) {
+    userRepository.deleteById(userId);
+  }
 }

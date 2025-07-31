@@ -30,4 +30,6 @@ public interface FilmUseCase {
   List<Mpa> getMpas();
 
   Optional<Mpa> getMpaById(long id);
+
+  void deleteFilmById(long filmId);
 }

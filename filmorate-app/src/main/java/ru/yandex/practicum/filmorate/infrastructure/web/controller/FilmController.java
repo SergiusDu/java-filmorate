@@ -59,4 +59,9 @@ public class FilmController {
   public FilmResponse getFilmById(@PathVariable long id) {
     return filmMapper.toResponse(filmCompositionService.getFilmById(id));
   }
+
+  @DeleteMapping("/{id}")
+  public void deleteFilm(@PathVariable long id) {
+    filmCompositionService.deleteFilmById(id);
+  }
 }

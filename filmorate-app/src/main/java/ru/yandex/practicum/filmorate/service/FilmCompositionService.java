@@ -91,4 +91,10 @@ public class FilmCompositionService {
     return filmUseCase.findFilmById(id)
                       .orElseThrow(() -> new ResourceNotFoundException("Film with id " + id + " not found"));
   }
+
+  public void deleteFilmById(long filmId) {
+    if (filmUseCase.findFilmById(filmId).isPresent()) {
+      filmUseCase.deleteFilmById(filmId);
+    }
+  }
 }

@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.reviews.application.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.reviews.application.port.in.ReviewUseCase;
 import ru.yandex.practicum.filmorate.reviews.domain.model.Review;

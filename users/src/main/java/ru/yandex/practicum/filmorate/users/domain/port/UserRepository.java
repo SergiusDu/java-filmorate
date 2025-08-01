@@ -1,7 +1,7 @@
-package ru.yandex.practicum.filmorate.films.domain.port;
+package ru.yandex.practicum.filmorate.users.domain.port;
 
 
-import ru.yandex.practicum.filmorate.films.domain.model.User;
+import ru.yandex.practicum.filmorate.users.domain.model.User;
 
 import java.util.List;
 import java.util.Optional;

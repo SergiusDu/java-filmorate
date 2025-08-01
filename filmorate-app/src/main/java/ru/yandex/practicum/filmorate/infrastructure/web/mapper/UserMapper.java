@@ -2,12 +2,12 @@ package ru.yandex.practicum.filmorate.infrastructure.web.mapper;
 
 
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.films.domain.model.User;
-import ru.yandex.practicum.filmorate.films.domain.port.CreateUserCommand;
-import ru.yandex.practicum.filmorate.films.domain.port.UpdateUserCommand;
 import ru.yandex.practicum.filmorate.infrastructure.web.dto.CreateUserRequest;
 import ru.yandex.practicum.filmorate.infrastructure.web.dto.UpdateUserRequest;
 import ru.yandex.practicum.filmorate.infrastructure.web.dto.UserResponse;
+import ru.yandex.practicum.filmorate.users.domain.model.User;
+import ru.yandex.practicum.filmorate.users.domain.port.CreateUserCommand;
+import ru.yandex.practicum.filmorate.users.domain.port.UpdateUserCommand;
 
 @Component
 public class UserMapper {

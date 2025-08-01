@@ -1,13 +1,19 @@
 package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import ru.yandex.practicum.filmorate.common.exception.ResourceNotFoundException;
+import ru.yandex.practicum.filmorate.common.exception.ValidationException;
+import ru.yandex.practicum.filmorate.reaction.application.port.in.ReactionUseCase;
+import ru.yandex.practicum.filmorate.reaction.domain.model.Reaction;
+import ru.yandex.practicum.filmorate.reaction.domain.model.ReactionType;
 import ru.yandex.practicum.filmorate.reviews.domain.model.Review;
 import ru.yandex.practicum.filmorate.reviews.domain.port.CreateReviewCommand;
 import ru.yandex.practicum.filmorate.reviews.domain.port.UpdateReviewCommand;
 import ru.yandex.practicum.filmorate.reviews.application.port.in.ReviewUseCase;
 
-import java.lang.module.ResolutionException;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -16,6 +22,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ReviewCompositionService {
     private final ReviewUseCase reviewUseCase;
+    private final ReactionUseCase reactionUseCase;
 
     public Review addReview(CreateReviewCommand command) {
         return reviewUseCase.addReview(command);
@@ -30,12 +37,8 @@ public class ReviewCompositionService {
     }
 
     public Review getReviewById(long reviewId) {
-        Optional<Review> review = reviewUseCase.getReviewById(reviewId);
-        if (review.isPresent()) {
-            return review.get();
-        } else {
-            throw new ResolutionException("Review with id " + reviewId + " was not found");
-        }
+        return reviewUseCase.getReviewById(reviewId)
+                .orElseThrow(() -> new ResourceNotFoundException("Review with id " + reviewId + " was not found"));
     }
 
     public List<Review> getReviewsByFilmId(long filmId) {
@@ -48,23 +51,68 @@ public class ReviewCompositionService {
                 .sorted(Comparator.comparingInt(Review::useful).reversed()).toList();
     }
 
-    public boolean addLikeToReview(long reviewId, long userId) {
-        /* вариант без модуля reactions
+    @Transactional
+    public void addLikeToReview(long reviewId, long userId) {
+        validateReviewAndUserExist(reviewId, userId);
+        handleReaction(reviewId, userId, ReactionType.LIKE);
+    }
+
+    @Transactional
+    public void addDislikeToReview(long reviewId, long userId) {
+        validateReviewAndUserExist(reviewId, userId);
+        handleReaction(reviewId, userId, ReactionType.DISLIKE);
+    }
+
+    @Transactional
+    public void removeLikeFromReview(long reviewId, long userId) {
+        validateReviewAndUserExist(reviewId, userId);
+        removeReaction(reviewId, userId, ReactionType.LIKE);
+    }
+
+    @Transactional
+    public void removeDislikeFromReview(long reviewId, long userId) {
+        validateReviewAndUserExist(reviewId, userId);
+        removeReaction(reviewId, userId, ReactionType.DISLIKE);
+    }
+
+    private void handleReaction(long reviewId, long userId, ReactionType newReactionType) {
+        Optional<Reaction> reactionOpt = reactionUseCase.findReaction(reviewId, userId);
+        int delta = 0;
+
+        if (reactionOpt.isPresent()) {
+            Reaction existingReaction = reactionOpt.get();
+            if (existingReaction.type() == newReactionType) {
+                throw new DuplicateKeyException("Reaction can be added only once");
+            }
+
+            reactionUseCase.removeReaction(reviewId, userId);
+
+            delta += (existingReaction.type() == ReactionType.LIKE) ? -1 : 1;
+        }
+
+        reactionUseCase.addReaction(reviewId, userId, newReactionType);
+        delta += (newReactionType == ReactionType.LIKE) ? 1 : -1;
+
+        if (delta != 0) {
+            reviewUseCase.changeUseful(reviewId, delta);
+        }
+    }
+
+    private void removeReaction(long reviewId, long userId, ReactionType reactionToRemove) {
+        Optional<Reaction> existingReactionOpt = reactionUseCase.findReaction(reviewId, userId);
+
+        if (existingReactionOpt.isPresent() && existingReactionOpt.get().type() == reactionToRemove) {
+            if (reactionUseCase.removeReaction(reviewId, userId)) {
+                int delta = (reactionToRemove == ReactionType.LIKE) ? -1 : 1;
+                reviewUseCase.changeUseful(reviewId, delta);
+            }
+        }
+    }
+
+    private void validateReviewAndUserExist(long reviewId, long userId) {
         Review review = getReviewById(reviewId);
-        Integer useful = review.useful();
-        updateReview(new UpdateReviewCommand(reviewId, review.content(), review.isPositive(), useful + 1, review.filmId(), review.userId()));*/
-        return reviewUseCase.addLikeToReview(reviewId, userId);
-    }
-
-    public boolean addDislikeToReview(long reviewId, long userId) {
-        return reviewUseCase.addDislikeToReview(reviewId, userId);
-    }
-
-    public boolean removeLikeFromReview(long reviewId, long userId) {
-        return reviewUseCase.removeLikeFromReview(reviewId, userId);
-    }
-
-    public boolean removeDislikeFromReview(long reviewId, long userId) {
-        return reviewUseCase.removeDislikeFromReview(reviewId, userId);
+        if (review.userId() != userId) {
+            throw new ValidationException("User " + userId + " for review " + reviewId + " do not correspond");
+        }
     }
 }

@@ -1,12 +1,11 @@
 package ru.yandex.practicum.filmorate.reviews.infrastructure.storage.jdbc;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Profile;
-import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
-import org.yaml.snakeyaml.constructor.DuplicateKeyException;
 import ru.yandex.practicum.filmorate.common.exception.ResourceNotFoundException;
 import ru.yandex.practicum.filmorate.reviews.domain.factory.ReviewFactory;
 import ru.yandex.practicum.filmorate.reviews.domain.model.Review;
@@ -17,6 +16,7 @@ import ru.yandex.practicum.filmorate.reviews.domain.port.UpdateReviewCommand;
 import java.util.*;
 
 
+@Slf4j
 @Repository
 @RequiredArgsConstructor
 @Profile("db")
@@ -93,56 +93,20 @@ public class JdbcReviewRepository implements ReviewRepository {
     }
 
     @Override
-    public boolean addLikeToReview(long reviewId, long userId) {
-        try {
-            String updateUseful = "UPDATE reviews SET useful = useful + 1 WHERE review_id = ?";
-            int rowsUpdated = jdbcTemplate.update(updateUseful, reviewId);
-            if (rowsUpdated > 0) {
-                System.out.println("Successfully incremented useful count for review ID: " + reviewId);
-            } else {
-                System.out.println("No review found with ID: " + reviewId);
-            }
-            Optional<Review> reviewOpt = getReviewById(reviewId);
-            if(reviewOpt.isPresent()) {
-                Review review = reviewOpt.get();
-                System.out.println("Useful after update " + review.useful());
-            }
-           return true;
-        } catch (DuplicateKeyException | DataAccessException e) {
-            return false;
-        }
-    }
+    public void changeUseful(long reviewId, int delta) {
+        Optional<Review> reviewOpt = getReviewById(reviewId);
 
-    @Override
-    public boolean addDislikeToReview(long reviewId, long userId) {
-        try {
-            String updateUseful = "UPDATE reviews SET useful = useful - 1 WHERE review_id = ?";
-            jdbcTemplate.update(updateUseful, reviewId);
-            return true;
-        } catch (DuplicateKeyException | DataAccessException e) {
-            return false;
-        }
-    }
+        Integer newUseful = 0;
 
-    @Override
-    public boolean removeLikeFromReview(long reviewId, long userId) {
-        try {
-            String updateUseful = "UPDATE reviews SET useful = useful - 1 WHERE review_id = ?";
-            jdbcTemplate.update(updateUseful, reviewId);
-            return true;
-        } catch (DataAccessException e) {
-            return false;
-        }
-    }
+        if (reviewOpt.isPresent()) {
+            Review review = reviewOpt.get();
 
-    @Override
-    public boolean removeDislikeFromReview(long reviewId, long userId) {
-        try {
-            String updateUseful = "UPDATE reviews SET useful = useful + 1 WHERE review_id = ?";
-            jdbcTemplate.update(updateUseful, reviewId);
-            return true;
-        } catch (DataAccessException e) {
-            return false;
+            newUseful = review.useful() + delta;
+
+            updateReview(new UpdateReviewCommand(reviewId, review.content(), review.isPositive(),
+                    newUseful, review.filmId(), review.userId()));
         }
+       // String sql = "UPDATE reviews SET useful = useful + ? WHERE review_id = ?";
+       // jdbcTemplate.update(sql, delta, reviewId);
     }
 }

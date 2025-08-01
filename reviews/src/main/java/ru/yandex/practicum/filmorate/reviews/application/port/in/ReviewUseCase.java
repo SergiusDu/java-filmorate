@@ -20,11 +20,5 @@ public interface ReviewUseCase {
 
     List<Review> getAllReviews();
 
-    boolean addLikeToReview(long reviewId, long userId);
-
-    boolean addDislikeToReview(long reviewId, long userId);
-
-    boolean removeLikeFromReview(long reviewId, long userId);
-
-    boolean removeDislikeFromReview(long reviewId, long userId);
+    void changeUseful(long reviewId, int delta);
 }

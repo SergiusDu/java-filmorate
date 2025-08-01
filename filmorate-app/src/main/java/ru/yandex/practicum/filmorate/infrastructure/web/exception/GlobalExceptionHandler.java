@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.infrastructure.web.exception;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -59,6 +60,15 @@ public class GlobalExceptionHandler {
                                                                            : "Invalid name"));
     return new ResponseEntity<>(new ValidationErrorResponse(errors),
                                 HttpStatus.BAD_REQUEST);
+  }
+
+  @ExceptionHandler(DuplicateKeyException.class)
+  public ResponseEntity<ErrorResponse> handleDuplicateKeyException(DuplicateKeyException ex) {
+    log.error("Duplicate key error: {}",
+            ex.getMessage(),
+            ex);
+    return new ResponseEntity<>(new ErrorResponse(ex.getMessage()),
+            HttpStatus.CONFLICT);
   }
 
   @ExceptionHandler(Throwable.class)

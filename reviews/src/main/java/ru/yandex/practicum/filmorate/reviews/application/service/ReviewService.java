@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.reviews.application.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.reviews.application.port.in.ReviewUseCase;
 import ru.yandex.practicum.filmorate.reviews.domain.model.Review;
@@ -48,22 +49,7 @@ public class ReviewService implements ReviewUseCase {
     }
 
     @Override
-    public boolean addLikeToReview(long reviewId, long userId) {
-        return reviewRepository.addLikeToReview(reviewId, userId);
-    }
-
-    @Override
-    public boolean addDislikeToReview(long reviewId, long userId) {
-        return reviewRepository.addDislikeToReview(reviewId, userId);
-    }
-
-    @Override
-    public boolean removeLikeFromReview(long reviewId, long userId) {
-        return reviewRepository.removeLikeFromReview(reviewId, userId);
-    }
-
-    @Override
-    public boolean removeDislikeFromReview(long reviewId, long userId) {
-        return reviewRepository.removeDislikeFromReview(reviewId, userId);
+    public void changeUseful(long reviewId, int delta) {
+        reviewRepository.changeUseful(reviewId, delta);
     }
 }

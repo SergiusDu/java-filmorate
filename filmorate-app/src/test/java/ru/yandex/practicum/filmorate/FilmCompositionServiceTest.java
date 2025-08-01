@@ -17,24 +17,29 @@ import ru.yandex.practicum.filmorate.films.domain.port.CreateFilmCommand;
 import ru.yandex.practicum.filmorate.films.domain.port.UpdateFilmCommand;
 import ru.yandex.practicum.filmorate.likes.application.port.in.LikeUseCase;
 import ru.yandex.practicum.filmorate.service.FilmCompositionService;
+import ru.yandex.practicum.filmorate.users.domain.model.User;
+import ru.yandex.practicum.filmorate.users.domain.model.value.Email;
+import ru.yandex.practicum.filmorate.users.domain.model.value.Login;
 
 import java.time.Duration;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.*;
-
+import static org.mockito.Mockito.when;
 
 class FilmCompositionServiceTest {
 
-    @Mock private FilmUseCase filmUseCase;
-    @Mock private LikeUseCase likeService;
-    @Mock private UserUseCase userUseCase;
-
+    @Mock
+    private FilmUseCase filmUseCase;
+    @Mock
+    private LikeUseCase likeService;
+    @Mock
+    private UserUseCase userUseCase;
     @InjectMocks
     private FilmCompositionService filmCompositionService;
 
@@ -43,8 +48,7 @@ class FilmCompositionServiceTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        film = new Film(1L, "Test Film", "Description", LocalDate.of(2020, 1, 1),
-                Duration.ofMinutes(90), Set.of(new Genre(1L, "Drama")), new Mpa(1L, "G"));
+        film = new Film(1L, "Test Film", "Description", LocalDate.of(2020, 1, 1), Duration.ofMinutes(90), Set.of(new Genre(1L, "Drama")), new Mpa(1L, "G"));
     }
 
     @Test
@@ -55,16 +59,16 @@ class FilmCompositionServiceTest {
 
     @Test
     void shouldCreateFilm() {
-        CreateFilmCommand command = mock(CreateFilmCommand.class);
-        when(filmUseCase.addFilm(command)).thenReturn(film);
-        assertThat(filmCompositionService.createFilm(command)).isEqualTo(film);
+        var cmd = new CreateFilmCommand(film.name(), film.description(), film.releaseDate(), film.duration().toMinutes(), film.genres(), film.mpa());
+        when(filmUseCase.addFilm(cmd)).thenReturn(film);
+        assertThat(filmCompositionService.createFilm(cmd)).isEqualTo(film);
     }
 
     @Test
     void shouldUpdateFilm() {
-        UpdateFilmCommand command = mock(UpdateFilmCommand.class);
-        when(filmUseCase.updateFilm(command)).thenReturn(film);
-        assertThat(filmCompositionService.updateFilm(command)).isEqualTo(film);
+        var cmd = new UpdateFilmCommand(film.id(), film.name(), film.description(), film.releaseDate(), (int) film.duration().toMinutes(), film.genres(), film.mpa());
+        when(filmUseCase.updateFilm(cmd)).thenReturn(film);
+        assertThat(filmCompositionService.updateFilm(cmd)).isEqualTo(film);
     }
 
     @Nested
@@ -72,19 +76,20 @@ class FilmCompositionServiceTest {
         @Test
         void shouldAddLike() {
             when(filmUseCase.findFilmById(1L)).thenReturn(Optional.of(film));
-            when(userUseCase.findUserById(2L)).thenReturn(Optional.of(mock()));
+            User user = new User(2L, new Email("u2@example.com"), new Login("u2"), "User Two", LocalDate.of(1991, 2, 2));
+            when(userUseCase.findUserById(2L)).thenReturn(Optional.of(user));
             when(likeService.addLike(1L, 2L)).thenReturn(true);
             assertThat(filmCompositionService.addLike(1L, 2L)).isTrue();
         }
 
         @Test
-        void shouldThrowExceptionWhenFilmNotFoundOnAddLike() {
+        void shouldThrowWhenFilmNotFoundOnAddLike() {
             when(filmUseCase.findFilmById(1L)).thenReturn(Optional.empty());
             assertThrows(ResourceNotFoundException.class, () -> filmCompositionService.addLike(1L, 2L));
         }
 
         @Test
-        void shouldThrowExceptionWhenUserNotFoundOnAddLike() {
+        void shouldThrowWhenUserNotFoundOnAddLike() {
             when(filmUseCase.findFilmById(1L)).thenReturn(Optional.of(film));
             when(userUseCase.findUserById(2L)).thenReturn(Optional.empty());
             assertThrows(ResourceNotFoundException.class, () -> filmCompositionService.addLike(1L, 2L));
@@ -93,7 +98,8 @@ class FilmCompositionServiceTest {
         @Test
         void shouldRemoveLike() {
             when(filmUseCase.findFilmById(1L)).thenReturn(Optional.of(film));
-            when(userUseCase.findUserById(2L)).thenReturn(Optional.of(mock()));
+            User user = new User(2L, new Email("u2@example.com"), new Login("u2"), "User Two", LocalDate.of(1991, 2, 2));
+            when(userUseCase.findUserById(2L)).thenReturn(Optional.of(user));
             when(likeService.removeLike(1L, 2L)).thenReturn(true);
             assertThat(filmCompositionService.removeLike(1L, 2L)).isTrue();
         }
@@ -103,13 +109,14 @@ class FilmCompositionServiceTest {
     class PopularFilms {
         @Test
         void shouldReturnPopularFilms() {
-            when(likeService.getPopularFilmIds(5)).thenReturn(Set.of(1L));
-            when(filmUseCase.getFilmsByIds(Set.of(1L))).thenReturn(List.of(film));
-            assertThat(filmCompositionService.getPopularFilms(5)).containsExactly(film);
+            when(filmUseCase.getAllFilms()).thenReturn(List.of(film));
+            when(likeService.getLikeCounts()).thenReturn(Map.of(film.id(), 1L));
+            List<Film> popular = filmCompositionService.getPopularFilms(5);
+            assertThat(popular).containsExactly(film);
         }
 
         @Test
-        void shouldThrowExceptionWhenCountIsNegative() {
+        void shouldThrowWhenCountNegative() {
             assertThrows(ValidationException.class, () -> filmCompositionService.getPopularFilms(-1));
         }
     }
@@ -168,16 +175,13 @@ class FilmCompositionServiceTest {
 
         @Test
         void shouldReturnCommonFilms() {
-            when(userUseCase.findUserById(1L)).thenReturn(Optional.of(mock()));
-            when(userUseCase.findUserById(2L)).thenReturn(Optional.of(mock()));
+            when(userUseCase.findUserById(1L)).thenReturn(Optional.of(new User(1L, new Email("u1@x.com"), new Login("u1"), "U1", LocalDate.of(1990, 1, 1))));
+            when(userUseCase.findUserById(2L)).thenReturn(Optional.of(new User(2L, new Email("u2@x.com"), new Login("u2"), "U2", LocalDate.of(1990, 1, 1))));
             when(likeService.findLikedFilms(1L)).thenReturn(Set.of(10L, 20L));
             when(likeService.findLikedFilms(2L)).thenReturn(Set.of(20L, 30L));
             when(filmUseCase.getFilmsByIds(Set.of(20L))).thenReturn(List.of(film));
-            when(likeService.findUsersWhoLikedFilm(1L)).thenReturn(Set.of(1L));
-            when(likeService.findUsersWhoLikedFilm(2L)).thenReturn(Set.of(2L));
             when(likeService.findUsersWhoLikedFilm(20L)).thenReturn(Set.of(1L, 2L, 3L));
-
-            List<Film> result = filmCompositionService.getCommonFilms(1L, 2L);
+            var result = filmCompositionService.getCommonFilms(1L, 2L);
             assertThat(result).containsExactly(film);
         }
     }

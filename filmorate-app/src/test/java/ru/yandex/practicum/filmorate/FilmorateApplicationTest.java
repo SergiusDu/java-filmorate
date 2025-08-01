@@ -304,7 +304,6 @@ class FilmorateApplicationTest {
               new CreateFilmRequest("Film 3", "d", LocalDate.of(2003, 1, 1), 100, Set.of(new Genre(1L, "Комедия")),
                       new Mpa(1L, "G")));
 
-      // Likes: f2 (3), f3 (2), f1 (1)
       restTemplate.put("/films/{id}/like/{userId}", null, f2.id(), u1.id());
       restTemplate.put("/films/{id}/like/{userId}", null, f2.id(), u2.id());
       restTemplate.put("/films/{id}/like/{userId}", null, f2.id(), u3.id());
@@ -328,7 +327,6 @@ class FilmorateApplicationTest {
     @Test
     @DisplayName("Should get common films sorted by likes")
     void shouldGetCommonFilms() {
-      // Arrange
       UserResponse user1 = createUser(new CreateUserRequest("u1@example.com", "u1", "U1", LocalDate.of(1990, 1, 1)));
       UserResponse user2 = createUser(new CreateUserRequest("u2@example.com", "u2", "U2", LocalDate.of(1990, 2, 2)));
 
@@ -338,21 +336,17 @@ class FilmorateApplicationTest {
       FilmResponse film2 = createFilm(new CreateFilmRequest("Film 2", "desc", LocalDate.of(2001, 1, 1), 100,
               Set.of(new Genre(1L, "Комедия")), new Mpa(1L, "G")));
 
-      // film1: like only from user1
       restTemplate.put("/films/{id}/like/{userId}", null, film1.id(), user1.id());
 
-      // film2: like from both users
       restTemplate.put("/films/{id}/like/{userId}", null, film2.id(), user1.id());
       restTemplate.put("/films/{id}/like/{userId}", null, film2.id(), user2.id());
 
-      // Act
       ResponseEntity<FilmResponse[]> response = restTemplate.getForEntity(
               "/films/common?userId={userId}&friendId={friendId}",
               FilmResponse[].class,
               user1.id(), user2.id()
       );
 
-      // Assert
       assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
       assertThat(response.getBody()).isNotNull();
       assertThat(response.getBody()).hasSize(1); // Only film2 is common

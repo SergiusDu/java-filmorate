@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.likes.domain.port;
 
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -43,5 +44,32 @@ public interface LikeRepository {
    */
   boolean contains(long filmId);
 
+  /**
+   * Retrieves all film IDs liked by the specified user.
+   *
+   * @param userId ID of the user
+   * @return set of liked film IDs
+   */
   Set<Long> findLikedFilms(long userId);
+
+  /**
+   * Deletes all likes associated with the given film.
+   *
+   * @param filmId ID of the film
+   */
+  void deleteByFilmId(long filmId);
+
+  /**
+   * Deletes all likes made by the specified user.
+   *
+   * @param userId ID of the user
+   */
+  void deleteByUserId(long userId);
+
+  /**
+   * Retrieves the total number of likes for each film.
+   *
+   * @return a map where the key is the film ID and the value is the count of likes
+   */
+  Map<Long, Long> getLikeCounts();
 }

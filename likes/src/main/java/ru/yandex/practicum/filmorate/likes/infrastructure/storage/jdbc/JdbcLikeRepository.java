@@ -6,9 +6,11 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
+import ru.yandex.practicum.filmorate.common.exception.ValidationException;
 import ru.yandex.practicum.filmorate.likes.domain.port.LikeRepository;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
@@ -40,13 +42,12 @@ public class JdbcLikeRepository implements LikeRepository {
   @Override
   public LinkedHashSet<Long> getPopularFilmIds(int count) {
     String sql = """
-                SELECT f.film_id
-                FROM films f
-                LEFT JOIN likes l ON f.film_id = l.film_id
-                GROUP BY f.film_id
-                ORDER BY COUNT(l.user_id) DESC
-                LIMIT ?
-            """;
+        SELECT film_id
+        FROM likes
+        GROUP BY film_id
+        ORDER BY COUNT(user_id) DESC
+        LIMIT ?
+    """;
     List<Long> popularIds = jdbcTemplate.queryForList(sql, Long.class, count);
     return new LinkedHashSet<>(popularIds);
   }
@@ -70,5 +71,27 @@ public class JdbcLikeRepository implements LikeRepository {
     String sql = "SELECT film_id FROM likes WHERE user_id = ?";
     List<Long> filmIds = jdbcTemplate.queryForList(sql, Long.class, userId);
     return new HashSet<>(filmIds);
+  }
+
+  @Override
+  public void deleteByFilmId(long filmId) {
+    jdbcTemplate.update("DELETE FROM likes WHERE film_id = ?", filmId);
+  }
+
+  @Override
+  public void deleteByUserId(long userId) {
+    jdbcTemplate.update("DELETE FROM likes WHERE user_id = ?", userId);
+  }
+
+  @Override
+  public Map<Long, Long> getLikeCounts() {
+    String sql = "SELECT film_id, COUNT(*) AS cnt FROM likes GROUP BY film_id";
+    return jdbcTemplate.query(sql, rs -> {
+      Map<Long, Long> counts = new HashMap<>();
+      while (rs.next()) {
+        counts.put(rs.getLong("film_id"), rs.getLong("cnt"));
+      }
+      return counts;
+    });
   }
 }

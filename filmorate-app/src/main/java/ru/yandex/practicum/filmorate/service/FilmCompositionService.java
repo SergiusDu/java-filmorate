@@ -17,6 +17,7 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -67,9 +68,17 @@ public class FilmCompositionService {
   }
 
   public List<Film> getPopularFilms(int count) {
-    if (count < 0)
+    if (count < 0) {
       throw new ValidationException("Count parameter cannot be negative");
-    return filmUseCase.getFilmsByIds(likeService.getPopularFilmIds(count));
+    }
+    List<Film> all = filmUseCase.getAllFilms();
+    Map<Long, Long> likeCounts = likeService.getLikeCounts();
+    return all.stream()
+            .sorted(Comparator.comparingLong(
+                    f -> - likeCounts.getOrDefault(f.id(), 0L)
+            ))
+            .limit(count)
+            .toList();
   }
 
   public List<Genre> getGenres() {
@@ -96,9 +105,8 @@ public class FilmCompositionService {
   }
 
   public void deleteFilmById(long filmId) {
-    if (filmUseCase.findFilmById(filmId).isEmpty()) {
-      throw new ResourceNotFoundException("Film with id " + filmId + " not found.");
-    }
+    validateFilmId(filmId);
+    likeService.deleteLikesByFilmId(filmId);
     filmUseCase.deleteFilmById(filmId);
   }
 
@@ -122,5 +130,4 @@ public class FilmCompositionService {
             ))
             .toList();
   }
-
 }

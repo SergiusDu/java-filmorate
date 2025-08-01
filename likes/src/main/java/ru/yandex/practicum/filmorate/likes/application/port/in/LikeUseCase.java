@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.likes.application.port.in;
 
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -44,4 +45,24 @@ public interface LikeUseCase {
    */
   Set<Long> findLikedFilms(long userId);
 
+  /**
+   * Deletes all likes associated with the specified film ID.
+   *
+   * @param filmId the ID of the film whose likes should be deleted
+   */
+  void deleteLikesByFilmId(long filmId);
+
+  /**
+   * Deletes all likes associated with the specified user ID.
+   *
+   * @param userId the ID of the user whose likes should be deleted
+   */
+  void deleteLikesByUserId(long userId);
+
+  /**
+   * Retrieves the total number of likes for each film.
+   *
+   * @return a map where keys are film IDs and values are their corresponding like counts
+   */
+  Map<Long, Long> getLikeCounts();
 }

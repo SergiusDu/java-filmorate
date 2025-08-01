@@ -28,8 +28,6 @@ public class JdbcFilmRepository implements FilmRepository {
                   "FROM films AS f JOIN mpa_ratings AS m ON f.mpa_id = m.mpa_id";
   private final JdbcTemplate jdbcTemplate;
   private final FilmFactory filmFactory;
-  // FilmFactory is used to centralize the creation of Film objects.
-  // Currently it wraps a builder, but is kept as a potential extension point for more complex construction logic.
 
   @Override
   public Film save(CreateFilmCommand command) {
@@ -152,9 +150,6 @@ public class JdbcFilmRepository implements FilmRepository {
 
   @Override
   public void deleteById(long filmId) {
-    // явно удаляем лайки из таблицы likes
-    jdbcTemplate.update("DELETE FROM likes WHERE film_id = ?", filmId);
-
     int rows = jdbcTemplate.update("DELETE FROM films WHERE film_id = ?", filmId);
     if (rows == 0) {
       throw new ResourceNotFoundException("Film with id " + filmId + " not found.");

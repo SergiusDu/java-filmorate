@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.likes.domain.port.LikeRepository;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
@@ -72,24 +73,22 @@ public class JdbcLikeRepository implements LikeRepository {
   }
 
   @Override
-  public void deleteByFilmId(long filmId) {
-    jdbcTemplate.update("DELETE FROM likes WHERE film_id = ?", filmId);
+  public boolean deleteByFilmId(long filmId) {
+    return jdbcTemplate.update("DELETE FROM likes WHERE film_id = ?", filmId) > 0;
   }
 
   @Override
-  public void deleteByUserId(long userId) {
-    jdbcTemplate.update("DELETE FROM likes WHERE user_id = ?", userId);
+  public boolean deleteByUserId(long userId) {
+    return jdbcTemplate.update("DELETE FROM likes WHERE user_id = ?", userId) > 0;
   }
 
   @Override
   public Map<Long, Long> getLikeCounts() {
     String sql = "SELECT film_id, COUNT(*) AS cnt FROM likes GROUP BY film_id";
-    return jdbcTemplate.query(sql, rs -> {
-      Map<Long, Long> counts = new HashMap<>();
-      while (rs.next()) {
-        counts.put(rs.getLong("film_id"), rs.getLong("cnt"));
-      }
-      return counts;
-    });
+    RowMapper<Map.Entry<Long, Long>> rowMapper = (rs, rowNum) ->
+            Map.entry(rs.getLong("film_id"), rs.getLong("cnt"));
+    List<Map.Entry<Long, Long>> entries = jdbcTemplate.query(sql, rowMapper);
+    return entries.stream()
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
   }
 }

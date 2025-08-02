@@ -71,9 +71,6 @@ public class UserCompositionService {
   }
 
   public void deleteUserById(long userId) {
-    if (userUseCase.findUserById(userId).isEmpty()) {
-      throw new ResourceNotFoundException("User with id " + userId + " not found.");
-    }
     likeUseCase.deleteLikesByUserId(userId);
     userUseCase.deleteUserById(userId);
   }

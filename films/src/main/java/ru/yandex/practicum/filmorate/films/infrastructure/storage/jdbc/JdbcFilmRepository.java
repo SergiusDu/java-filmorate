@@ -149,10 +149,7 @@ public class JdbcFilmRepository implements FilmRepository {
   }
 
   @Override
-  public void deleteById(long filmId) {
-    int rows = jdbcTemplate.update("DELETE FROM films WHERE film_id = ?", filmId);
-    if (rows == 0) {
-      throw new ResourceNotFoundException("Film with id " + filmId + " not found.");
-    }
+  public boolean deleteById(long filmId) {
+    return jdbcTemplate.update("DELETE FROM films WHERE film_id = ?", filmId) > 0;
   }
 }

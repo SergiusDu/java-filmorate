@@ -51,20 +51,22 @@ public interface LikeRepository {
    * @return set of liked film IDs
    */
   Set<Long> findLikedFilms(long userId);
-
+  
   /**
-   * Deletes all likes associated with the given film.
+   * Deletes all likes associated with the specified film.
    *
-   * @param filmId ID of the film
+   * @param filmId ID of the film whose likes should be deleted
+   * @return true if at least one like was deleted, false if none existed
    */
-  void deleteByFilmId(long filmId);
+  boolean deleteByFilmId(long filmId);
 
   /**
    * Deletes all likes made by the specified user.
    *
-   * @param userId ID of the user
+   * @param userId ID of the user whose likes should be deleted
+   * @return true if at least one like was deleted, false if none existed
    */
-  void deleteByUserId(long userId);
+  boolean deleteByUserId(long userId);
 
   /**
    * Retrieves the total number of likes for each film.

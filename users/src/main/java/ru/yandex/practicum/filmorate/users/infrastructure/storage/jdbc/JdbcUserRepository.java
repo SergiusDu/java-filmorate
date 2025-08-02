@@ -87,12 +87,9 @@ public class JdbcUserRepository implements UserRepository {
   }
 
   @Override
-  public void deleteById(long userId) {
+  public boolean deleteById(long userId) {
     jdbcTemplate.update("DELETE FROM friendships WHERE user_id = ?", userId);
     jdbcTemplate.update("DELETE FROM friendships WHERE friend_id = ?", userId);
-    int rows = jdbcTemplate.update("DELETE FROM users WHERE user_id = ?", userId);
-    if (rows == 0) {
-      throw new ResourceNotFoundException("User with id " + userId + " not found.");
-    }
+    return jdbcTemplate.update("DELETE FROM users WHERE user_id = ?", userId) > 0;
   }
 }

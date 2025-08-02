@@ -31,8 +31,10 @@ public interface UserRepository {
   List<User> findByIds(Set<Long> ids);
 
   /**
-   Deletes user by ID.
-   @param id ID of the user to delete
+   * Deletes a user by ID.
+   *
+   * @param userId ID of the user to delete
+   * @return true if user was deleted, false if user not found
    */
-  void deleteById(long id);
+  boolean deleteById(long userId);
 }

@@ -43,7 +43,7 @@ public class FilmCompositionService {
                                userId);
   }
 
-  private void validateFilmId(long filmId) {
+  public void validateFilmId(long filmId) {
     if (filmUseCase.findFilmById(filmId)
                    .isEmpty())
       throw new ResourceNotFoundException("Film with id " + filmId + " not found");

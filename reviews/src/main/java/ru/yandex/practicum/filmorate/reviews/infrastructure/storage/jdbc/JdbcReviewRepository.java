@@ -25,8 +25,26 @@ public class JdbcReviewRepository implements ReviewRepository {
     private final ReviewFactory reviewFactory;
 
 
+    public void ifUserAlreadyReviewedFilm(long filmId, long userId) {
+        List<Map<String, Object>> reviewList = jdbcTemplate.queryForList("SELECT * FROM reviews WHERE film_id = ? AND user_id = ?", filmId, userId);
+        if (!reviewList.isEmpty()) {
+            if (reviewList.size() > 1) {
+                log.error("Possible data inconsistency for filmId " + filmId + " and userId " + userId);
+            }
+            for (Map<String, Object> review : reviewList) {
+                if (review.get("REVIEW_ID") == null) {
+                    log.error("REVIEW_ID is not contained in query result list");
+                    return;
+                }
+                long reviewId = (long) review.get("REVIEW_ID");
+                removeReview(reviewId);
+            }
+        }
+    }
+
     @Override
     public Review addReview(CreateReviewCommand command) {
+        ifUserAlreadyReviewedFilm(command.filmId(), command.userId());
         SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate).withTableName("reviews")
                 .usingGeneratedKeyColumns("review_id");
 
@@ -67,7 +85,10 @@ public class JdbcReviewRepository implements ReviewRepository {
 
     @Override
     public List<Review> getReviewsByFilmId(long filmId) {
-        return mapRowsToReviews(jdbcTemplate.queryForList("SELECT * FROM reviews WHERE film_id = ?", filmId));
+        log.error("Get reviews by film id: " + filmId);
+        List<Review> reviews = mapRowsToReviews(jdbcTemplate.queryForList("SELECT * FROM reviews WHERE film_id = ?", filmId));
+        log.error("Reviews of film " + filmId + " are: " + reviews);
+        return reviews;
     }
 
     @Override
@@ -104,7 +125,7 @@ public class JdbcReviewRepository implements ReviewRepository {
             newUseful = review.useful() + delta;
 
             updateReview(new UpdateReviewCommand(reviewId, review.content(), review.isPositive(),
-                    newUseful, review.filmId(), review.userId()));
+                    newUseful, review.userId(), review.filmId()));
         }
        // String sql = "UPDATE reviews SET useful = useful + ? WHERE review_id = ?";
        // jdbcTemplate.update(sql, delta, reviewId);

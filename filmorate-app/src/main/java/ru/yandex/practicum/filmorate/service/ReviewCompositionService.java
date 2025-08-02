@@ -5,7 +5,6 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.filmorate.common.exception.ResourceNotFoundException;
-import ru.yandex.practicum.filmorate.common.exception.ValidationException;
 import ru.yandex.practicum.filmorate.reaction.application.port.in.ReactionUseCase;
 import ru.yandex.practicum.filmorate.reaction.domain.model.Reaction;
 import ru.yandex.practicum.filmorate.reaction.domain.model.ReactionType;
@@ -23,8 +22,13 @@ import java.util.Optional;
 public class ReviewCompositionService {
     private final ReviewUseCase reviewUseCase;
     private final ReactionUseCase reactionUseCase;
+    private final FilmCompositionService filmService;
+    private final UserCompositionService userService;
 
     public Review addReview(CreateReviewCommand command) {
+        filmService.validateFilmId(command.filmId());
+        userService.validateUserExists(command.userId());
+
         return reviewUseCase.addReview(command);
     }
 
@@ -42,36 +46,33 @@ public class ReviewCompositionService {
     }
 
     public List<Review> getReviewsByFilmId(long filmId) {
+        filmService.validateFilmId(filmId);
         return reviewUseCase.getReviewsByFilmId(filmId).stream()
-                .sorted(Comparator.comparingInt(Review::useful).reversed()).toList();
+                .sorted(Comparator.comparingInt(Review::useful)).toList();
     }
 
     public List<Review> getAllReviews() {
         return reviewUseCase.getAllReviews().stream()
-                .sorted(Comparator.comparingInt(Review::useful).reversed()).toList();
+                .sorted(Comparator.comparingInt(Review::useful)).toList();
     }
 
     @Transactional
     public void addLikeToReview(long reviewId, long userId) {
-        validateReviewAndUserExist(reviewId, userId);
         handleReaction(reviewId, userId, ReactionType.LIKE);
     }
 
     @Transactional
     public void addDislikeToReview(long reviewId, long userId) {
-        validateReviewAndUserExist(reviewId, userId);
         handleReaction(reviewId, userId, ReactionType.DISLIKE);
     }
 
     @Transactional
     public void removeLikeFromReview(long reviewId, long userId) {
-        validateReviewAndUserExist(reviewId, userId);
         removeReaction(reviewId, userId, ReactionType.LIKE);
     }
 
     @Transactional
     public void removeDislikeFromReview(long reviewId, long userId) {
-        validateReviewAndUserExist(reviewId, userId);
         removeReaction(reviewId, userId, ReactionType.DISLIKE);
     }
 
@@ -106,13 +107,6 @@ public class ReviewCompositionService {
                 int delta = (reactionToRemove == ReactionType.LIKE) ? -1 : 1;
                 reviewUseCase.changeUseful(reviewId, delta);
             }
-        }
-    }
-
-    private void validateReviewAndUserExist(long reviewId, long userId) {
-        Review review = getReviewById(reviewId);
-        if (review.userId() != userId) {
-            throw new ValidationException("User " + userId + " for review " + reviewId + " do not correspond");
         }
     }
 }

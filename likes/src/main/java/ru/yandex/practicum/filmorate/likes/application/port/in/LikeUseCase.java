@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.likes.application.port.in;
 
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -35,4 +36,20 @@ public interface LikeUseCase {
    @return set of user IDs who liked the film
    */
   Set<Long> findUsersWhoLikedFilm(long filmId);
+
+  /**
+   * Returns the set of film IDs liked by the given user.
+   *
+   * @param userId ID of the user
+   * @return set of liked film IDs
+   */
+  Set<Long> findLikedFilms(long userId);
+
+  /**
+   * Returns a mapping from user IDs to their liked film IDs.
+   * Used for collaborative filtering and recommendations.
+   *
+   * @return map of userId → set of liked film IDs
+   */
+  Map<Long, Set<Long>> findAllUserFilmLikes();
 }

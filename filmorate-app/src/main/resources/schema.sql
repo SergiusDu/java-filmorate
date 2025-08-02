@@ -19,6 +19,7 @@ CREATE TABLE IF NOT EXISTS films
     description  VARCHAR(200),
     release_date DATE,
     duration     INT,
+    is_deleted   BOOLEAN DEFAULT FALSE,
     mpa_id       BIGINT,
     FOREIGN KEY (mpa_id) REFERENCES mpa_ratings (mpa_id)
 );

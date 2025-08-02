@@ -24,6 +24,8 @@
         <module>filmorate-app</module>
         <module>friendships</module>
         <module>likes</module>
+        <module>reviews</module>
+        <module>reaction</module>
     </modules>
     <dependencyManagement>
         <dependencies>

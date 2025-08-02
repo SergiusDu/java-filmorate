@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -25,6 +26,7 @@ import java.util.Objects;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles({"test",
@@ -422,6 +424,133 @@ class FilmorateApplicationTest {
     void shouldReturnNotFoundForUnknownGenreId() {
       ResponseEntity<ErrorResponse> response = restTemplate.getForEntity("/genres/9999", ErrorResponse.class);
       assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+    }
+  }
+
+  @Nested
+  @DisplayName("Review API Tests")
+  class ReviewTests {
+
+    private UserResponse user;
+    private FilmResponse film;
+
+    @BeforeEach
+    void setUp() {
+      user = createUser(new CreateUserRequest("newuser@mail.com", "user", "user", LocalDate.of(1990, 1, 1)));
+      film = createFilm(new CreateFilmRequest("Film", "description", LocalDate.of(2000, 1, 1), 120,
+              Set.of(new Genre(1L, "Комедия")), new Mpa(1L, "G")));
+    }
+
+    @Test
+    @DisplayName("Create Review")
+    void shouldCreateReview() {
+      CreateReviewRequest createReviewRequest = new CreateReviewRequest("positive review", true, user.id(), film.id());
+      ResponseEntity<ReviewResponse> responseCreate = restTemplate.postForEntity("/reviews", createReviewRequest, ReviewResponse.class);
+
+      assertResponse(responseCreate, HttpStatus.OK, "positive review", true, 0);
+    }
+
+    @Test
+    @DisplayName("Update Review")
+    void shouldUpdateReview() {
+      long reviewId = createReview("positive review", user.id(), film.id()).reviewId();
+
+      UpdateReviewRequest updateReviewRequest = new UpdateReviewRequest(reviewId, "new content", false,
+              user.id(), film.id());
+      ResponseEntity<ReviewResponse> responseUpdate = restTemplate.exchange("/reviews", HttpMethod.PUT,
+              new HttpEntity<>(updateReviewRequest), ReviewResponse.class);
+
+      assertResponse(responseUpdate, HttpStatus.OK, "new content", false, 0);
+    }
+
+    @Test
+    @DisplayName("Should get Review by id, filmId, count")
+    void getReviewByParams() {
+      long reviewId = createReview("positive review", user.id(), film.id()).reviewId();
+
+      ResponseEntity<ReviewResponse> getResponse = restTemplate.getForEntity("/reviews/{reviewId}", ReviewResponse.class, reviewId);
+      assertThat(getResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+      ResponseEntity<ReviewResponse[]> getResponseIdCount = restTemplate.getForEntity("/reviews?filmId={filmId}&count={count}", ReviewResponse[].class, film.id(), 2);
+      assertThat(getResponseIdCount.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+      ResponseEntity<ReviewResponse[]> getResponseCount = restTemplate.getForEntity("/reviews?count={count}", ReviewResponse[].class, 2);
+      assertThat(getResponseCount.getStatusCode()).isEqualTo(HttpStatus.OK);
+    }
+
+    @Test
+    @DisplayName("Should delete Review")
+    void deleteSelectedReview() {
+      long reviewId = createReview("positive review", user.id(), film.id()).reviewId();
+
+      ResponseEntity<Void> deleteResponse = restTemplate.exchange("/reviews/{id}", HttpMethod.DELETE, null,
+              Void.class, reviewId);
+      assertThat(deleteResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
+    }
+
+    @Test
+    @DisplayName("Check reactions adding and removing")
+    void shouldProcessReactions() {
+      ReviewResponse review = createReview("positive review", user.id(), film.id());
+      Integer initialUseful = review.useful();
+
+      assertLikeReview(review.reviewId(), user.id(), initialUseful, initialUseful + 1);
+
+      assertConflictOnDoubleLike(review.reviewId(), user.id());
+
+      assertRemoveLike(review.reviewId(), user.id(), initialUseful, initialUseful);
+
+      assertDislikeReview(review.reviewId(), user.id(), initialUseful, initialUseful - 1);
+
+      assertRemoveDislike(review.reviewId(), user.id(), initialUseful, initialUseful);
+    }
+
+    private ReviewResponse createReview(String content, long userId, long filmId) {
+      CreateReviewRequest createReviewRequest = new CreateReviewRequest(content, true, userId, filmId);
+      ResponseEntity<ReviewResponse> response = restTemplate.postForEntity("/reviews", createReviewRequest,
+              ReviewResponse.class);
+      assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+      return response.getBody();
+    }
+
+    private void assertResponse(ResponseEntity<ReviewResponse> response, HttpStatus expectedStatus, String expectedContent, boolean expectedIsPositive, int expectedUseful) {
+      assertThat(response.getStatusCode()).isEqualTo(expectedStatus);
+      assertThat(response.getBody()).extracting("content").isEqualTo(expectedContent);
+      assertThat(response.getBody()).extracting("isPositive").isEqualTo(expectedIsPositive);
+      assertThat(response.getBody()).extracting("useful").isEqualTo(expectedUseful);
+    }
+
+    private void assertLikeReview(long reviewId, long userId, Integer initialUseful, Integer result) {
+      restTemplate.put("/reviews/{id}/like/{userId}", null, reviewId, userId);
+      ResponseEntity<ReviewResponse> afterLikeResponse = restTemplate.getForEntity("/reviews/{reviewId}", ReviewResponse.class, reviewId);
+      assertThat(afterLikeResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
+      assertEquals(result, afterLikeResponse.getBody().useful(), "Useful did not increment correctly");
+    }
+
+    private void assertConflictOnDoubleLike(long reviewId, long userId) {
+      ResponseEntity<Void> responseDoubleLike = restTemplate.exchange("/reviews/{id}/like/{userId}", HttpMethod.PUT, null, Void.class, reviewId, userId);
+      assertThat(responseDoubleLike.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+    }
+
+    private void assertRemoveLike(long reviewId, long userId, Integer usefulCount, Integer result) {
+      restTemplate.delete("/reviews/{id}/like/{userId}", reviewId, userId);
+      ResponseEntity<ReviewResponse> afterLikeRemoveResponse = restTemplate.getForEntity("/reviews/{reviewId}", ReviewResponse.class, reviewId);
+      assertThat(afterLikeRemoveResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
+      assertEquals(result, afterLikeRemoveResponse.getBody().useful(), "Useful count should decrement");
+    }
+
+    private void assertDislikeReview(long reviewId, long userId, Integer usefulCount, Integer result) {
+      restTemplate.put("/reviews/{id}/dislike/{userId}", null, reviewId, userId);
+      ResponseEntity<ReviewResponse> afterDislikeResponse = restTemplate.getForEntity("/reviews/{reviewId}", ReviewResponse.class, reviewId);
+      assertThat(afterDislikeResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
+      assertEquals(result, afterDislikeResponse.getBody().useful(), "Useful did not decrement correctly");
+    }
+
+    private void assertRemoveDislike(long reviewId, long userId, Integer usefulCount, Integer result) {
+      restTemplate.delete("/reviews/{id}/dislike/{userId}", reviewId, userId);
+      ResponseEntity<ReviewResponse> afterDislikeRemoveResponse = restTemplate.getForEntity("/reviews/{reviewId}", ReviewResponse.class, reviewId);
+      assertThat(afterDislikeRemoveResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
+      assertEquals(result, afterDislikeRemoveResponse.getBody().useful(), "Useful should increment again");
     }
   }
 }

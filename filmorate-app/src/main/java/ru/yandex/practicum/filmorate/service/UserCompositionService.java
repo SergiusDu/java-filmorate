@@ -26,7 +26,7 @@ public class UserCompositionService {
     return userUseCase.findUsersByIds(friendsIds);
   }
 
-  private void validateUserExists(long userId) {
+  public void validateUserExists(long userId) {
     if (userUseCase.findUserById(userId)
                    .isEmpty())
       throw new ResourceNotFoundException("User with id " + userId + " not found.");

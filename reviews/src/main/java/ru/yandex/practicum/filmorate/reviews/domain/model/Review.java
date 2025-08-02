@@ -18,8 +18,10 @@ public record Review(Long reviewId,
      */
     public Review {
         ValidationUtils.notNull(reviewId, msg -> new InvalidReviewDataException("Review id must not be null"));
+        ValidationUtils.notNull(userId, msg -> new InvalidReviewDataException("Review user id must not be null"));
+        ValidationUtils.notNull(filmId, msg -> new InvalidReviewDataException("Review film id must not be null"));
         ValidationUtils.notBlank(content, msg -> new InvalidReviewDataException("Review content must not be blank"));
-        ValidationUtils.notNull(isPositive, msg -> new InvalidReviewDataException("Review isPositive field must not null"));
+        ValidationUtils.notNull(isPositive, msg -> new InvalidReviewDataException("Review isPositive field must not be null"));
         if (useful == null) useful = 0;
     }
 }

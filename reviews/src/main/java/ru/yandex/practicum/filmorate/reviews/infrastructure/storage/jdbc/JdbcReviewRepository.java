@@ -24,27 +24,28 @@ public class JdbcReviewRepository implements ReviewRepository {
     private final JdbcTemplate jdbcTemplate;
     private final ReviewFactory reviewFactory;
 
-
-    public void ifUserAlreadyReviewedFilm(long filmId, long userId) {
-        List<Map<String, Object>> reviewList = jdbcTemplate.queryForList("SELECT * FROM reviews WHERE film_id = ? AND user_id = ?", filmId, userId);
+    @Override
+    public Optional<Long> checkReviewForFilmExists(CreateReviewCommand command) {
+        List<Map<String, Object>> reviewList = jdbcTemplate.queryForList(
+                "SELECT * FROM reviews WHERE film_id = ? AND user_id = ?", command.filmId(), command.userId());
         if (!reviewList.isEmpty()) {
             if (reviewList.size() > 1) {
-                log.error("Possible data inconsistency for filmId " + filmId + " and userId " + userId);
+                log.error("Possible data inconsistency for filmId " +
+                        command.filmId() + " and userId " + command.userId());
             }
             for (Map<String, Object> review : reviewList) {
                 if (review.get("REVIEW_ID") == null) {
                     log.error("REVIEW_ID is not contained in query result list");
-                    return;
+                    return Optional.empty();
                 }
-                long reviewId = (long) review.get("REVIEW_ID");
-                removeReview(reviewId);
+                return Optional.of((long) review.get("REVIEW_ID"));
             }
         }
+        return Optional.empty();
     }
 
     @Override
     public Review addReview(CreateReviewCommand command) {
-        ifUserAlreadyReviewedFilm(command.filmId(), command.userId());
         SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate).withTableName("reviews")
                 .usingGeneratedKeyColumns("review_id");
 
@@ -85,9 +86,7 @@ public class JdbcReviewRepository implements ReviewRepository {
 
     @Override
     public List<Review> getReviewsByFilmId(long filmId) {
-        log.error("Get reviews by film id: " + filmId);
         List<Review> reviews = mapRowsToReviews(jdbcTemplate.queryForList("SELECT * FROM reviews WHERE film_id = ?", filmId));
-        log.error("Reviews of film " + filmId + " are: " + reviews);
         return reviews;
     }
 
@@ -127,7 +126,7 @@ public class JdbcReviewRepository implements ReviewRepository {
             updateReview(new UpdateReviewCommand(reviewId, review.content(), review.isPositive(),
                     newUseful, review.userId(), review.filmId()));
         }
-       // String sql = "UPDATE reviews SET useful = useful + ? WHERE review_id = ?";
-       // jdbcTemplate.update(sql, delta, reviewId);
+        // String sql = "UPDATE reviews SET useful = useful + ? WHERE review_id = ?";
+        // jdbcTemplate.update(sql, delta, reviewId);
     }
 }

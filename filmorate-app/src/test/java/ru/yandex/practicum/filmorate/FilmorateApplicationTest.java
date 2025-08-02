@@ -455,12 +455,12 @@ class FilmorateApplicationTest {
     void shouldUpdateReview() {
       long reviewId = createReview("positive review", user.id(), film.id()).reviewId();
 
-      UpdateReviewRequest updateReviewRequest = new UpdateReviewRequest(reviewId, "new content", true, 1,
+      UpdateReviewRequest updateReviewRequest = new UpdateReviewRequest(reviewId, "new content", false,
               user.id(), film.id());
       ResponseEntity<ReviewResponse> responseUpdate = restTemplate.exchange("/reviews", HttpMethod.PUT,
               new HttpEntity<>(updateReviewRequest), ReviewResponse.class);
 
-      assertResponse(responseUpdate, HttpStatus.OK, "new content", true, 1);
+      assertResponse(responseUpdate, HttpStatus.OK, "new content", false, 0);
     }
 
     @Test

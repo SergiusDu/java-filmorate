@@ -51,4 +51,9 @@ public class ReviewService implements ReviewUseCase {
     public void changeUseful(long reviewId, int delta) {
         reviewRepository.changeUseful(reviewId, delta);
     }
+
+    @Override
+    public Optional<Long> checkReviewForFilmExists(CreateReviewCommand command) {
+        return reviewRepository.checkReviewForFilmExists(command);
+    }
 }

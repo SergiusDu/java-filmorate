@@ -29,6 +29,10 @@ public class ReviewCompositionService {
         filmService.validateFilmId(command.filmId());
         userService.validateUserExists(command.userId());
 
+        if (reviewUseCase.checkReviewForFilmExists(command).isPresent()) {
+            long reviewId = reviewUseCase.checkReviewForFilmExists(command).get();
+            reviewUseCase.removeReview(reviewId);
+        }
         return reviewUseCase.addReview(command);
     }
 

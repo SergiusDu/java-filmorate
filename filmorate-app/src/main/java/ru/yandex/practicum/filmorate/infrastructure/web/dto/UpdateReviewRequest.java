@@ -12,8 +12,6 @@ public record UpdateReviewRequest(@NotNull(message = "Review id cannot be null")
                                   @NotNull(message = "Is positive field cannot be null")
                                   Boolean isPositive,
 
-                                  Integer useful,
-
                                   @NotNull(message = "User id cannot be null")
                                   Long userId,
 

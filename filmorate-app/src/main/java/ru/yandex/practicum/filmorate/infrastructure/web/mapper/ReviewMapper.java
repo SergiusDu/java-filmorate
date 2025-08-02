@@ -20,7 +20,6 @@ public class ReviewMapper {
                 .reviewId(request.reviewId())
                 .content(request.content())
                 .isPositive(request.isPositive())
-                .useful(request.useful())
                 .userId(request.userId())
                 .filmId(request.filmId())
                 .build();

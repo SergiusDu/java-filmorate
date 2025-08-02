@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.likes.domain.port.LikeRepository;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
@@ -39,7 +40,13 @@ public class JdbcLikeRepository implements LikeRepository {
 
   @Override
   public LinkedHashSet<Long> getPopularFilmIds(int count) {
-    String sql = "SELECT film_id FROM likes GROUP BY film_id ORDER BY COUNT(user_id) DESC LIMIT ?";
+    String sql = """
+        SELECT film_id
+        FROM likes
+        GROUP BY film_id
+        ORDER BY COUNT(user_id) DESC
+        LIMIT ?
+    """;
     List<Long> popularIds = jdbcTemplate.queryForList(sql, Long.class, count);
     return new LinkedHashSet<>(popularIds);
   }
@@ -56,5 +63,32 @@ public class JdbcLikeRepository implements LikeRepository {
     String sql = "SELECT COUNT(*) FROM likes WHERE film_id = ?";
     Integer count = jdbcTemplate.queryForObject(sql, Integer.class, filmId);
     return count != null && count > 0;
+  }
+
+  @Override
+  public Set<Long> findLikedFilms(long userId) {
+    String sql = "SELECT film_id FROM likes WHERE user_id = ?";
+    List<Long> filmIds = jdbcTemplate.queryForList(sql, Long.class, userId);
+    return new HashSet<>(filmIds);
+  }
+
+  @Override
+  public boolean deleteByFilmId(long filmId) {
+    return jdbcTemplate.update("DELETE FROM likes WHERE film_id = ?", filmId) > 0;
+  }
+
+  @Override
+  public boolean deleteByUserId(long userId) {
+    return jdbcTemplate.update("DELETE FROM likes WHERE user_id = ?", userId) > 0;
+  }
+
+  @Override
+  public Map<Long, Long> getLikeCounts() {
+    String sql = "SELECT film_id, COUNT(*) AS cnt FROM likes GROUP BY film_id";
+    RowMapper<Map.Entry<Long, Long>> rowMapper = (rs, rowNum) ->
+            Map.entry(rs.getLong("film_id"), rs.getLong("cnt"));
+    List<Map.Entry<Long, Long>> entries = jdbcTemplate.query(sql, rowMapper);
+    return entries.stream()
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
   }
 }

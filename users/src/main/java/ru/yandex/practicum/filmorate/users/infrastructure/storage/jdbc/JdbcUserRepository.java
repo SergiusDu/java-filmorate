@@ -85,4 +85,11 @@ public class JdbcUserRepository implements UserRepository {
     String sql = String.format("SELECT * FROM users WHERE user_id IN (%s)", inSql);
     return jdbcTemplate.query(sql, USER_ROW_MAPPER);
   }
+
+  @Override
+  public boolean deleteById(long userId) {
+    jdbcTemplate.update("DELETE FROM friendships WHERE user_id = ?", userId);
+    jdbcTemplate.update("DELETE FROM friendships WHERE friend_id = ?", userId);
+    return jdbcTemplate.update("DELETE FROM users WHERE user_id = ?", userId) > 0;
+  }
 }

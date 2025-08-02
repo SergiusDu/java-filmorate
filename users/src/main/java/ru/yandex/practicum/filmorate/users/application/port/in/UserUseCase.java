@@ -19,4 +19,6 @@ public interface UserUseCase {
   Optional<User> findUserById(long userId);
 
   List<User> findUsersByIds(Set<Long> ids);
+
+  void deleteUserById(long id);
 }

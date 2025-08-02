@@ -74,4 +74,15 @@ public class UserController {
                                  .map(userMapper::toResponse)
                                  .toList();
   }
+
+  @GetMapping("/{id}")
+  public UserResponse getUserById(@PathVariable long id) {
+    return userMapper.toResponse(userCompositionService.getUserById(id));
+  }
+
+  @DeleteMapping("/{id}")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public void delete(@PathVariable long id) {
+    userCompositionService.deleteUserById(id);
+  }
 }

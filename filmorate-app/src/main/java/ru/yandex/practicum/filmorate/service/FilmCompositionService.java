@@ -13,7 +13,11 @@ import ru.yandex.practicum.filmorate.films.domain.port.UpdateFilmCommand;
 import ru.yandex.practicum.filmorate.likes.application.port.in.LikeUseCase;
 import ru.yandex.practicum.filmorate.users.application.port.in.UserUseCase;
 
+import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -64,9 +68,17 @@ public class FilmCompositionService {
   }
 
   public List<Film> getPopularFilms(int count) {
-    if (count < 0)
+    if (count < 0) {
       throw new ValidationException("Count parameter cannot be negative");
-    return filmUseCase.getFilmsByIds(likeService.getPopularFilmIds(count));
+    }
+    List<Film> all = filmUseCase.getAllFilms();
+    Map<Long, Long> likeCounts = likeService.getLikeCounts();
+    return all.stream()
+            .sorted(Comparator.comparingLong(
+                    f -> - likeCounts.getOrDefault(f.id(), 0L)
+            ))
+            .limit(count)
+            .toList();
   }
 
   public List<Genre> getGenres() {
@@ -90,5 +102,32 @@ public class FilmCompositionService {
   public Film getFilmById(long id) {
     return filmUseCase.findFilmById(id)
                       .orElseThrow(() -> new ResourceNotFoundException("Film with id " + id + " not found"));
+  }
+
+  public void deleteFilmById(long filmId) {
+    validateFilmId(filmId);
+    likeService.deleteLikesByFilmId(filmId);
+    filmUseCase.deleteFilmById(filmId);
+  }
+
+  public List<Film> getCommonFilms(long userId, long friendId) {
+    validateUserId(userId);
+    validateUserId(friendId);
+
+    Set<Long> userLikes = likeService.findLikedFilms(userId);
+    Set<Long> friendLikes = likeService.findLikedFilms(friendId);
+
+    Set<Long> commonFilmIds = new HashSet<>(userLikes);
+    commonFilmIds.retainAll(friendLikes);
+
+    if (commonFilmIds.isEmpty()) {
+      return List.of();
+    }
+
+    return filmUseCase.getFilmsByIds(commonFilmIds).stream()
+            .sorted(Comparator.comparingInt(
+                    film -> -likeService.findUsersWhoLikedFilm(film.id()).size()
+            ))
+            .toList();
   }
 }

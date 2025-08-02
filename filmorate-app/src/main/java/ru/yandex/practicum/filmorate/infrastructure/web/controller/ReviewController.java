@@ -42,7 +42,7 @@ public class ReviewController {
     public List<ReviewResponse> getReviewByFilmId(@RequestParam(required = false) Long filmId,
                                                   @RequestParam(defaultValue = "10")
                                                   @Positive
-                                                  @Max(100)
+                                                  @Max(1000)
                                                   int count) {
 
         if (filmId != null) {

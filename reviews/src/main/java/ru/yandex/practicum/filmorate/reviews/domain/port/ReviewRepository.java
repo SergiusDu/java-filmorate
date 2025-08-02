@@ -18,4 +18,6 @@ public interface ReviewRepository {
     List<Review> getAllReviews();
 
     void changeUseful(long reviewId, int delta);
+
+    Optional<Long> checkReviewForFilmExists(CreateReviewCommand command);
 }

@@ -3,9 +3,9 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.common.exception.ResourceNotFoundException;
-import ru.yandex.practicum.filmorate.films.application.port.in.UserUseCase;
-import ru.yandex.practicum.filmorate.films.domain.model.User;
 import ru.yandex.practicum.filmorate.friendships.application.port.in.FriendshipsUseCase;
+import ru.yandex.practicum.filmorate.users.application.port.in.UserUseCase;
+import ru.yandex.practicum.filmorate.users.domain.model.User;
 
 import java.util.Collections;
 import java.util.List;
@@ -32,7 +32,8 @@ public class UserCompositionService {
       throw new ResourceNotFoundException("User with id " + userId + " not found.");
   }
 
-  public List<User> getMutualFriends(long userId, long friendId) {
+  public List<User> getMutualFriends(long userId,
+                                     long friendId) {
     Set<Long> mutualFriendsIds = friendshipsUseCase.getMutualFriends(userId,
                                                                      friendId);
     if (mutualFriendsIds.isEmpty())
@@ -40,7 +41,8 @@ public class UserCompositionService {
     return userUseCase.findUsersByIds(mutualFriendsIds);
   }
 
-  public void addFriend(long userId, long friendId) {
+  public void addFriend(long userId,
+                        long friendId) {
     validateUsersExists(Set.of(userId,
                                friendId));
     friendshipsUseCase.addFriend(userId,
@@ -53,7 +55,8 @@ public class UserCompositionService {
       throw new ResourceNotFoundException("One or more users not found.");
   }
 
-  public void removeFriend(long userId, long friendId) {
+  public void removeFriend(long userId,
+                           long friendId) {
     validateUsersExists(Set.of(userId,
                                friendId));
     friendshipsUseCase.removeFriend(userId,

@@ -1,9 +1,9 @@
-package ru.yandex.practicum.filmorate.films.application.port.in;
+package ru.yandex.practicum.filmorate.users.application.port.in;
 
 
-import ru.yandex.practicum.filmorate.films.domain.model.User;
-import ru.yandex.practicum.filmorate.films.domain.port.CreateUserCommand;
-import ru.yandex.practicum.filmorate.films.domain.port.UpdateUserCommand;
+import ru.yandex.practicum.filmorate.users.domain.model.User;
+import ru.yandex.practicum.filmorate.users.domain.port.CreateUserCommand;
+import ru.yandex.practicum.filmorate.users.domain.port.UpdateUserCommand;
 
 import java.util.List;
 import java.util.Optional;

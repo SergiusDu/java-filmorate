@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.films.domain.model.value;
+package ru.yandex.practicum.filmorate.users.domain.model.value;
 
 
 import ru.yandex.practicum.filmorate.common.exception.InvalidUserDataException;

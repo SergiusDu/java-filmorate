@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.films.application.service;
+package ru.yandex.practicum.filmorate.users.application.service;
 
 
 import lombok.RequiredArgsConstructor;
@@ -7,11 +7,11 @@ import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.common.events.UserCreatedEvent;
-import ru.yandex.practicum.filmorate.films.application.port.in.UserUseCase;
-import ru.yandex.practicum.filmorate.films.domain.model.User;
-import ru.yandex.practicum.filmorate.films.domain.port.CreateUserCommand;
-import ru.yandex.practicum.filmorate.films.domain.port.UpdateUserCommand;
-import ru.yandex.practicum.filmorate.films.domain.port.UserRepository;
+import ru.yandex.practicum.filmorate.users.application.port.in.UserUseCase;
+import ru.yandex.practicum.filmorate.users.domain.model.User;
+import ru.yandex.practicum.filmorate.users.domain.port.CreateUserCommand;
+import ru.yandex.practicum.filmorate.users.domain.port.UpdateUserCommand;
+import ru.yandex.practicum.filmorate.users.domain.port.UserRepository;
 
 import java.util.List;
 import java.util.Optional;

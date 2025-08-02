@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.films.domain.model;
+package ru.yandex.practicum.filmorate.users.domain.model;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -6,8 +6,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 import ru.yandex.practicum.filmorate.common.exception.InvalidUserDataException;
-import ru.yandex.practicum.filmorate.films.domain.model.value.Email;
-import ru.yandex.practicum.filmorate.films.domain.model.value.Login;
+import ru.yandex.practicum.filmorate.users.domain.model.value.Email;
+import ru.yandex.practicum.filmorate.users.domain.model.value.Login;
 
 import java.time.LocalDate;
 

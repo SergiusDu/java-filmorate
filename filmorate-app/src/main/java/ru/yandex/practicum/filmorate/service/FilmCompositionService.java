@@ -5,13 +5,13 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.common.exception.ResourceNotFoundException;
 import ru.yandex.practicum.filmorate.common.exception.ValidationException;
 import ru.yandex.practicum.filmorate.films.application.port.in.FilmUseCase;
-import ru.yandex.practicum.filmorate.films.application.port.in.UserUseCase;
 import ru.yandex.practicum.filmorate.films.domain.model.Film;
 import ru.yandex.practicum.filmorate.films.domain.model.value.Genre;
 import ru.yandex.practicum.filmorate.films.domain.model.value.Mpa;
 import ru.yandex.practicum.filmorate.films.domain.port.CreateFilmCommand;
 import ru.yandex.practicum.filmorate.films.domain.port.UpdateFilmCommand;
 import ru.yandex.practicum.filmorate.likes.application.port.in.LikeUseCase;
+import ru.yandex.practicum.filmorate.users.application.port.in.UserUseCase;
 
 import java.util.List;
 
@@ -35,7 +35,8 @@ public class FilmCompositionService {
     return filmUseCase.updateFilm(command);
   }
 
-  public boolean addLike(long filmId, long userId) {
+  public boolean addLike(long filmId,
+                         long userId) {
     validateFilmId(filmId);
     validateUserId(userId);
     return likeService.addLike(filmId,
@@ -54,7 +55,8 @@ public class FilmCompositionService {
       throw new ResourceNotFoundException("User with id " + userId + " not found");
   }
 
-  public boolean removeLike(long filmId, long userId) {
+  public boolean removeLike(long filmId,
+                            long userId) {
     validateFilmId(filmId);
     validateUserId(userId);
     return likeService.removeLike(filmId,

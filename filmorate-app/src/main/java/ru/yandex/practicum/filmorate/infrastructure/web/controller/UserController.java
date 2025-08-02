@@ -7,7 +7,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.films.application.port.in.RecommendationQuery;
 import ru.yandex.practicum.filmorate.films.application.port.in.RecommendationUseCase;
-import ru.yandex.practicum.filmorate.films.application.port.in.UserUseCase;
 import ru.yandex.practicum.filmorate.infrastructure.web.dto.CreateUserRequest;
 import ru.yandex.practicum.filmorate.infrastructure.web.dto.FilmResponse;
 import ru.yandex.practicum.filmorate.infrastructure.web.dto.UpdateUserRequest;
@@ -15,6 +14,7 @@ import ru.yandex.practicum.filmorate.infrastructure.web.dto.UserResponse;
 import ru.yandex.practicum.filmorate.infrastructure.web.mapper.FilmMapper;
 import ru.yandex.practicum.filmorate.infrastructure.web.mapper.UserMapper;
 import ru.yandex.practicum.filmorate.service.UserCompositionService;
+import ru.yandex.practicum.filmorate.users.application.port.in.UserUseCase;
 
 import java.util.List;
 import java.util.Optional;
@@ -51,14 +51,16 @@ public class UserController {
 
   @PutMapping("/{id}/friends/{friendId}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  public void addFriend(@PathVariable long id, @PathVariable long friendId) {
+  public void addFriend(@PathVariable long id,
+                        @PathVariable long friendId) {
     userCompositionService.addFriend(id,
                                      friendId);
   }
 
   @DeleteMapping("/{id}/friends/{friendId}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  public void deleteFriend(@PathVariable long id, @PathVariable long friendId) {
+  public void deleteFriend(@PathVariable long id,
+                           @PathVariable long friendId) {
     userCompositionService.removeFriend(id,
                                         friendId);
   }
@@ -72,7 +74,8 @@ public class UserController {
   }
 
   @GetMapping("/{id}/friends/common/{otherId}")
-  public List<UserResponse> getMutualFriends(@PathVariable long id, @PathVariable long otherId) {
+  public List<UserResponse> getMutualFriends(@PathVariable long id,
+                                             @PathVariable long otherId) {
     return userCompositionService.getMutualFriends(id,
                                                    otherId)
                                  .stream()

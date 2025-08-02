@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.infrastructure.web.exception;
 
+import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
@@ -65,6 +66,15 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(DuplicateKeyException.class)
   public ResponseEntity<ErrorResponse> handleDuplicateKeyException(DuplicateKeyException ex) {
     log.error("Duplicate key error: {}",
+            ex.getMessage(),
+            ex);
+    return new ResponseEntity<>(new ErrorResponse(ex.getMessage()),
+            HttpStatus.CONFLICT);
+  }
+
+  @ExceptionHandler(ConstraintViolationException.class)
+  public ResponseEntity<ErrorResponse> handleConstraintViolationException(ConstraintViolationException ex) {
+    log.error("Violation of constraint: {}",
             ex.getMessage(),
             ex);
     return new ResponseEntity<>(new ErrorResponse(ex.getMessage()),

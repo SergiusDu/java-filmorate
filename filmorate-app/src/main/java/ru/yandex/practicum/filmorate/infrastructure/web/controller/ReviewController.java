@@ -1,6 +1,8 @@
 package ru.yandex.practicum.filmorate.infrastructure.web.controller;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.infrastructure.web.dto.*;
@@ -22,7 +24,7 @@ public class ReviewController {
     }
 
     @PutMapping
-    public ReviewResponse upateReview(@Valid @RequestBody UpdateReviewRequest request) {
+    public ReviewResponse updateReview(@Valid @RequestBody UpdateReviewRequest request) {
         return reviewMapper.toResponse(reviewCompositionService.updateReview(reviewMapper.toCommand(request)));
     }
 
@@ -38,7 +40,10 @@ public class ReviewController {
 
     @GetMapping
     public List<ReviewResponse> getReviewByFilmId(@RequestParam(required = false) Long filmId,
-                                                  @RequestParam(defaultValue = "10") int count) {
+                                                  @RequestParam(defaultValue = "10")
+                                                  @Positive
+                                                  @Max(100)
+                                                  int count) {
 
         if (filmId != null) {
             return reviewCompositionService.getReviewsByFilmId(filmId)
@@ -74,6 +79,5 @@ public class ReviewController {
     public void removeDislikeFromReview(@PathVariable long id, @PathVariable long userId) {
         reviewCompositionService.removeDislikeFromReview(id, userId);
     }
-
 
 }

@@ -10,6 +10,7 @@ import java.time.Duration;
 
 @Component
 public class FilmFactory {
+
   public Film create(long id, CreateFilmCommand command) {
     return Film.builder()
             .id(id)
@@ -18,21 +19,20 @@ public class FilmFactory {
             .releaseDate(command.releaseDate())
             .duration(Duration.ofMinutes(command.duration()))
             .genres(command.genres())
-            .mpa(command.mpa())
             .isDeleted(false)
+            .mpa(command.mpa())
             .build();
   }
 
   public Film update(UpdateFilmCommand command) {
     return Film.builder()
-               .id(command.id())
-               .name(command.name())
-               .description(command.description())
-               .releaseDate(command.releaseDate())
-               .duration(Duration.ofMinutes(command.duration()))
-               .genres(command.genres())
-               .mpa(command.mpa())
-            .isDeleted(false)
+            .id(command.id())
+            .name(command.name())
+            .description(command.description())
+            .releaseDate(command.releaseDate())
+            .duration(Duration.ofMinutes(command.duration()))
+            .genres(command.genres())
+            .mpa(command.mpa())
             .build();
   }
 }

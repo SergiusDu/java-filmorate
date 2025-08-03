@@ -26,9 +26,7 @@ import java.util.Set;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ActiveProfiles({"test",
-        "db"
-})
+@ActiveProfiles({"test", "db"})
 @Sql(scripts = "/cleanup.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 @DisplayName("Filmorate Integration Tests")
 class FilmorateApplicationTest {
@@ -93,8 +91,7 @@ class FilmorateApplicationTest {
         @DisplayName("Should fail to create user with future birthday")
         void shouldFailToCreateUserWithFutureBirthday() {
             CreateUserRequest request = new CreateUserRequest("test@example.com", "validlogin", "Test", LocalDate.now()
-                    .plusDays(
-                            1));
+                    .plusDays(1));
             ResponseEntity<ValidationErrorResponse> response = restTemplate.postForEntity("/users", request,
                     ValidationErrorResponse.class);
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
@@ -109,8 +106,7 @@ class FilmorateApplicationTest {
                     "Updated", LocalDate.of(1991, 2, 2));
 
             ResponseEntity<UserResponse> response = restTemplate.exchange("/users", HttpMethod.PUT,
-                    new HttpEntity<>(updateRequest),
-                    UserResponse.class);
+                    new HttpEntity<>(updateRequest), UserResponse.class);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             UserResponse body = response.getBody();
@@ -126,8 +122,7 @@ class FilmorateApplicationTest {
             UpdateUserRequest updateRequest = new UpdateUserRequest(9999L, "a@a.com", "login", "name",
                     LocalDate.of(1990, 1, 1));
             ResponseEntity<ErrorResponse> response = restTemplate.exchange("/users", HttpMethod.PUT,
-                    new HttpEntity<>(updateRequest),
-                    ErrorResponse.class);
+                    new HttpEntity<>(updateRequest), ErrorResponse.class);
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
         }
 
@@ -323,6 +318,35 @@ class FilmorateApplicationTest {
 
             assertThat(popularIds).containsExactly(f2.id(), f3.id(), f1.id());
         }
+
+        @Test
+        @DisplayName("Should get common films sorted by likes")
+        void shouldGetCommonFilms() {
+            UserResponse user1 = createUser(new CreateUserRequest("u1@example.com", "u1", "U1", LocalDate.of(1990, 1, 1)));
+            UserResponse user2 = createUser(new CreateUserRequest("u2@example.com", "u2", "U2", LocalDate.of(1990, 2, 2)));
+
+            FilmResponse film1 = createFilm(new CreateFilmRequest("Film 1", "desc", LocalDate.of(2000, 1, 1), 100,
+                    Set.of(new Genre(1L, "Комедия")), new Mpa(1L, "G")));
+
+            FilmResponse film2 = createFilm(new CreateFilmRequest("Film 2", "desc", LocalDate.of(2001, 1, 1), 100,
+                    Set.of(new Genre(1L, "Комедия")), new Mpa(1L, "G")));
+
+            restTemplate.put("/films/{id}/like/{userId}", null, film1.id(), user1.id());
+
+            restTemplate.put("/films/{id}/like/{userId}", null, film2.id(), user1.id());
+            restTemplate.put("/films/{id}/like/{userId}", null, film2.id(), user2.id());
+
+            ResponseEntity<FilmResponse[]> response = restTemplate.getForEntity(
+                    "/films/common?userId={userId}&friendId={friendId}",
+                    FilmResponse[].class,
+                    user1.id(), user2.id());
+
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+            assertThat(response.getBody()).isNotNull();
+            assertThat(response.getBody()).hasSize(1); // Only film2 is common
+            assertThat(response.getBody()[0].id()).isEqualTo(film2.id());
+            assertThat(response.getBody()[0].name()).isEqualTo("Film 2");
+        }
     }
 
     @Nested
@@ -450,9 +474,9 @@ class FilmorateApplicationTest {
             film3 = createFilm(new CreateFilmRequest("Film3", "description", LocalDate.of(2000, 1, 1), 120,
                     Set.of(new Genre(1L, "Комедия")), new Mpa(1L, "G")));
             film4 = createFilm(new CreateFilmRequest("Film4", "description", LocalDate.of(2000, 1, 1), 120,
-                    Set.of(new Genre(2L, "Доку")), new Mpa(1L, "G")));
+                    Set.of(new Genre(2L, "Драма")), new Mpa(1L, "G")));
             film5 = createFilm(new CreateFilmRequest("Film5", "description", LocalDate.of(2000, 1, 1), 120,
-                    Set.of(new Genre(2L, "Доку")), new Mpa(1L, "G")));
+                    Set.of(new Genre(2L, "Драма")), new Mpa(1L, "G")));
 
             restTemplate.put("/films/{id}/like/{userId}", null, film1.id(), user1.id());
             restTemplate.put("/films/{id}/like/{userId}", null, film1.id(), user2.id());
@@ -506,14 +530,12 @@ class FilmorateApplicationTest {
         @DisplayName("Most popular films Genre/Year invalid count")
         void shouldFindFilmsInvalidCount() {
             Assertions.assertThrows(RestClientException.class, () -> {
-
                 restTemplate.getForEntity(
                         "/films/popular?count={count}&genreId={genreId}&year={year}",
                         FilmResponse[].class,
                         -1,
                         1L,
-                        1990
-                );
+                        1990);
             });
         }
 
@@ -521,40 +543,34 @@ class FilmorateApplicationTest {
         @DisplayName("Most popular films Genre/Year invalid year")
         void shouldFindFilmsInvalidYear() {
             Assertions.assertThrows(RestClientException.class, () -> {
-
                 restTemplate.getForEntity(
                         "/films/popular?count={count}&genreId={genreId}&year={year}",
                         FilmResponse[].class,
                         -1,
                         1L,
-                        LocalDate.now().getYear() + 1
-                );
+                        LocalDate.now().getYear() + 1);
             });
 
             Assertions.assertThrows(RestClientException.class, () -> {
-
                 restTemplate.getForEntity(
                         "/films/popular?count={count}&genreId={genreId}&year={year}",
                         FilmResponse[].class,
                         -1,
                         1L,
-                        2020
-                );
+                        1850);
             });
         }
 
         @Test
-        @DisplayName("Most popular films Genre/Year invalid year")
+        @DisplayName("Most popular films Genre/Year invalid genre")
         void shouldFindFilmsInvalidGenre() {
             Assertions.assertThrows(RestClientException.class, () -> {
-
                 restTemplate.getForEntity(
                         "/films/popular?count={count}&genreId={genreId}&year={year}",
                         FilmResponse[].class,
-                        -1,
+                        10,
                         1000000000L,
-                        1990
-                );
+                        1990);
             });
         }
     }

@@ -107,7 +107,6 @@ public class JdbcFilmRepository implements FilmRepository {
                     long filmId = (Long) row.get("film_id");
                     Set<Genre> genres = genresByFilmId.get(filmId);
 
-
                     return new Film(filmId, (String) row.get("name"), (String) row.get("description"),
                             ((java.sql.Date) row.get("release_date")).toLocalDate(),
                             Duration.ofMinutes((Integer) row.get("duration")), genres,

@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.films.domain.port;
 
-
 import ru.yandex.practicum.filmorate.common.exception.DuplicateResourceException;
 import ru.yandex.practicum.filmorate.common.exception.ResourceNotFoundException;
 import ru.yandex.practicum.filmorate.films.domain.model.Film;
@@ -20,7 +19,7 @@ public interface FilmRepository {
      * @return The created film entity with generated ID
      * @throws DuplicateResourceException if a film with the same ID already exists in the repository
      */
-    Film save(CreateFilmCommand createFilmCommand);
+    Film save(CreateFilmCommand createFilmCommand) throws DuplicateResourceException;
 
     /**
      * Updates an existing film based on the provided update command.
@@ -29,7 +28,7 @@ public interface FilmRepository {
      * @return The updated film entity
      * @throws ResourceNotFoundException if film with specified ID does not exist in the repository
      */
-    Film update(UpdateFilmCommand updateCommand);
+    Film update(UpdateFilmCommand updateCommand) throws ResourceNotFoundException;
 
     /**
      * Retrieves all films.

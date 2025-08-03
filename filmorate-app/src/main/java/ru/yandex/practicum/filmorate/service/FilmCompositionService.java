@@ -14,7 +14,7 @@ import ru.yandex.practicum.filmorate.likes.application.port.in.LikeUseCase;
 import ru.yandex.practicum.filmorate.users.application.port.in.UserUseCase;
 
 import java.time.LocalDate;
-import java.util.List;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -103,5 +103,33 @@ public class FilmCompositionService {
     public Film getFilmById(long id) {
         return filmUseCase.findFilmById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Film with id " + id + " not found"));
+    }
+
+    public List<Film> getCommonFilms(long userId, long friendId) {
+        if (userId == friendId) {
+            throw new ValidationException("User cannot be compared with themselves.");
+        }
+
+        validateUserId(userId);
+        validateUserId(friendId);
+
+        Set<Long> userLikes = likeService.findLikedFilms(userId);
+        Set<Long> friendLikes = likeService.findLikedFilms(friendId);
+
+        Set<Long> commonFilmIds = new HashSet<>(userLikes);
+        commonFilmIds.retainAll(friendLikes);
+
+        if (commonFilmIds.isEmpty()) {
+            return List.of();
+        }
+
+        List<Film> commonFilms = filmUseCase.getFilmsByIds(commonFilmIds);
+        Map<Long, Integer> likeCounts = likeService.getLikeCountsForFilms(commonFilmIds);
+
+        return commonFilms.stream()
+                .sorted(Comparator.comparingInt(
+                        film -> -likeCounts.getOrDefault(film.id(), 0)
+                ))
+                .toList();
     }
 }

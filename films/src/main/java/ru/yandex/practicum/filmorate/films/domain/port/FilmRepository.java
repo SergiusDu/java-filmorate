@@ -54,5 +54,5 @@ public interface FilmRepository {
      */
     List<Film> getByIds(Set<Long> ids);
 
-    List<Film> findFilmsByGenreIdAndYear(long genreId, int year, int count);
+    List<Film> findFilmsByGenreIdAndYear(Long genreId, Integer year, Integer count);
 }

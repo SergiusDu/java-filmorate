@@ -49,11 +49,11 @@ public class FilmController {
     }
 
     @GetMapping("/popular")
-    public List<FilmResponse> getPopularFilms(@RequestParam(defaultValue = "10") @Positive int count,
+    public List<FilmResponse> getPopularFilms(@RequestParam(defaultValue = "10") @Positive Integer count,
                                               @RequestParam(required = false) Long genreId,
                                               @RequestParam(required = false) Integer year) {
-        if (genreId != null && year != null) {
-            return filmCompositionService.getMostPopularFilms(count, genreId, year)
+        if (genreId != null || year != null) {
+            return filmCompositionService.getMostPopularFilms(genreId, year, count)
                     .stream()
                     .map(filmMapper::toResponse)
                     .toList();

@@ -31,5 +31,5 @@ public interface FilmUseCase {
 
     Optional<Mpa> getMpaById(long id);
 
-    List<Film> findFilmsByGenreIdAndYear(long genreId, int year, int count);
+    List<Film> findFilmsByGenreIdAndYear(Long genreId, Integer year, Integer count);
 }

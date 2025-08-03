@@ -485,6 +485,24 @@ class FilmorateApplicationTest {
         }
 
         @Test
+        @DisplayName("Most popular films Genre")
+        void shouldFindFilmsByGenre() {
+            ResponseEntity<FilmResponse[]> getResponse = restTemplate.getForEntity(
+                    "/films/popular?genreId={genreId}", FilmResponse[].class, 1L);
+            assertThat(getResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
+            assertThat(getResponse.getBody()).hasSize(3);
+        }
+
+        @Test
+        @DisplayName("Most popular films year")
+        void shouldFindFilmsByYear() {
+            ResponseEntity<FilmResponse[]> getResponse = restTemplate.getForEntity(
+                    "/films/popular?year={year}", FilmResponse[].class, 2000);
+            assertThat(getResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
+            assertThat(getResponse.getBody()).hasSize(3);
+        }
+
+        @Test
         @DisplayName("Most popular films Genre/Year invalid count")
         void shouldFindFilmsInvalidCount() {
             Assertions.assertThrows(RestClientException.class, () -> {

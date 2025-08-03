@@ -13,7 +13,6 @@ import ru.yandex.practicum.filmorate.films.domain.port.UpdateFilmCommand;
 import ru.yandex.practicum.filmorate.likes.application.port.in.LikeUseCase;
 import ru.yandex.practicum.filmorate.users.application.port.in.UserUseCase;
 
-import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -71,14 +70,14 @@ public class FilmCompositionService {
         return filmUseCase.getFilmsByIds(likeService.getPopularFilmIds(count));
     }
 
-    public List<Film> getMostPopularFilms(int count, long genreId, int year) {
-        if (count < 0)
-            throw new ValidationException("Count parameter cannot be negative");
+    public List<Film> getMostPopularFilms(Long genreId, Integer year, Integer count) {
 
-        getGenreById(genreId);
+        if (genreId != null) {
+            getGenreById(genreId);
+        }
 
-        if (year < 1860 || LocalDate.now().getYear() < year) {
-            throw new DateTimeException("Year boundaries violated");
+        if (year != null && (year < 1860 || LocalDate.now().getYear() < year)) {
+            throw new ValidationException("Year boundaries violated");
         }
         return filmUseCase.findFilmsByGenreIdAndYear(genreId, year, count);
     }

@@ -96,13 +96,7 @@ public class FilmService implements FilmUseCase {
     }
 
     @Override
-    public List<Film> findFilmsByGenreIdAndYear(long genreId, int year, int count) {
-        List<Film> filmsList = filmRepository.findFilmsByGenreIdAndYear(genreId, year, count);
-        if (filmsList.isEmpty()) {
-            log.error("No films with genre ids: " + genreId + " and year " + year + " found");
-            throw new ResourceNotFoundException("No films with genre ids: " + genreId + " and year " + year + " found");
-        }
-
-        return filmsList;
+    public List<Film> findFilmsByGenreIdAndYear(Long genreId, Integer year, Integer count) {
+        return filmRepository.findFilmsByGenreIdAndYear(genreId, year, count);
     }
 }

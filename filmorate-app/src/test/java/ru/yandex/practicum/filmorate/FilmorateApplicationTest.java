@@ -574,4 +574,101 @@ class FilmorateApplicationTest {
             });
         }
     }
+
+    @Nested
+    @DisplayName("Recommendation API Tests")
+    class RecommendationTests {
+
+        @Test
+        @DisplayName("Should return recommended films based on similar user")
+        void shouldReturnRecommendedFilms() {
+            UserResponse user1 = createUser(new CreateUserRequest("u1@test.com", "u1", "User 1", LocalDate.of(1990, 1, 1)));
+            UserResponse user2 = createUser(new CreateUserRequest("u2@test.com", "u2", "User 2", LocalDate.of(1991, 1, 1)));
+
+            FilmResponse film1 = createFilm(new CreateFilmRequest("Film 1", "desc", LocalDate.of(2010, 1, 1), 100,
+                    Set.of(new Genre(1L, "Комедия")), new Mpa(1L, "G")));
+            FilmResponse film2 = createFilm(new CreateFilmRequest("Film 2", "desc", LocalDate.of(2011, 1, 1), 100,
+                    Set.of(new Genre(1L, "Комедия")), new Mpa(1L, "G")));
+            FilmResponse film3 = createFilm(new CreateFilmRequest("Film 3", "desc", LocalDate.of(2012, 1, 1), 100,
+                    Set.of(new Genre(1L, "Комедия")), new Mpa(1L, "G")));
+
+            restTemplate.put("/films/{id}/like/{userId}", null, film1.id(), user1.id());
+            restTemplate.put("/films/{id}/like/{userId}", null, film1.id(), user2.id());
+            restTemplate.put("/films/{id}/like/{userId}", null, film2.id(), user2.id());
+            restTemplate.put("/films/{id}/like/{userId}", null, film3.id(), user2.id());
+
+            ResponseEntity<FilmResponse[]> response = restTemplate.getForEntity("/users/{id}/recommendations",
+                    FilmResponse[].class, user1.id());
+
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+            FilmResponse[] recommendations = response.getBody();
+            assertThat(recommendations).isNotNull();
+            assertThat(recommendations).hasSize(2);
+
+            List<Long> recommendedIds = Arrays.stream(recommendations).map(FilmResponse::id).toList();
+            assertThat(recommendedIds).containsExactlyInAnyOrder(film2.id(), film3.id());
+        }
+
+        @Test
+        @DisplayName("Should apply filters in recommendation query")
+        void shouldApplyFilters() {
+            UserResponse user1 = createUser(new CreateUserRequest("filter1@test.com", "f1", "F1", LocalDate.of(1990, 1, 1)));
+            UserResponse user2 = createUser(new CreateUserRequest("filter2@test.com", "f2", "F2", LocalDate.of(1991, 1, 1)));
+
+            FilmResponse film1 = createFilm(new CreateFilmRequest("F1", "d", LocalDate.of(2020, 1, 1), 100,
+                    Set.of(new Genre(1L, "Комедия")), new Mpa(1L, "G"))); // genre=1, year=2020
+            FilmResponse film2 = createFilm(new CreateFilmRequest("F2", "d", LocalDate.of(2020, 1, 1), 100,
+                    Set.of(new Genre(2L, "Драма")), new Mpa(1L, "G")));
+            FilmResponse film3 = createFilm(new CreateFilmRequest("F3", "d", LocalDate.of(2021, 1, 1), 100,
+                    Set.of(new Genre(1L, "Комедия")), new Mpa(1L, "G")));
+
+            restTemplate.put("/films/{id}/like/{userId}", null, film2.id(), user1.id());
+
+            restTemplate.put("/films/{id}/like/{userId}", null, film1.id(), user2.id());
+            restTemplate.put("/films/{id}/like/{userId}", null, film2.id(), user2.id());
+            restTemplate.put("/films/{id}/like/{userId}", null, film3.id(), user2.id());
+
+            String url = "/users/{id}/recommendations?genreId=1&year=2020&limit=1";
+            ResponseEntity<FilmResponse[]> response = restTemplate.getForEntity(url, FilmResponse[].class, user1.id());
+
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+            FilmResponse[] recommendations = response.getBody();
+            assertThat(recommendations).isNotNull();
+            assertThat(recommendations).hasSize(1);
+            assertThat(recommendations[0].id()).isEqualTo(film1.id());
+        }
+
+        @Test
+        @DisplayName("Should return empty list if user has no liked films")
+        void shouldReturnEmptyIfNoLikes() {
+            UserResponse user = createUser(new CreateUserRequest("nolikes@test.com", "nolikes", "No Likes", LocalDate.of(1990, 1, 1)));
+
+            ResponseEntity<FilmResponse[]> response = restTemplate.getForEntity("/users/{id}/recommendations",
+                    FilmResponse[].class, user.id());
+
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+            assertThat(response.getBody()).isNotNull().isEmpty();
+        }
+
+        @Test
+        @DisplayName("Should return empty list if no similar user found")
+        void shouldReturnEmptyIfNoSimilarUser() {
+            UserResponse u1 = createUser(new CreateUserRequest("s1@test.com", "s1", "Solo 1", LocalDate.of(1990, 1, 1)));
+            UserResponse u2 = createUser(new CreateUserRequest("s2@test.com", "s2", "Solo 2", LocalDate.of(1991, 1, 1)));
+
+            FilmResponse f1 = createFilm(new CreateFilmRequest("Only For U1", "d", LocalDate.of(2020, 1, 1), 100,
+                    Set.of(new Genre(1L, "Комедия")), new Mpa(1L, "G")));
+            FilmResponse f2 = createFilm(new CreateFilmRequest("Only For U2", "d", LocalDate.of(2020, 1, 1), 100,
+                    Set.of(new Genre(1L, "Комедия")), new Mpa(1L, "G")));
+
+            restTemplate.put("/films/{id}/like/{userId}", null, f1.id(), u1.id());
+            restTemplate.put("/films/{id}/like/{userId}", null, f2.id(), u2.id());
+
+            ResponseEntity<FilmResponse[]> response = restTemplate.getForEntity("/users/{id}/recommendations",
+                    FilmResponse[].class, u1.id());
+
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+            assertThat(response.getBody()).isNotNull().isEmpty();
+        }
+    }
 }

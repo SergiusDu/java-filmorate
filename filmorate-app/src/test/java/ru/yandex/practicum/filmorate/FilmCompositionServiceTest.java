@@ -44,7 +44,7 @@ class FilmCompositionServiceTest {
     void setUp() {
         MockitoAnnotations.openMocks(this);
         film = new Film(1L, "Test Film", "Description", LocalDate.of(2020, 1, 1),
-                Duration.ofMinutes(90), Set.of(new Genre(1L, "Drama")), new Mpa(1L, "G"));
+                Duration.ofMinutes(90), Set.of(new Genre(1L, "Drama")), false, new Mpa(1L, "G"));
     }
 
     @Test

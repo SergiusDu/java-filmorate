@@ -44,6 +44,11 @@ public interface LikeRepository {
    */
   boolean contains(long filmId);
 
+  /**
+   * Returns a set of film IDs liked by the given user.
+   * @param userId ID of the user
+   * @return set of liked film IDs
+   */
   Set<Long> findLikedFilms(long userId);
 
   /**
@@ -53,4 +58,12 @@ public interface LikeRepository {
    * @return map where key = film ID, value = total number of likes
    */
   Map<Long, Integer> getLikeCountsForFilms(Set<Long> filmIds);
+
+  /**
+   * Returns a full map of all users and their liked films.
+   * Used in collaborative filtering.
+   *
+   * @return map of user IDs to sets of liked film IDs
+   */
+  Map<Long, Set<Long>> findAllUserFilmLikes();
 }

@@ -48,4 +48,9 @@ public class LikeService implements LikeUseCase {
   public Map<Long, Integer> getLikeCountsForFilms(Set<Long> filmIds) {
     return likeRepository.getLikeCountsForFilms(filmIds);
   }
+
+  @Override
+  public Map<Long, Set<Long>> findAllUserFilmLikes() {
+    return likeRepository.findAllUserFilmLikes();
+  }
 }

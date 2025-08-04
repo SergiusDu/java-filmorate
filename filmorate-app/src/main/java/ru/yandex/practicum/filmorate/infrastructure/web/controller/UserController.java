@@ -5,22 +5,30 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.films.application.port.in.RecommendationQuery;
+import ru.yandex.practicum.filmorate.films.application.port.in.RecommendationUseCase;
 import ru.yandex.practicum.filmorate.infrastructure.web.dto.CreateUserRequest;
+import ru.yandex.practicum.filmorate.infrastructure.web.dto.FilmResponse;
 import ru.yandex.practicum.filmorate.infrastructure.web.dto.UpdateUserRequest;
 import ru.yandex.practicum.filmorate.infrastructure.web.dto.UserResponse;
+import ru.yandex.practicum.filmorate.infrastructure.web.mapper.FilmMapper;
 import ru.yandex.practicum.filmorate.infrastructure.web.mapper.UserMapper;
 import ru.yandex.practicum.filmorate.service.UserCompositionService;
 import ru.yandex.practicum.filmorate.users.application.port.in.UserUseCase;
 
 import java.util.List;
+import java.util.Optional;
 
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/users")
-@RequiredArgsConstructor
 public class UserController {
+
   private final UserUseCase userUseCase;
   private final UserMapper userMapper;
   private final UserCompositionService userCompositionService;
+  private final RecommendationUseCase recommendationUseCase;
+  private final FilmMapper filmMapper;
 
   @GetMapping
   public List<UserResponse> getAllUsers() {
@@ -84,5 +92,34 @@ public class UserController {
   @ResponseStatus(HttpStatus.NO_CONTENT)
   public void delete(@PathVariable long id) {
     userCompositionService.deleteUserById(id);
+  }
+
+  /**
+   * Returns a list of recommended films for the user with optional filters.
+   *
+   * @param id      ID of the target user
+   * @param limit   (optional) max number of results
+   * @param genreId (optional) genre filter
+   * @param year    (optional) year filter
+   * @return list of recommended films
+   */
+
+  @GetMapping("/{id}/recommendations")
+  public List<FilmResponse> getRecommendations(
+          @PathVariable long id,
+          @RequestParam(required = false) Integer limit,
+          @RequestParam(required = false) Long genreId,
+          @RequestParam(required = false) Integer year
+  ) {
+    RecommendationQuery query = new RecommendationQuery(
+            id,
+            Optional.ofNullable(limit),
+            Optional.ofNullable(genreId),
+            Optional.ofNullable(year)
+    );
+
+    return recommendationUseCase.getRecommendations(query).stream()
+            .map(filmMapper::toResponse)
+            .toList();
   }
 }

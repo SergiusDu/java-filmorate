@@ -13,11 +13,7 @@ import ru.yandex.practicum.filmorate.films.domain.port.UpdateFilmCommand;
 import ru.yandex.practicum.filmorate.likes.application.port.in.LikeUseCase;
 import ru.yandex.practicum.filmorate.users.application.port.in.UserUseCase;
 
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -111,6 +107,10 @@ public class FilmCompositionService {
   }
 
   public List<Film> getCommonFilms(long userId, long friendId) {
+    if (userId == friendId) {
+      throw new ValidationException("User cannot be compared with themselves.");
+    }
+
     validateUserId(userId);
     validateUserId(friendId);
 
@@ -124,9 +124,12 @@ public class FilmCompositionService {
       return List.of();
     }
 
-    return filmUseCase.getFilmsByIds(commonFilmIds).stream()
+    List<Film> commonFilms = filmUseCase.getFilmsByIds(commonFilmIds);
+    Map<Long, Integer> likeCounts = likeService.getLikeCountsForFilms(commonFilmIds);
+
+    return commonFilms.stream()
             .sorted(Comparator.comparingInt(
-                    film -> -likeService.findUsersWhoLikedFilm(film.id()).size()
+                    film -> -likeCounts.getOrDefault(film.id(), 0)
             ))
             .toList();
   }

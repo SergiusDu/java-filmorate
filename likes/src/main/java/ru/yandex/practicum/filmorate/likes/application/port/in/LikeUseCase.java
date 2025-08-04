@@ -38,10 +38,10 @@ public interface LikeUseCase {
   Set<Long> findUsersWhoLikedFilm(long filmId);
 
   /**
-   * Retrieves all film IDs that were liked by the specified user.
+   * Returns the set of film IDs liked by the given user.
    *
-   * @param userId the ID of the user
-   * @return a set of film IDs liked by the user
+   * @param userId ID of the user
+   * @return set of liked film IDs
    */
   Set<Long> findLikedFilms(long userId);
 
@@ -65,4 +65,20 @@ public interface LikeUseCase {
    * @return a map where keys are film IDs and values are their corresponding like counts
    */
   Map<Long, Long> getLikeCounts();
+
+  /**
+   * Returns a map of filmId -> number of likes for each film from the given set.
+   *
+   * @param filmIds set of film IDs
+   * @return map where key = film ID, value = total number of likes
+   */
+  Map<Long, Integer> getLikeCountsForFilms(Set<Long> filmIds);
+
+  /**
+   * Returns a mapping from user IDs to their liked film IDs.
+   * Used for collaborative filtering and recommendations.
+   *
+   * @return map of userId → set of liked film IDs
+   */
+  Map<Long, Set<Long>> findAllUserFilmLikes();
 }

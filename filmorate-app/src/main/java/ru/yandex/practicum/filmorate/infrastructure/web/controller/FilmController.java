@@ -64,7 +64,7 @@ public class FilmController {
 
     @GetMapping("/popular")
     public List<FilmResponse> getPopularFilmsWithFilters(
-            @RequestParam(defaultValue = "10") @Min(1) @Max(100) Integer count,
+            @RequestParam(defaultValue = "10") @Min(1) @Max(1000) Integer count,
             @RequestParam(required = false) Long genreId,
             @RequestParam(required = false) Integer year,
             @RequestParam(required = false) Long directorId,

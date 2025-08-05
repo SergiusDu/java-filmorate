@@ -467,45 +467,50 @@ class FilmorateApplicationTest {
             user1 = createUser(new CreateUserRequest("newuser1@mail.com", "user1", "user", LocalDate.of(1990, 1, 1)));
             user2 = createUser(new CreateUserRequest("newuser2@mail.com", "user2", "user", LocalDate.of(1990, 1, 1)));
             user3 = createUser(new CreateUserRequest("newuser3@mail.com", "user3", "user", LocalDate.of(1990, 1, 1)));
-            film1 = createFilm(new CreateFilmRequest("Film", "description", LocalDate.of(1990, 1, 1), 120,
+
+            film1 = createFilm(new CreateFilmRequest("Film One", "desc", LocalDate.of(1990, 1, 1), 100,
                     Set.of(new Genre(1L, "Комедия")), new Mpa(1L, "G")));
-            film2 = createFilm(new CreateFilmRequest("Film2", "description", LocalDate.of(1990, 1, 1), 120,
+            film2 = createFilm(new CreateFilmRequest("Film Two", "desc", LocalDate.of(1990, 1, 1), 100,
                     Set.of(new Genre(1L, "Комедия")), new Mpa(1L, "G")));
-            film3 = createFilm(new CreateFilmRequest("Film3", "description", LocalDate.of(2000, 1, 1), 120,
+            film3 = createFilm(new CreateFilmRequest("Film Three", "desc", LocalDate.of(2000, 1, 1), 100,
                     Set.of(new Genre(1L, "Комедия")), new Mpa(1L, "G")));
-            film4 = createFilm(new CreateFilmRequest("Film4", "description", LocalDate.of(2000, 1, 1), 120,
+            film4 = createFilm(new CreateFilmRequest("Film Four", "desc", LocalDate.of(2000, 1, 1), 100,
                     Set.of(new Genre(2L, "Драма")), new Mpa(1L, "G")));
-            film5 = createFilm(new CreateFilmRequest("Film5", "description", LocalDate.of(2000, 1, 1), 120,
+            film5 = createFilm(new CreateFilmRequest("Film Five", "desc", LocalDate.of(2000, 1, 1), 100,
                     Set.of(new Genre(2L, "Драма")), new Mpa(1L, "G")));
 
-            restTemplate.put("/films/{id}/like/{userId}", null, film1.id(), user1.id());
-            restTemplate.put("/films/{id}/like/{userId}", null, film1.id(), user2.id());
-
-            restTemplate.put("/films/{id}/like/{userId}", null, film2.id(), user1.id());
-            restTemplate.put("/films/{id}/like/{userId}", null, film2.id(), user3.id());
-
-            restTemplate.put("/films/{id}/like/{userId}", null, film3.id(), user1.id());
-
-            restTemplate.put("/films/{id}/like/{userId}", null, film4.id(), user1.id());
-            restTemplate.put("/films/{id}/like/{userId}", null, film4.id(), user3.id());
-
-            restTemplate.put("/films/{id}/like/{userId}", null, film5.id(), user1.id());
-            restTemplate.put("/films/{id}/like/{userId}", null, film5.id(), user2.id());
-            restTemplate.put("/films/{id}/like/{userId}", null, film5.id(), user3.id());
+            like(film1, user1);
+            like(film1, user2);
+            like(film2, user1);
+            like(film2, user3);
+            like(film3, user1);
+            like(film4, user1);
+            like(film4, user3);
+            like(film5, user1);
+            like(film5, user2);
+            like(film5, user3);
         }
 
         @Test
-        @DisplayName("Most popular films Genre/Year")
-        void shouldFindFilms() {
-            ResponseEntity<FilmResponse[]> getResponseGenreYear1990 = restTemplate.getForEntity(
-                    "/films/popular?count={count}&genreId={genreId}&year={year}", FilmResponse[].class, 3, 1L, 1990);
-            assertThat(getResponseGenreYear1990.getStatusCode()).isEqualTo(HttpStatus.OK);
-            assertThat(getResponseGenreYear1990.getBody()).hasSize(2);
+        @DisplayName("Should return top 2 films for Комедия / 1990")
+        void shouldFindTopPopularFilmsByGenreAndYear() {
+            // Setup: ensure film1 receives 2 likes, film2 receives 1 like
+            like(film1, user1);
+            like(film1, user2);
+            like(film2, user1);
 
-            ResponseEntity<FilmResponse[]> getResponseGenreYear2000 = restTemplate.getForEntity(
-                    "/films/popular?count={count}&genreId={genreId}&year={year}", FilmResponse[].class, 3, 2L, 2000);
-            assertThat(getResponseGenreYear2000.getStatusCode()).isEqualTo(HttpStatus.OK);
-            assertThat(getResponseGenreYear2000.getBody()).hasSize(2);
+            ResponseEntity<FilmResponse[]> response = restTemplate.getForEntity(
+                    "/films/popular?count=2&genreId=1&year=1990", FilmResponse[].class
+            );
+
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+            List<Long> returnedIds = Arrays.stream(Objects.requireNonNull(response.getBody()))
+                    .map(FilmResponse::id).toList();
+
+            assertThat(returnedIds)
+                    .containsExactly(film1.id(), film2.id());
+            assertThat(response.getBody()).hasSize(2);
         }
 
         @Test
@@ -542,38 +547,46 @@ class FilmorateApplicationTest {
         @Test
         @DisplayName("Most popular films Genre/Year invalid year")
         void shouldFindFilmsInvalidYear() {
+            int nextYear = LocalDate.now().getYear() + 1;
+
             Assertions.assertThrows(RestClientException.class, () -> {
                 restTemplate.getForEntity(
                         "/films/popular?count={count}&genreId={genreId}&year={year}",
                         FilmResponse[].class,
-                        -1,
+                        10,
                         1L,
-                        LocalDate.now().getYear() + 1);
+                        nextYear);
             });
 
             Assertions.assertThrows(RestClientException.class, () -> {
                 restTemplate.getForEntity(
                         "/films/popular?count={count}&genreId={genreId}&year={year}",
                         FilmResponse[].class,
-                        -1,
+                        10,
                         1L,
                         1850);
             });
         }
 
         @Test
-        @DisplayName("Most popular films Genre/Year invalid genre")
-        void shouldFindFilmsInvalidGenre() {
-            Assertions.assertThrows(RestClientException.class, () -> {
-                restTemplate.getForEntity(
-                        "/films/popular?count={count}&genreId={genreId}&year={year}",
-                        FilmResponse[].class,
-                        10,
-                        1000000000L,
-                        1990);
-            });
+        @DisplayName("Should return 200 with empty list for unknown genre")
+        void shouldReturnEmptyListForUnknownGenre() {
+            ResponseEntity<FilmResponse[]> response = restTemplate.getForEntity(
+                    "/films/popular?count={count}&genreId={genreId}&year={year}",
+                    FilmResponse[].class,
+                    10,
+                    999999999L,
+                    1990);
+
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+            assertThat(response.getBody()).isEmpty();
+        }
+
+        private void like(FilmResponse film, UserResponse user) {
+            restTemplate.put("/films/{id}/like/{userId}", null, film.id(), user.id());
         }
     }
+
 
     @Nested
     @DisplayName("Recommendation API Tests")

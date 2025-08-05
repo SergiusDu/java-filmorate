@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.films.domain.port.UpdateFilmCommand;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public interface FilmUseCase {
   Film addFilm(CreateFilmCommand command);

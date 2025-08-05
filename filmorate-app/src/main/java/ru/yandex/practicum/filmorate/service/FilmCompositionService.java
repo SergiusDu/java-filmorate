@@ -2,24 +2,19 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import ru.yandex.practicum.filmorate.common.enums.SortBy;
 import ru.yandex.practicum.filmorate.common.exception.ResourceNotFoundException;
 import ru.yandex.practicum.filmorate.common.exception.ValidationException;
-import ru.yandex.practicum.filmorate.directors.application.port.in.DirectorUseCase;
-import ru.yandex.practicum.filmorate.directors.domain.model.Director;
 import ru.yandex.practicum.filmorate.films.application.port.in.FilmUseCase;
 import ru.yandex.practicum.filmorate.films.domain.model.Film;
 import ru.yandex.practicum.filmorate.films.domain.model.value.Genre;
 import ru.yandex.practicum.filmorate.films.domain.model.value.Mpa;
 import ru.yandex.practicum.filmorate.films.domain.port.CreateFilmCommand;
 import ru.yandex.practicum.filmorate.films.domain.port.UpdateFilmCommand;
-import ru.yandex.practicum.filmorate.infrastructure.web.dto.FilmWithDirectors;
 import ru.yandex.practicum.filmorate.likes.application.port.in.LikeUseCase;
 import ru.yandex.practicum.filmorate.users.application.port.in.UserUseCase;
 
 import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -128,6 +123,36 @@ public class FilmCompositionService {
                            .orElseThrow(() -> new ResourceNotFoundException("Film with id " + id + " not found"));
     return getFilmWithDirectors(film);
   }
+
+  public List<Film> getCommonFilms(long userId, long friendId) {
+    if (userId == friendId) {
+      throw new ValidationException("User cannot be compared with themselves.");
+    }
+
+    validateUserId(userId);
+    validateUserId(friendId);
+
+    Set<Long> userLikes = likeService.findLikedFilms(userId);
+    Set<Long> friendLikes = likeService.findLikedFilms(friendId);
+
+    Set<Long> commonFilmIds = new HashSet<>(userLikes);
+    commonFilmIds.retainAll(friendLikes);
+
+    if (commonFilmIds.isEmpty()) {
+      return List.of();
+    }
+
+    List<Film> commonFilms = filmUseCase.getFilmsByIds(commonFilmIds);
+    Map<Long, Integer> likeCounts = likeService.getLikeCountsForFilms(commonFilmIds);
+
+    return commonFilms.stream()
+            .sorted(Comparator.comparingInt(
+                    film -> -likeCounts.getOrDefault(film.id(), 0)
+            ))
+            .toList();
+  }
+
+}
 
   public List<FilmWithDirectors> getDirectorFilms(long directorId, SortBy sortBy) {
     List<Long> filmIds = directorUseCase.getFilmIdsByDirector(directorId, sortBy);

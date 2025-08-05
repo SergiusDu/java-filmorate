@@ -17,8 +17,7 @@ import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
-public class FilmService
-    implements FilmUseCase {
+public class FilmService implements FilmUseCase {
   private final FilmRepository filmRepository;
   private final GenreRepository genreRepository;
   private final MpaRepository mpaRepository;
@@ -47,11 +46,6 @@ public class FilmService
   @Override
   public List<Film> getAllFilms() {
     return filmRepository.findAll();
-  }
-
-  @Override
-  public Optional<Film> getFilmById(long id) {
-    return filmRepository.findById(id);
   }
 
   @Override
@@ -85,6 +79,7 @@ public class FilmService
                            .isEmpty()) {
       throw new ResourceNotFoundException("Mpa with id " + mpa.id() + " not found");
     }
+
     if (genres != null) {
       genres.forEach(genre -> {
         if (genreRepository

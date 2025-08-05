@@ -22,14 +22,16 @@ public class FilmMapper {
                                      .stream()
                                      .map(DirectorIdDto::id)
                                      .collect(Collectors.toSet());
-
+    Mpa mpaCreate = (request.mpa() == null)
+                    ? null
+                    : new Mpa(request.mpa()
+                                     .id(), null);
     return new CreateFilmCommand(request.name(),
                                  request.description(),
                                  request.releaseDate(),
                                  request.duration(),
                                  request.genres(),
-                                 new Mpa(request.mpa()
-                                                .id(), null),
+                                 mpaCreate,
                                  directorIds);
   }
 
@@ -40,15 +42,17 @@ public class FilmMapper {
                                      .stream()
                                      .map(DirectorIdDto::id)
                                      .collect(Collectors.toSet());
-
+    Mpa mpaUpdate = (request.mpa() == null)
+                    ? null
+                    : new Mpa(request.mpa()
+                                     .id(), null);
     return new UpdateFilmCommand(request.id(),
                                  request.name(),
                                  request.description(),
                                  request.releaseDate(),
                                  request.duration(),
                                  request.genres(),
-                                 new Mpa(request.mpa()
-                                                .id(), null),
+                                 mpaUpdate,
                                  directorIds);
   }
 

@@ -23,7 +23,7 @@ public interface FilmUseCase {
 
     List<Film> getFilmsByIds(Set<Long> ids);
 
-    List<Genre> getGeners();
+    List<Genre> getGenres();
 
     Optional<Genre> getGenreById(long id);
 
@@ -31,5 +31,7 @@ public interface FilmUseCase {
 
     Optional<Mpa> getMpaById(long id);
 
-    List<Film> findFilmsByGenreIdAndYear(Long genreId, Integer year, Integer count);
+    List<Film> findPopularFilms(FilmRatingQuery query);
+
+    List<Film> getRecommendations(RecommendationQuery query);
 }

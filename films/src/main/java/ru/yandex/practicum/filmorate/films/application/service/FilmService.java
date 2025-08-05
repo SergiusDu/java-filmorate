@@ -4,12 +4,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.common.exception.ResourceNotFoundException;
+import ru.yandex.practicum.filmorate.films.application.port.in.FilmRatingQuery;
 import ru.yandex.practicum.filmorate.films.application.port.in.FilmUseCase;
+import ru.yandex.practicum.filmorate.films.application.port.in.RecommendationQuery;
 import ru.yandex.practicum.filmorate.films.domain.model.Film;
 import ru.yandex.practicum.filmorate.films.domain.model.value.Genre;
 import ru.yandex.practicum.filmorate.films.domain.model.value.Mpa;
 import ru.yandex.practicum.filmorate.films.domain.port.*;
 import ru.yandex.practicum.filmorate.films.domain.service.FilmValidationService;
+import ru.yandex.practicum.filmorate.likes.application.port.in.LikeUseCase;
 
 import java.util.List;
 import java.util.Optional;
@@ -23,8 +26,9 @@ public class FilmService implements FilmUseCase {
     private final GenreRepository genreRepository;
     private final MpaRepository mpaRepository;
     private final FilmValidationService filmValidationService;
+  private final LikeUseCase likeUseCase;
 
-    @Override
+  @Override
     public Film addFilm(CreateFilmCommand command) {
         validateFilmDependencies(command.genres(), command.mpa());
         filmValidationService.validate(command);
@@ -59,7 +63,7 @@ public class FilmService implements FilmUseCase {
     }
 
     @Override
-    public List<Genre> getGeners() {
+    public List<Genre> getGenres() {
         return genreRepository.findAll();
     }
 
@@ -78,7 +82,24 @@ public class FilmService implements FilmUseCase {
         return mpaRepository.findById(id);
     }
 
-    private void validateFilmDependencies(Set<Genre> genres, Mpa mpa) {
+  @Override
+  public List<Film> findPopularFilms(FilmRatingQuery query) {
+    if (query.sortBy() == FilmRatingQuery.SortBy.LIKES) {
+      Set<Long> topIds = likeUseCase.getPopularFilmIds(query.limit());
+      return getFilmsByIds(topIds).stream()
+              .filter(film -> query.genreId().map(id -> film.hasGenre(id)).orElse(true))
+              .filter(film -> query.year().map(year -> film.releaseDate().getYear() == year).orElse(true))
+              .toList();
+    }
+    return List.of();
+  }
+
+  @Override
+  public List<Film> getRecommendations(RecommendationQuery query) {
+    throw new UnsupportedOperationException("Delegated to RecommendationService.");
+  }
+
+  private void validateFilmDependencies(Set<Genre> genres, Mpa mpa) {
         if (mpa != null && mpaRepository.findById(mpa.id()).isEmpty()) {
             throw new ResourceNotFoundException("Mpa with id " + mpa.id() + " not found");
         }
@@ -92,8 +113,4 @@ public class FilmService implements FilmUseCase {
         }
     }
 
-    @Override
-    public List<Film> findFilmsByGenreIdAndYear(Long genreId, Integer year, Integer count) {
-        return filmRepository.findFilmsByGenreIdAndYear(genreId, year, count);
-    }
-}
+  }

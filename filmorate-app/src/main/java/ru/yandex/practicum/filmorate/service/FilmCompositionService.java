@@ -1,10 +1,13 @@
 package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
+import org.jheaps.annotations.VisibleForTesting;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.common.exception.ResourceNotFoundException;
 import ru.yandex.practicum.filmorate.common.exception.ValidationException;
+import ru.yandex.practicum.filmorate.films.application.port.in.FilmRatingQuery;
 import ru.yandex.practicum.filmorate.films.application.port.in.FilmUseCase;
+import ru.yandex.practicum.filmorate.films.application.port.in.RecommendationQuery;
 import ru.yandex.practicum.filmorate.films.domain.model.Film;
 import ru.yandex.practicum.filmorate.films.domain.model.value.Genre;
 import ru.yandex.practicum.filmorate.films.domain.model.value.Mpa;
@@ -13,14 +16,13 @@ import ru.yandex.practicum.filmorate.films.domain.port.UpdateFilmCommand;
 import ru.yandex.practicum.filmorate.likes.application.port.in.LikeUseCase;
 import ru.yandex.practicum.filmorate.users.application.port.in.UserUseCase;
 
-import java.time.LocalDate;
 import java.util.*;
 
 @Service
 @RequiredArgsConstructor
 public class FilmCompositionService {
     private final FilmUseCase filmUseCase;
-    private final LikeUseCase likeService;
+    private final LikeUseCase likeUseCase;
     private final UserUseCase userUseCase;
 
 
@@ -36,12 +38,10 @@ public class FilmCompositionService {
         return filmUseCase.updateFilm(command);
     }
 
-    public boolean addLike(long filmId,
-                           long userId) {
-        validateFilmId(filmId);
-        validateUserId(userId);
-        return likeService.addLike(filmId,
-                userId);
+    public boolean addLike(long filmId, long userId) {
+        var film = getFilmOrThrow(filmId);
+        var user = getUserOrThrow(userId);
+        return likeUseCase.addLike(film.id(), user.id());
     }
 
     private void validateFilmId(long filmId) {
@@ -56,34 +56,22 @@ public class FilmCompositionService {
             throw new ResourceNotFoundException("User with id " + userId + " not found");
     }
 
-    public boolean removeLike(long filmId,
-                              long userId) {
-        validateFilmId(filmId);
-        validateUserId(userId);
-        return likeService.removeLike(filmId,
-                userId);
+    public boolean removeLike(long filmId, long userId) {
+        var film = getFilmOrThrow(filmId);
+        var user = getUserOrThrow(userId);
+        return likeUseCase.removeLike(film.id(), user.id());
     }
 
-    public List<Film> getPopularFilms(int count) {
-        if (count < 0)
-            throw new ValidationException("Count parameter cannot be negative");
-        return filmUseCase.getFilmsByIds(likeService.getPopularFilmIds(count));
+    public List<Film> getPopularFilms(FilmRatingQuery query) {
+        return filmUseCase.findPopularFilms(query);
     }
 
-    public List<Film> getMostPopularFilms(Long genreId, Integer year, Integer count) {
-
-        if (genreId != null) {
-            getGenreById(genreId);
-        }
-
-        if (year != null && (year < 1860 || LocalDate.now().getYear() < year)) {
-            throw new ValidationException("Year boundaries violated");
-        }
-        return filmUseCase.findFilmsByGenreIdAndYear(genreId, year, count);
+    public List<Film> getRecommendations(RecommendationQuery query) {
+        return filmUseCase.getRecommendations(query);
     }
 
     public List<Genre> getGenres() {
-        return filmUseCase.getGeners();
+        return filmUseCase.getGenres();
     }
 
     public Genre getGenreById(long id) {
@@ -101,8 +89,7 @@ public class FilmCompositionService {
     }
 
     public Film getFilmById(long id) {
-        return filmUseCase.findFilmById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Film with id " + id + " not found"));
+        return getFilmOrThrow(id);
     }
 
     public List<Film> getCommonFilms(long userId, long friendId) {
@@ -110,11 +97,11 @@ public class FilmCompositionService {
             throw new ValidationException("User cannot be compared with themselves.");
         }
 
-        validateUserId(userId);
-        validateUserId(friendId);
+        var user = getUserOrThrow(userId);
+        var friend = getUserOrThrow(friendId);
 
-        Set<Long> userLikes = likeService.findLikedFilms(userId);
-        Set<Long> friendLikes = likeService.findLikedFilms(friendId);
+        Set<Long> userLikes = likeUseCase.findLikedFilms(user.id());
+        Set<Long> friendLikes = likeUseCase.findLikedFilms(friend.id());
 
         Set<Long> commonFilmIds = new HashSet<>(userLikes);
         commonFilmIds.retainAll(friendLikes);
@@ -124,12 +111,33 @@ public class FilmCompositionService {
         }
 
         List<Film> commonFilms = filmUseCase.getFilmsByIds(commonFilmIds);
-        Map<Long, Integer> likeCounts = likeService.getLikeCountsForFilms(commonFilmIds);
+        Map<Long, Integer> likeCounts = likeUseCase.getLikeCountsForFilms(commonFilmIds);
 
         return commonFilms.stream()
-                .sorted(Comparator.comparingInt(
-                        film -> -likeCounts.getOrDefault(film.id(), 0)
-                ))
+                .sorted(Comparator.comparingInt(film -> -likeCounts.getOrDefault(film.id(), 0)))
                 .toList();
+    }
+
+    private Film getFilmOrThrow(long id) {
+        return filmUseCase.findFilmById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Film with id " + id + " not found"));
+    }
+
+    private ru.yandex.practicum.filmorate.users.domain.model.User getUserOrThrow(long id) {
+        return userUseCase.findUserById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User with id " + id + " not found"));
+    }
+
+    /**
+     *
+     * @deprecated Use {@link #getPopularFilms(FilmRatingQuery)} instead.
+     */
+    @Deprecated
+    @VisibleForTesting
+    public List<Film> getPopularFilms(int count) {
+        if (count < 0) {
+            throw new ValidationException("Count parameter cannot be negative");
+        }
+        return filmUseCase.getFilmsByIds(likeUseCase.getPopularFilmIds(count));
     }
 }

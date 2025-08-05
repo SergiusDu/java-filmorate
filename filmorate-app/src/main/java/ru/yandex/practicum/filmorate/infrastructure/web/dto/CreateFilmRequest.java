@@ -13,7 +13,7 @@ import java.util.Set;
 public record CreateFilmRequest(@NotBlank(message = "Name cannot be empty")
                                 String name,
 
-                                @NotNull(message = "Description cannot be null")
+                                @NotBlank(message = "Description cannot be null")
                                 String description,
 
                                 @NotNull(message = "Release date cannot be null")

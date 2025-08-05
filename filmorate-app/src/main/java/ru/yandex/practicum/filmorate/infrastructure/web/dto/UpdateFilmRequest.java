@@ -19,8 +19,7 @@ public record UpdateFilmRequest(@NotNull(message = "Film ID cannot be null")
                                 String description,
 
                                 @NotNull(message = "Release date cannot be null")
-                                @ValidReleaseDate(message = "Release date must be between the earliest allowed date " +
-                                                            "and today")
+                                @ValidReleaseDate(message = "Release date must be between the earliest allowed date.")
                                 LocalDate releaseDate,
 
                                 @Positive(message = "Duration must be positive")

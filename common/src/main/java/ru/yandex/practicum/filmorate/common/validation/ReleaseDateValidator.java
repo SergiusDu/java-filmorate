@@ -20,6 +20,6 @@ public class ReleaseDateValidator
 
   @Override
   public boolean isValid(LocalDate value, ConstraintValidatorContext context) {
-    return value != null && value.isBefore(LocalDate.now());
+    return value != null && !value.isBefore(earliestDate);
   }
 }

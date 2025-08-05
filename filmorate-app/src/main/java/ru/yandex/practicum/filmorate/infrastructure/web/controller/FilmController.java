@@ -4,6 +4,7 @@ package ru.yandex.practicum.filmorate.infrastructure.web.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.common.enums.SortBy;
 import ru.yandex.practicum.filmorate.infrastructure.web.dto.CreateFilmRequest;
 import ru.yandex.practicum.filmorate.infrastructure.web.dto.FilmResponse;
 import ru.yandex.practicum.filmorate.infrastructure.web.dto.UpdateFilmRequest;
@@ -58,5 +59,15 @@ public class FilmController {
   @GetMapping("/{id}")
   public FilmResponse getFilmById(@PathVariable long id) {
     return filmMapper.toResponse(filmCompositionService.getFilmById(id));
+  }
+
+
+  @GetMapping("/director/{directorId}")
+  public List<FilmResponse> getDirectorFilms(@PathVariable long directorId,
+                                             @RequestParam(defaultValue = "year") String sortBy) {
+    return filmCompositionService.getDirectorFilms(directorId, SortBy.fromString(sortBy))
+                                 .stream()
+                                 .map(filmMapper::toResponse)
+                                 .toList();
   }
 }

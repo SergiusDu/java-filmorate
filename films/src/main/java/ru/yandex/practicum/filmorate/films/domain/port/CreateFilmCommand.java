@@ -13,4 +13,6 @@ public record CreateFilmCommand(String name,
                                 LocalDate releaseDate,
                                 Long duration,
                                 Set<Genre> genres,
-                                Mpa mpa) {}
+                                Mpa mpa,
+                                Set<Long> directorIds) {
+}

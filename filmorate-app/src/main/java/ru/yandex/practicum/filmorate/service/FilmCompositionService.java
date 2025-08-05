@@ -2,18 +2,27 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import ru.yandex.practicum.filmorate.common.enums.SortBy;
 import ru.yandex.practicum.filmorate.common.exception.ResourceNotFoundException;
 import ru.yandex.practicum.filmorate.common.exception.ValidationException;
+import ru.yandex.practicum.filmorate.directors.application.port.in.DirectorUseCase;
+import ru.yandex.practicum.filmorate.directors.domain.model.Director;
 import ru.yandex.practicum.filmorate.films.application.port.in.FilmUseCase;
 import ru.yandex.practicum.filmorate.films.domain.model.Film;
 import ru.yandex.practicum.filmorate.films.domain.model.value.Genre;
 import ru.yandex.practicum.filmorate.films.domain.model.value.Mpa;
 import ru.yandex.practicum.filmorate.films.domain.port.CreateFilmCommand;
 import ru.yandex.practicum.filmorate.films.domain.port.UpdateFilmCommand;
+import ru.yandex.practicum.filmorate.infrastructure.web.dto.FilmWithDirectors;
 import ru.yandex.practicum.filmorate.likes.application.port.in.LikeUseCase;
 import ru.yandex.practicum.filmorate.users.application.port.in.UserUseCase;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -21,52 +30,79 @@ public class FilmCompositionService {
   private final FilmUseCase filmUseCase;
   private final LikeUseCase likeService;
   private final UserUseCase userUseCase;
+  private final DirectorUseCase directorUseCase;
 
-
-  public List<Film> getAllFilms() {
-    return filmUseCase.getAllFilms();
+  @Transactional
+  public FilmWithDirectors createFilm(CreateFilmCommand command) {
+    Film film = filmUseCase.addFilm(command);
+    directorUseCase.updateFilmDirectors(film.id(), command.directorIds());
+    return getFilmWithDirectors(film);
   }
 
-  public Film createFilm(CreateFilmCommand command) {
-    return filmUseCase.addFilm(command);
+  private FilmWithDirectors getFilmWithDirectors(Film film) {
+    Map<Long, List<Director>> directorsMap = directorUseCase.getDirectorsForFilmIds(Set.of(film.id()));
+    List<Director> directors = directorsMap.getOrDefault(film.id(), Collections.emptyList());
+    return new FilmWithDirectors(film, directors);
   }
 
-  public Film updateFilm(UpdateFilmCommand command) {
-    return filmUseCase.updateFilm(command);
+  @Transactional
+  public FilmWithDirectors updateFilm(UpdateFilmCommand command) {
+    Film film = filmUseCase.updateFilm(command);
+    directorUseCase.updateFilmDirectors(film.id(), command.directorIds());
+    return getFilmWithDirectors(film);
   }
 
-  public boolean addLike(long filmId,
-                         long userId) {
-    validateFilmId(filmId);
-    validateUserId(userId);
-    return likeService.addLike(filmId,
-                               userId);
+  public List<FilmWithDirectors> getAllFilms() {
+    return enrichFilmsWithDirectors(filmUseCase.getAllFilms());
   }
 
-  private void validateFilmId(long filmId) {
+  private List<FilmWithDirectors> enrichFilmsWithDirectors(List<Film> films) {
+    if (films.isEmpty()) {
+      return Collections.emptyList();
+    }
+    Set<Long> filmIds = films.stream()
+                             .map(Film::id)
+                             .collect(Collectors.toSet());
+    Map<Long, List<Director>> directorsByFilmId = directorUseCase.getDirectorsForFilmIds(filmIds);
+    return films.stream()
+                .map(film -> new FilmWithDirectors(film,
+                                                   directorsByFilmId.getOrDefault(film.id(), Collections.emptyList())))
+                .toList();
+  }
+
+  public boolean addLike(long filmId, long userId) {
+    validateFilmExists(filmId);
+    validateUserExists(userId);
+    return likeService.addLike(filmId, userId);
+  }
+
+  private void validateFilmExists(long filmId) {
     if (filmUseCase.findFilmById(filmId)
                    .isEmpty())
       throw new ResourceNotFoundException("Film with id " + filmId + " not found");
   }
 
-  private void validateUserId(long userId) {
+  private void validateUserExists(long userId) {
     if (userUseCase.findUserById(userId)
                    .isEmpty())
       throw new ResourceNotFoundException("User with id " + userId + " not found");
   }
 
-  public boolean removeLike(long filmId,
-                            long userId) {
-    validateFilmId(filmId);
-    validateUserId(userId);
-    return likeService.removeLike(filmId,
-                                  userId);
+  public boolean removeLike(long filmId, long userId) {
+    validateFilmExists(filmId);
+    validateUserExists(userId);
+    return likeService.removeLike(filmId, userId);
   }
 
-  public List<Film> getPopularFilms(int count) {
+  public List<FilmWithDirectors> getPopularFilms(int count) {
     if (count < 0)
       throw new ValidationException("Count parameter cannot be negative");
-    return filmUseCase.getFilmsByIds(likeService.getPopularFilmIds(count));
+
+    List<Long> popularFilmIds = likeService.getPopularFilmIds(count)
+                                           .stream()
+                                           .toList();
+    List<Film> films = filmUseCase.getFilmsByIds(popularFilmIds);
+    return enrichFilmsWithDirectors(films);
   }
 
   public List<Genre> getGenres() {
@@ -87,8 +123,18 @@ public class FilmCompositionService {
                       .orElseThrow(() -> new ResourceNotFoundException("Mpa with id " + id + " not found"));
   }
 
-  public Film getFilmById(long id) {
-    return filmUseCase.findFilmById(id)
-                      .orElseThrow(() -> new ResourceNotFoundException("Film with id " + id + " not found"));
+  public FilmWithDirectors getFilmById(long id) {
+    Film film = filmUseCase.findFilmById(id)
+                           .orElseThrow(() -> new ResourceNotFoundException("Film with id " + id + " not found"));
+    return getFilmWithDirectors(film);
+  }
+
+  public List<FilmWithDirectors> getDirectorFilms(long directorId, SortBy sortBy) {
+    List<Long> filmIds = directorUseCase.getFilmIdsByDirector(directorId, sortBy);
+    if (filmIds.isEmpty()) {
+      return Collections.emptyList();
+    }
+    List<Film> films = filmUseCase.getFilmsByIds(filmIds);
+    return enrichFilmsWithDirectors(films);
   }
 }

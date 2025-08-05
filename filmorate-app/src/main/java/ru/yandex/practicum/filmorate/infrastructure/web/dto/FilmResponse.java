@@ -14,4 +14,6 @@ public record FilmResponse(Long id,
                            LocalDate releaseDate,
                            long duration,
                            Set<Genre> genres,
-                           Mpa mpa) {}
+                           Mpa mpa,
+                           Set<DirectorResponse> directors) {
+}

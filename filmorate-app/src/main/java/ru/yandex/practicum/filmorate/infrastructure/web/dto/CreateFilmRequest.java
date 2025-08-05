@@ -27,4 +27,7 @@ public record CreateFilmRequest(@NotBlank(message = "Name cannot be empty")
                                 Set<Genre> genres,
 
                                 @NotNull(message = "Rating cannot be null")
-                                Mpa mpa) {}
+                                Mpa mpa,
+
+                                Set<DirectorIdDto> directors) {
+}

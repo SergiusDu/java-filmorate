@@ -7,7 +7,6 @@ import ru.yandex.practicum.filmorate.films.domain.model.Film;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 /**
  Repository interface for managing Film entity persistence operations. */
@@ -46,5 +45,5 @@ public interface FilmRepository {
    @param ids Set of film IDs to retrieve
    @return List of films matching the provided IDs
    */
-  List<Film> getByIds(Set<Long> ids);
+  List<Film> getByIds(List<Long> ids);
 }

@@ -27,4 +27,7 @@ public record UpdateFilmRequest(@NotNull(message = "Film ID cannot be null")
                                 Set<Genre> genres,
 
                                 @NotNull(message = "Rating cannot be null")
-                                Mpa mpa) {}
+                                Mpa mpa,
+
+                                Set<DirectorIdDto> directors) {
+}

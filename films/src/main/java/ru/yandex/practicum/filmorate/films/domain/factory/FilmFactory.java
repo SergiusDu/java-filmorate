@@ -9,7 +9,8 @@ import java.time.Duration;
 
 @Component
 public class FilmFactory {
-  public Film create(long id, CreateFilmCommand command) {
+  public Film create(long id,
+                     CreateFilmCommand command) {
     return Film.builder()
                .id(id)
                .name(command.name())

@@ -21,7 +21,8 @@ import java.util.stream.Collectors;
 @Repository
 @Profile("db")
 @RequiredArgsConstructor
-public class JdbcFilmRepository implements FilmRepository {
+public class JdbcFilmRepository
+    implements FilmRepository {
 
   private static final String BASE_FILM_QUERY =
       "SELECT f.film_id, f.name, f.description, f.release_date, f.duration, m.mpa_id, m.name as mpa_name " +
@@ -32,11 +33,19 @@ public class JdbcFilmRepository implements FilmRepository {
   @Override
   public Film save(CreateFilmCommand command) {
     SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate).withTableName("films")
-                                                                          .usingGeneratedKeyColumns("film_id");
+                                            .usingGeneratedKeyColumns("film_id");
 
-    Map<String, Object> params = Map.of("name", command.name(), "description", command.description(), "release_date",
-                                        command.releaseDate(), "duration", command.duration(), "mpa_id", command.mpa()
-                                                                                                                .id());
+    Map<String, Object> params = Map.of("name",
+                                        command.name(),
+                                        "description",
+                                        command.description(),
+                                        "release_date",
+                                        command.releaseDate(),
+                                        "duration",
+                                        command.duration(),
+                                        "mpa_id",
+                                        command.mpa()
+                                               .id());
 
     long filmId = simpleJdbcInsert.executeAndReturnKey(params)
                                   .longValue();
@@ -49,9 +58,14 @@ public class JdbcFilmRepository implements FilmRepository {
   public Film update(UpdateFilmCommand command) {
     String sql = "UPDATE films SET name = ?, description = ?, release_date = ?, duration = ?, mpa_id = ? " +
                  "WHERE film_id = ?";
-    int rowsAffected = jdbcTemplate.update(sql, command.name(), command.description(), command.releaseDate(),
-                                           command.duration(), command.mpa()
-                                                                      .id(), command.id());
+    int rowsAffected = jdbcTemplate.update(sql,
+                                           command.name(),
+                                           command.description(),
+                                           command.releaseDate(),
+                                           command.duration(),
+                                           command.mpa()
+                                                  .id(),
+                                           command.id());
 
     if (rowsAffected == 0) {
       throw new ResourceNotFoundException("Film with id " + command.id() + " not found.");
@@ -75,7 +89,7 @@ public class JdbcFilmRepository implements FilmRepository {
   }
 
   @Override
-  public List<Film> getByIds(Set<Long> ids) {
+  public List<Film> getByIds(List<Long> ids) {
     if (ids == null || ids.isEmpty()) {
       return List.of();
     }
@@ -108,9 +122,12 @@ public class JdbcFilmRepository implements FilmRepository {
                  Set<Genre> genres = genresByFilmId.get(filmId);
 
 
-                 return new Film(filmId, (String) row.get("name"), (String) row.get("description"),
+                 return new Film(filmId,
+                                 (String) row.get("name"),
+                                 (String) row.get("description"),
                                  ((java.sql.Date) row.get("release_date")).toLocalDate(),
-                                 Duration.ofMinutes((Integer) row.get("duration")), genres,
+                                 Duration.ofMinutes((Integer) row.get("duration")),
+                                 genres,
                                  new Mpa((Long) row.get("mpa_id"), (String) row.get("mpa_name")));
                })
                .toList();

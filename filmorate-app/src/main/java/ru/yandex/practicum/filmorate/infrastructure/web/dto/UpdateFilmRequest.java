@@ -1,9 +1,9 @@
 package ru.yandex.practicum.filmorate.infrastructure.web.dto;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import ru.yandex.practicum.filmorate.common.validation.ValidReleaseDate;
 import ru.yandex.practicum.filmorate.films.domain.model.value.Genre;
-import ru.yandex.practicum.filmorate.films.domain.model.value.Mpa;
 
 import java.time.LocalDate;
 import java.util.Set;
@@ -26,8 +26,8 @@ public record UpdateFilmRequest(@NotNull(message = "Film ID cannot be null")
 
                                 Set<Genre> genres,
 
-                                @NotNull(message = "Rating cannot be null")
-                                Mpa mpa,
+                                @Valid
+                                MpaIdDto mpa,
 
                                 Set<DirectorIdDto> directors) {
 }

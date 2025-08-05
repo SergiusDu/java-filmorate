@@ -4,6 +4,7 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.directors.domain.model.Director;
 import ru.yandex.practicum.filmorate.films.domain.model.Film;
 import ru.yandex.practicum.filmorate.films.domain.model.value.Genre;
+import ru.yandex.practicum.filmorate.films.domain.model.value.Mpa;
 import ru.yandex.practicum.filmorate.films.domain.port.CreateFilmCommand;
 import ru.yandex.practicum.filmorate.films.domain.port.UpdateFilmCommand;
 import ru.yandex.practicum.filmorate.infrastructure.web.dto.*;
@@ -27,7 +28,8 @@ public class FilmMapper {
                                  request.releaseDate(),
                                  request.duration(),
                                  request.genres(),
-                                 request.mpa(),
+                                 new Mpa(request.mpa()
+                                                .id(), null),
                                  directorIds);
   }
 
@@ -45,7 +47,8 @@ public class FilmMapper {
                                  request.releaseDate(),
                                  request.duration(),
                                  request.genres(),
-                                 request.mpa(),
+                                 new Mpa(request.mpa()
+                                                .id(), null),
                                  directorIds);
   }
 

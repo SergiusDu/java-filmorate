@@ -13,7 +13,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import ru.yandex.practicum.filmorate.films.domain.model.value.Genre;
-import ru.yandex.practicum.filmorate.films.domain.model.value.Mpa;
 import ru.yandex.practicum.filmorate.infrastructure.web.dto.*;
 import ru.yandex.practicum.filmorate.infrastructure.web.exception.ErrorResponse;
 import ru.yandex.practicum.filmorate.infrastructure.web.exception.ValidationErrorResponse;
@@ -350,7 +349,7 @@ class FilmorateApplicationTest {
                                                         LocalDate.of(2010, 7, 16),
                                                         148L,
                                                         Set.of(new Genre(4L, null)),
-                                                        new Mpa(3L, null),
+                                                        new MpaIdDto(3L),
                                                         directors);
 
       FilmResponse body = createFilm(request);
@@ -377,7 +376,7 @@ class FilmorateApplicationTest {
                                                               LocalDate.of(2020, 1, 1),
                                                               120L,
                                                               null,
-                                                              new Mpa(1L, "G"),
+                                                              new MpaIdDto(1L),
                                                               Set.of(new DirectorIdDto(dir1.id())));
       FilmResponse createdFilm = createFilm(createRequest);
       assertThat(createdFilm.directors()).extracting(DirectorResponse::id)
@@ -389,7 +388,7 @@ class FilmorateApplicationTest {
                                                               LocalDate.of(2021, 1, 1),
                                                               130L,
                                                               null,
-                                                              new Mpa(2L, "PG"),
+                                                              new MpaIdDto(2L),
                                                               Set.of(new DirectorIdDto(dir2.id())));
 
       ResponseEntity<FilmResponse> response = restTemplate.exchange("/films",
@@ -413,7 +412,7 @@ class FilmorateApplicationTest {
                                                         LocalDate.of(2020, 1, 1),
                                                         120L,
                                                         null,
-                                                        new Mpa(1L, "G"),
+                                                        new MpaIdDto(1L),
                                                         null);
       ResponseEntity<ValidationErrorResponse> response = restTemplate.postForEntity("/films",
                                                                                     request,
@@ -430,7 +429,7 @@ class FilmorateApplicationTest {
                                                         LocalDate.of(2020, 1, 1),
                                                         120L,
                                                         null,
-                                                        new Mpa(1L, "G"),
+                                                        new MpaIdDto(1L),
                                                         null);
       ResponseEntity<ErrorResponse> response = restTemplate.postForEntity("/films", request, ErrorResponse.class);
       assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
@@ -444,7 +443,7 @@ class FilmorateApplicationTest {
                                                         LocalDate.of(1890, 1, 1),
                                                         120L,
                                                         null,
-                                                        new Mpa(1L, "G"),
+                                                        new MpaIdDto(1L),
                                                         null);
       ResponseEntity<ValidationErrorResponse> response = restTemplate.postForEntity("/films",
                                                                                     request,
@@ -460,7 +459,7 @@ class FilmorateApplicationTest {
                                                         LocalDate.of(2000, 1, 1),
                                                         120L,
                                                         null,
-                                                        new Mpa(9999L, "G"),
+                                                        new MpaIdDto(9999L),
                                                         null);
       ResponseEntity<ErrorResponse> response = restTemplate.postForEntity("/films", request, ErrorResponse.class);
       assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
@@ -475,7 +474,7 @@ class FilmorateApplicationTest {
                                                         LocalDate.of(2000, 1, 1),
                                                         120L,
                                                         genres,
-                                                        new Mpa(1L, "G"),
+                                                        new MpaIdDto(1L),
                                                         null);
       ResponseEntity<ErrorResponse> response = restTemplate.postForEntity("/films", request, ErrorResponse.class);
       assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
@@ -492,21 +491,21 @@ class FilmorateApplicationTest {
                                                          LocalDate.of(2001, 1, 1),
                                                          100L,
                                                          null,
-                                                         new Mpa(1L, "G"),
+                                                         new MpaIdDto(1L),
                                                          null));
       FilmResponse f2 = createFilm(new CreateFilmRequest("Film 2",
                                                          "d",
                                                          LocalDate.of(2002, 1, 1),
                                                          100L,
                                                          null,
-                                                         new Mpa(1L, "G"),
+                                                         new MpaIdDto(1L),
                                                          null));
       FilmResponse f3 = createFilm(new CreateFilmRequest("Film 3",
                                                          "d",
                                                          LocalDate.of(2003, 1, 1),
                                                          100L,
                                                          null,
-                                                         new Mpa(1L, "G"),
+                                                         new MpaIdDto(1L),
                                                          null));
 
       restTemplate.put("/films/{id}/like/{userId}", null, f2.id(), u1.id());
@@ -537,14 +536,14 @@ class FilmorateApplicationTest {
                                                                LocalDate.of(2000, 1, 1),
                                                                100L,
                                                                null,
-                                                               new Mpa(1L, "G"),
+                                                               new MpaIdDto(1L),
                                                                directorSet));
       FilmResponse film1990 = createFilm(new CreateFilmRequest("Film 1990",
                                                                "d",
                                                                LocalDate.of(1990, 1, 1),
                                                                100L,
                                                                null,
-                                                               new Mpa(1L, "G"),
+                                                               new MpaIdDto(1L),
                                                                directorSet));
 
       ResponseEntity<FilmResponse[]> response = restTemplate.getForEntity("/films/director/{id}?sortBy=year",
@@ -570,14 +569,14 @@ class FilmorateApplicationTest {
                                                             LocalDate.of(2000, 1, 1),
                                                             100L,
                                                             null,
-                                                            new Mpa(1L, "G"),
+                                                            new MpaIdDto(1L),
                                                             directorSet));
       FilmResponse film2 = createFilm(new CreateFilmRequest("Film Two",
                                                             "d",
                                                             LocalDate.of(2001, 1, 1),
                                                             100L,
                                                             null,
-                                                            new Mpa(1L, "G"),
+                                                            new MpaIdDto(1L),
                                                             directorSet));
 
       restTemplate.put("/films/{id}/like/{userId}", null, film2.id(), user1.id());
@@ -671,7 +670,7 @@ class FilmorateApplicationTest {
                                                                  .minusYears(1),
                                                         durationInMinutes,
                                                         null,
-                                                        new Mpa(1L, "G"),
+                                                        new MpaIdDto(1L),
                                                         null);
 
       ResponseEntity<FilmResponse> response = restTemplate.postForEntity("/films", request, FilmResponse.class);
@@ -696,21 +695,21 @@ class FilmorateApplicationTest {
                                                             LocalDate.of(2010, 1, 1),
                                                             100,
                                                             Set.of(new Genre(1L, "Комедия")),
-                                                            new Mpa(1L, "G"),
+                                                            new MpaIdDto(1L),
                                                             null));
       FilmResponse film2 = createFilm(new CreateFilmRequest("Film 2",
                                                             "desc",
                                                             LocalDate.of(2011, 1, 1),
                                                             100,
                                                             Set.of(new Genre(1L, "Комедия")),
-                                                            new Mpa(1L, "G"),
+                                                            new MpaIdDto(1L),
                                                             null));
       FilmResponse film3 = createFilm(new CreateFilmRequest("Film 3",
                                                             "desc",
                                                             LocalDate.of(2012, 1, 1),
                                                             100,
                                                             Set.of(new Genre(1L, "Комедия")),
-                                                            new Mpa(1L, "G"),
+                                                            new MpaIdDto(1L),
                                                             null));
 
       restTemplate.put("/films/{id}/like/{userId}", null, film1.id(), user1.id());
@@ -744,21 +743,21 @@ class FilmorateApplicationTest {
                                                             LocalDate.of(2020, 1, 1),
                                                             100,
                                                             Set.of(new Genre(1L, "Комедия")),
-                                                            new Mpa(1L, "G"),
+                                                            new MpaIdDto(1L),
                                                             null));
       FilmResponse film2 = createFilm(new CreateFilmRequest("F2",
                                                             "d",
                                                             LocalDate.of(2020, 1, 1),
                                                             100,
                                                             Set.of(new Genre(2L, "Драма")),
-                                                            new Mpa(1L, "G"),
+                                                            new MpaIdDto(1L),
                                                             null));
       FilmResponse film3 = createFilm(new CreateFilmRequest("F3",
                                                             "d",
                                                             LocalDate.of(2021, 1, 1),
                                                             100,
                                                             Set.of(new Genre(1L, "Комедия")),
-                                                            new Mpa(1L, "G"),
+                                                            new MpaIdDto(1L),
                                                             null));
 
       restTemplate.put("/films/{id}/like/{userId}", null, film2.id(), user1.id());
@@ -805,14 +804,14 @@ class FilmorateApplicationTest {
                                                          LocalDate.of(2020, 1, 1),
                                                          100,
                                                          Set.of(new Genre(1L, "Комедия")),
-                                                         new Mpa(1L, "G"),
+                                                         new MpaIdDto(1L),
                                                          null));
       FilmResponse f2 = createFilm(new CreateFilmRequest("Only For U2",
                                                          "d",
                                                          LocalDate.of(2020, 1, 1),
                                                          100,
                                                          Set.of(new Genre(1L, "Комедия")),
-                                                         new Mpa(1L, "G"),
+                                                         new MpaIdDto(1L),
                                                          null));
 
       restTemplate.put("/films/{id}/like/{userId}", null, f1.id(), u1.id());

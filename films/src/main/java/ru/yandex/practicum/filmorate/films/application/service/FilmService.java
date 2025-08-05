@@ -17,7 +17,8 @@ import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
-public class FilmService implements FilmUseCase {
+public class FilmService
+    implements FilmUseCase {
   private final FilmRepository filmRepository;
   private final GenreRepository genreRepository;
   private final MpaRepository mpaRepository;

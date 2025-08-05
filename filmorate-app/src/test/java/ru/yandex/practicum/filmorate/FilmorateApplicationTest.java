@@ -19,10 +19,8 @@ import ru.yandex.practicum.filmorate.infrastructure.web.exception.ErrorResponse;
 import ru.yandex.practicum.filmorate.infrastructure.web.exception.ValidationErrorResponse;
 
 import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -64,7 +62,9 @@ class FilmorateApplicationTest {
     @Test
     @DisplayName("Should create user successfully")
     void shouldCreateUser() {
-      CreateUserRequest request = new CreateUserRequest("test@example.com", "testlogin", "Test User",
+      CreateUserRequest request = new CreateUserRequest("test@example.com",
+                                                        "testlogin",
+                                                        "Test User",
                                                         LocalDate.of(1990, 5, 15));
 
       ResponseEntity<UserResponse> response = restTemplate.postForEntity("/users", request, UserResponse.class);
@@ -82,9 +82,12 @@ class FilmorateApplicationTest {
     @Test
     @DisplayName("Should fail to create user with invalid login")
     void shouldFailToCreateUserWithInvalidLogin() {
-      CreateUserRequest request = new CreateUserRequest("test@example.com", "invalid login", "Test",
+      CreateUserRequest request = new CreateUserRequest("test@example.com",
+                                                        "invalid login",
+                                                        "Test",
                                                         LocalDate.of(1990, 1, 1));
-      ResponseEntity<ValidationErrorResponse> response = restTemplate.postForEntity("/users", request,
+      ResponseEntity<ValidationErrorResponse> response = restTemplate.postForEntity("/users",
+                                                                                    request,
                                                                                     ValidationErrorResponse.class);
       assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     }
@@ -93,7 +96,8 @@ class FilmorateApplicationTest {
     @DisplayName("Should fail to create user with invalid email")
     void shouldFailToCreateUserWithInvalidEmail() {
       CreateUserRequest request = new CreateUserRequest("not-an-email", "validlogin", "Test", LocalDate.of(1990, 1, 1));
-      ResponseEntity<ValidationErrorResponse> response = restTemplate.postForEntity("/users", request,
+      ResponseEntity<ValidationErrorResponse> response = restTemplate.postForEntity("/users",
+                                                                                    request,
                                                                                     ValidationErrorResponse.class);
       assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     }
@@ -101,10 +105,13 @@ class FilmorateApplicationTest {
     @Test
     @DisplayName("Should fail to create user with future birthday")
     void shouldFailToCreateUserWithFutureBirthday() {
-      CreateUserRequest request = new CreateUserRequest("test@example.com", "validlogin", "Test", LocalDate.now()
-                                                                                                           .plusDays(
-                                                                                                               1));
-      ResponseEntity<ValidationErrorResponse> response = restTemplate.postForEntity("/users", request,
+      CreateUserRequest request = new CreateUserRequest("test@example.com",
+                                                        "validlogin",
+                                                        "Test",
+                                                        LocalDate.now()
+                                                                 .plusDays(1));
+      ResponseEntity<ValidationErrorResponse> response = restTemplate.postForEntity("/users",
+                                                                                    request,
                                                                                     ValidationErrorResponse.class);
       assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     }
@@ -112,12 +119,18 @@ class FilmorateApplicationTest {
     @Test
     @DisplayName("Should update an existing user")
     void shouldUpdateUser() {
-      UserResponse createdUser = createUser(
-          new CreateUserRequest("original@test.com", "original", "Original", LocalDate.of(1990, 1, 1)));
-      UpdateUserRequest updateRequest = new UpdateUserRequest(createdUser.id(), "updated@test.com", "updated",
-                                                              "Updated", LocalDate.of(1991, 2, 2));
+      UserResponse createdUser = createUser(new CreateUserRequest("original@test.com",
+                                                                  "original",
+                                                                  "Original",
+                                                                  LocalDate.of(1990, 1, 1)));
+      UpdateUserRequest updateRequest = new UpdateUserRequest(createdUser.id(),
+                                                              "updated@test.com",
+                                                              "updated",
+                                                              "Updated",
+                                                              LocalDate.of(1991, 2, 2));
 
-      ResponseEntity<UserResponse> response = restTemplate.exchange("/users", HttpMethod.PUT,
+      ResponseEntity<UserResponse> response = restTemplate.exchange("/users",
+                                                                    HttpMethod.PUT,
                                                                     new HttpEntity<>(updateRequest),
                                                                     UserResponse.class);
 
@@ -132,9 +145,13 @@ class FilmorateApplicationTest {
     @Test
     @DisplayName("Should return 404 when updating a non-existent user")
     void shouldReturnNotFoundForUnknownUserUpdate() {
-      UpdateUserRequest updateRequest = new UpdateUserRequest(9999L, "a@a.com", "login", "name",
+      UpdateUserRequest updateRequest = new UpdateUserRequest(9999L,
+                                                              "a@a.com",
+                                                              "login",
+                                                              "name",
                                                               LocalDate.of(1990, 1, 1));
-      ResponseEntity<ErrorResponse> response = restTemplate.exchange("/users", HttpMethod.PUT,
+      ResponseEntity<ErrorResponse> response = restTemplate.exchange("/users",
+                                                                     HttpMethod.PUT,
                                                                      new HttpEntity<>(updateRequest),
                                                                      ErrorResponse.class);
       assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
@@ -161,10 +178,14 @@ class FilmorateApplicationTest {
     @Test
     @DisplayName("Should add a friend and create a pending request")
     void shouldAddFriend() {
-      UserResponse user1 = createUser(
-          new CreateUserRequest("user1@test.com", "user1", "User One", LocalDate.of(1991, 1, 1)));
-      UserResponse user2 = createUser(
-          new CreateUserRequest("user2@test.com", "user2", "User Two", LocalDate.of(1992, 2, 2)));
+      UserResponse user1 = createUser(new CreateUserRequest("user1@test.com",
+                                                            "user1",
+                                                            "User One",
+                                                            LocalDate.of(1991, 1, 1)));
+      UserResponse user2 = createUser(new CreateUserRequest("user2@test.com",
+                                                            "user2",
+                                                            "User Two",
+                                                            LocalDate.of(1992, 2, 2)));
 
       ResponseEntity<Void> response = restTemplate.exchange("/users/{id}/friends/{friendId}",
                                                             HttpMethod.PUT,
@@ -175,42 +196,54 @@ class FilmorateApplicationTest {
       assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
 
       ResponseEntity<UserResponse[]> user1Friends = restTemplate.getForEntity("/users/{id}/friends",
-                                                                              UserResponse[].class, user1.id());
+                                                                              UserResponse[].class,
+                                                                              user1.id());
       assertThat(user1Friends.getBody()).hasSize(1);
       assertThat(user1Friends.getBody()[0].id()).isEqualTo(user2.id());
 
       ResponseEntity<UserResponse[]> user2Friends = restTemplate.getForEntity("/users/{id}/friends",
-                                                                              UserResponse[].class, user2.id());
+                                                                              UserResponse[].class,
+                                                                              user2.id());
       assertThat(user2Friends.getBody()).isEmpty();
     }
 
     @Test
     @DisplayName("Should confirm friendship when both users add each other")
     void shouldConfirmFriendship() {
-      UserResponse user1 = createUser(
-          new CreateUserRequest("user1@test.com", "user1", "User One", LocalDate.of(1991, 1, 1)));
-      UserResponse user2 = createUser(
-          new CreateUserRequest("user2@test.com", "user2", "User Two", LocalDate.of(1992, 2, 2)));
+      UserResponse user1 = createUser(new CreateUserRequest("user1@test.com",
+                                                            "user1",
+                                                            "User One",
+                                                            LocalDate.of(1991, 1, 1)));
+      UserResponse user2 = createUser(new CreateUserRequest("user2@test.com",
+                                                            "user2",
+                                                            "User Two",
+                                                            LocalDate.of(1992, 2, 2)));
 
       restTemplate.put("/users/{id}/friends/{friendId}", null, user1.id(), user2.id());
       restTemplate.put("/users/{id}/friends/{friendId}", null, user2.id(), user1.id());
 
       ResponseEntity<UserResponse[]> user1Friends = restTemplate.getForEntity("/users/{id}/friends",
-                                                                              UserResponse[].class, user1.id());
+                                                                              UserResponse[].class,
+                                                                              user1.id());
       assertThat(user1Friends.getBody()).hasSize(1);
 
       ResponseEntity<UserResponse[]> user2Friends = restTemplate.getForEntity("/users/{id}/friends",
-                                                                              UserResponse[].class, user2.id());
+                                                                              UserResponse[].class,
+                                                                              user2.id());
       assertThat(user2Friends.getBody()).hasSize(1);
     }
 
     @Test
     @DisplayName("Should remove a friend")
     void shouldRemoveFriend() {
-      UserResponse user1 = createUser(
-          new CreateUserRequest("user1@test.com", "user1", "User One", LocalDate.of(1991, 1, 1)));
-      UserResponse user2 = createUser(
-          new CreateUserRequest("user2@test.com", "user2", "User Two", LocalDate.of(1992, 2, 2)));
+      UserResponse user1 = createUser(new CreateUserRequest("user1@test.com",
+                                                            "user1",
+                                                            "User One",
+                                                            LocalDate.of(1991, 1, 1)));
+      UserResponse user2 = createUser(new CreateUserRequest("user2@test.com",
+                                                            "user2",
+                                                            "User Two",
+                                                            LocalDate.of(1992, 2, 2)));
       restTemplate.put("/users/{id}/friends/{friendId}", null, user1.id(), user2.id());
 
       ResponseEntity<Void> response = restTemplate.exchange("/users/{id}/friends/{friendId}",
@@ -221,7 +254,8 @@ class FilmorateApplicationTest {
                                                             user2.id());
       assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
 
-      ResponseEntity<UserResponse[]> friends = restTemplate.getForEntity("/users/{id}/friends", UserResponse[].class,
+      ResponseEntity<UserResponse[]> friends = restTemplate.getForEntity("/users/{id}/friends",
+                                                                         UserResponse[].class,
                                                                          user1.id());
       assertThat(friends.getBody()).isEmpty();
     }
@@ -231,8 +265,10 @@ class FilmorateApplicationTest {
     void shouldGetCommonFriends() {
       UserResponse user1 = createUser(new CreateUserRequest("user1@test.com", "user1", "U1", LocalDate.of(1991, 1, 1)));
       UserResponse user2 = createUser(new CreateUserRequest("user2@test.com", "user2", "U2", LocalDate.of(1992, 2, 2)));
-      UserResponse commonFriend = createUser(
-          new CreateUserRequest("common@test.com", "common", "CF", LocalDate.of(1993, 3, 3)));
+      UserResponse commonFriend = createUser(new CreateUserRequest("common@test.com",
+                                                                   "common",
+                                                                   "CF",
+                                                                   LocalDate.of(1993, 3, 3)));
 
       restTemplate.put("/users/{id}/friends/{friendId}", null, user1.id(), commonFriend.id());
       restTemplate.put("/users/{id}/friends/{friendId}", null, commonFriend.id(), user1.id());
@@ -240,7 +276,9 @@ class FilmorateApplicationTest {
       restTemplate.put("/users/{id}/friends/{friendId}", null, commonFriend.id(), user2.id());
 
       ResponseEntity<UserResponse[]> response = restTemplate.getForEntity("/users/{id}/friends/common/{otherId}",
-                                                                          UserResponse[].class, user1.id(), user2.id());
+                                                                          UserResponse[].class,
+                                                                          user1.id(),
+                                                                          user2.id());
 
       assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
       assertThat(response.getBody()).hasSize(1);
@@ -317,8 +355,6 @@ class FilmorateApplicationTest {
 
       FilmResponse body = createFilm(request);
 
-      assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-      FilmResponse body = response.getBody();
       assertThat(body).isNotNull();
       assertThat(body.id()).isPositive();
       assertThat(body.name()).isEqualTo(request.name());
@@ -519,8 +555,7 @@ class FilmorateApplicationTest {
       assertThat(response.getBody()).isNotNull();
       assertThat(Arrays.stream(response.getBody())
                        .map(FilmResponse::id)
-                       .collect(Collectors.toList()))
-          .containsExactly(film1990.id(), film2000.id());
+                       .collect(Collectors.toList())).containsExactly(film1990.id(), film2000.id());
     }
 
     @Test
@@ -557,14 +592,13 @@ class FilmorateApplicationTest {
       assertThat(response.getBody()).isNotNull();
       assertThat(Arrays.stream(response.getBody())
                        .map(FilmResponse::id)
-                       .collect(Collectors.toList()))
-          .containsExactly(film2.id(), film1.id());
+                       .collect(Collectors.toList())).containsExactly(film2.id(), film1.id());
     }
   }
 
-    @Nested
-    @DisplayName("MPA API Tests")
-    class MpaTests {
+  @Nested
+  @DisplayName("MPA API Tests")
+  class MpaTests {
 
     @Test
     @DisplayName("Should get all MPA ratings in order")
@@ -577,28 +611,28 @@ class FilmorateApplicationTest {
                                     .containsExactly("G", "PG", "PG-13", "R", "NC-17");
     }
 
-      @Test
-      @DisplayName("Should get MPA by ID")
-      void shouldGetMpaById() {
-        ResponseEntity<MpaResponse> response = restTemplate.getForEntity("/mpa/1", MpaResponse.class);
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        MpaResponse body = response.getBody();
-        assertThat(body).isNotNull();
-        assertThat(body.id()).isEqualTo(1L);
-        assertThat(body.name()).isEqualTo("G");
-      }
-
-      @Test
-      @DisplayName("Should return 404 for non-existent MPA ID")
-      void shouldReturnNotFoundForUnknownMpaId() {
-        ResponseEntity<ErrorResponse> response = restTemplate.getForEntity("/mpa/9999", ErrorResponse.class);
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
-      }
+    @Test
+    @DisplayName("Should get MPA by ID")
+    void shouldGetMpaById() {
+      ResponseEntity<MpaResponse> response = restTemplate.getForEntity("/mpa/1", MpaResponse.class);
+      assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+      MpaResponse body = response.getBody();
+      assertThat(body).isNotNull();
+      assertThat(body.id()).isEqualTo(1L);
+      assertThat(body.name()).isEqualTo("G");
     }
 
-    @Nested
-    @DisplayName("Genre API Tests")
-    class GenreTests {
+    @Test
+    @DisplayName("Should return 404 for non-existent MPA ID")
+    void shouldReturnNotFoundForUnknownMpaId() {
+      ResponseEntity<ErrorResponse> response = restTemplate.getForEntity("/mpa/9999", ErrorResponse.class);
+      assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+    }
+  }
+
+  @Nested
+  @DisplayName("Genre API Tests")
+  class GenreTests {
 
     @Test
     @DisplayName("Should get all Genres in order")
@@ -616,16 +650,16 @@ class FilmorateApplicationTest {
                                                      "Боевик");
     }
 
-      @Test
-      @DisplayName("Should get Genre by ID")
-      void shouldGetGenreById() {
-        ResponseEntity<GenreResponse> response = restTemplate.getForEntity("/genres/1", GenreResponse.class);
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        GenreResponse body = response.getBody();
-        assertThat(body).isNotNull();
-        assertThat(body.id()).isEqualTo(1L);
-        assertThat(body.name()).isEqualTo("Комедия");
-      }
+    @Test
+    @DisplayName("Should get Genre by ID")
+    void shouldGetGenreById() {
+      ResponseEntity<GenreResponse> response = restTemplate.getForEntity("/genres/1", GenreResponse.class);
+      assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+      GenreResponse body = response.getBody();
+      assertThat(body).isNotNull();
+      assertThat(body.id()).isEqualTo(1L);
+      assertThat(body.name()).isEqualTo("Комедия");
+    }
 
     @Test
     @DisplayName("Film duration should be returned in minutes")
@@ -657,12 +691,27 @@ class FilmorateApplicationTest {
       UserResponse user1 = createUser(new CreateUserRequest("u1@test.com", "u1", "User 1", LocalDate.of(1990, 1, 1)));
       UserResponse user2 = createUser(new CreateUserRequest("u2@test.com", "u2", "User 2", LocalDate.of(1991, 1, 1)));
 
-      FilmResponse film1 = createFilm(new CreateFilmRequest("Film 1", "desc", LocalDate.of(2010, 1, 1), 100,
-              Set.of(new Genre(1L, "Комедия")), new Mpa(1L, "G")));
-      FilmResponse film2 = createFilm(new CreateFilmRequest("Film 2", "desc", LocalDate.of(2011, 1, 1), 100,
-              Set.of(new Genre(1L, "Комедия")), new Mpa(1L, "G")));
-      FilmResponse film3 = createFilm(new CreateFilmRequest("Film 3", "desc", LocalDate.of(2012, 1, 1), 100,
-              Set.of(new Genre(1L, "Комедия")), new Mpa(1L, "G")));
+      FilmResponse film1 = createFilm(new CreateFilmRequest("Film 1",
+                                                            "desc",
+                                                            LocalDate.of(2010, 1, 1),
+                                                            100,
+                                                            Set.of(new Genre(1L, "Комедия")),
+                                                            new Mpa(1L, "G"),
+                                                            null));
+      FilmResponse film2 = createFilm(new CreateFilmRequest("Film 2",
+                                                            "desc",
+                                                            LocalDate.of(2011, 1, 1),
+                                                            100,
+                                                            Set.of(new Genre(1L, "Комедия")),
+                                                            new Mpa(1L, "G"),
+                                                            null));
+      FilmResponse film3 = createFilm(new CreateFilmRequest("Film 3",
+                                                            "desc",
+                                                            LocalDate.of(2012, 1, 1),
+                                                            100,
+                                                            Set.of(new Genre(1L, "Комедия")),
+                                                            new Mpa(1L, "G"),
+                                                            null));
 
       restTemplate.put("/films/{id}/like/{userId}", null, film1.id(), user1.id());
       restTemplate.put("/films/{id}/like/{userId}", null, film1.id(), user2.id());
@@ -670,14 +719,17 @@ class FilmorateApplicationTest {
       restTemplate.put("/films/{id}/like/{userId}", null, film3.id(), user2.id());
 
       ResponseEntity<FilmResponse[]> response = restTemplate.getForEntity("/users/{id}/recommendations",
-              FilmResponse[].class, user1.id());
+                                                                          FilmResponse[].class,
+                                                                          user1.id());
 
       assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
       FilmResponse[] recommendations = response.getBody();
       assertThat(recommendations).isNotNull();
       assertThat(recommendations).hasSize(2);
 
-      List<Long> recommendedIds = Arrays.stream(recommendations).map(FilmResponse::id).toList();
+      List<Long> recommendedIds = Arrays.stream(recommendations)
+                                        .map(FilmResponse::id)
+                                        .toList();
       assertThat(recommendedIds).containsExactlyInAnyOrder(film2.id(), film3.id());
     }
 
@@ -687,12 +739,27 @@ class FilmorateApplicationTest {
       UserResponse user1 = createUser(new CreateUserRequest("filter1@test.com", "f1", "F1", LocalDate.of(1990, 1, 1)));
       UserResponse user2 = createUser(new CreateUserRequest("filter2@test.com", "f2", "F2", LocalDate.of(1991, 1, 1)));
 
-      FilmResponse film1 = createFilm(new CreateFilmRequest("F1", "d", LocalDate.of(2020, 1, 1), 100,
-              Set.of(new Genre(1L, "Комедия")), new Mpa(1L, "G"))); // genre=1, year=2020
-      FilmResponse film2 = createFilm(new CreateFilmRequest("F2", "d", LocalDate.of(2020, 1, 1), 100,
-              Set.of(new Genre(2L, "Драма")), new Mpa(1L, "G")));
-      FilmResponse film3 = createFilm(new CreateFilmRequest("F3", "d", LocalDate.of(2021, 1, 1), 100,
-              Set.of(new Genre(1L, "Комедия")), new Mpa(1L, "G")));
+      FilmResponse film1 = createFilm(new CreateFilmRequest("F1",
+                                                            "d",
+                                                            LocalDate.of(2020, 1, 1),
+                                                            100,
+                                                            Set.of(new Genre(1L, "Комедия")),
+                                                            new Mpa(1L, "G"),
+                                                            null));
+      FilmResponse film2 = createFilm(new CreateFilmRequest("F2",
+                                                            "d",
+                                                            LocalDate.of(2020, 1, 1),
+                                                            100,
+                                                            Set.of(new Genre(2L, "Драма")),
+                                                            new Mpa(1L, "G"),
+                                                            null));
+      FilmResponse film3 = createFilm(new CreateFilmRequest("F3",
+                                                            "d",
+                                                            LocalDate.of(2021, 1, 1),
+                                                            100,
+                                                            Set.of(new Genre(1L, "Комедия")),
+                                                            new Mpa(1L, "G"),
+                                                            null));
 
       restTemplate.put("/films/{id}/like/{userId}", null, film2.id(), user1.id());
 
@@ -713,13 +780,18 @@ class FilmorateApplicationTest {
     @Test
     @DisplayName("Should return empty list if user has no liked films")
     void shouldReturnEmptyIfNoLikes() {
-      UserResponse user = createUser(new CreateUserRequest("nolikes@test.com", "nolikes", "No Likes", LocalDate.of(1990, 1, 1)));
+      UserResponse user = createUser(new CreateUserRequest("nolikes@test.com",
+                                                           "nolikes",
+                                                           "No Likes",
+                                                           LocalDate.of(1990, 1, 1)));
 
       ResponseEntity<FilmResponse[]> response = restTemplate.getForEntity("/users/{id}/recommendations",
-              FilmResponse[].class, user.id());
+                                                                          FilmResponse[].class,
+                                                                          user.id());
 
       assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-      assertThat(response.getBody()).isNotNull().isEmpty();
+      assertThat(response.getBody()).isNotNull()
+                                    .isEmpty();
     }
 
     @Test
@@ -728,19 +800,31 @@ class FilmorateApplicationTest {
       UserResponse u1 = createUser(new CreateUserRequest("s1@test.com", "s1", "Solo 1", LocalDate.of(1990, 1, 1)));
       UserResponse u2 = createUser(new CreateUserRequest("s2@test.com", "s2", "Solo 2", LocalDate.of(1991, 1, 1)));
 
-      FilmResponse f1 = createFilm(new CreateFilmRequest("Only For U1", "d", LocalDate.of(2020, 1, 1), 100,
-              Set.of(new Genre(1L, "Комедия")), new Mpa(1L, "G")));
-      FilmResponse f2 = createFilm(new CreateFilmRequest("Only For U2", "d", LocalDate.of(2020, 1, 1), 100,
-              Set.of(new Genre(1L, "Комедия")), new Mpa(1L, "G")));
+      FilmResponse f1 = createFilm(new CreateFilmRequest("Only For U1",
+                                                         "d",
+                                                         LocalDate.of(2020, 1, 1),
+                                                         100,
+                                                         Set.of(new Genre(1L, "Комедия")),
+                                                         new Mpa(1L, "G"),
+                                                         null));
+      FilmResponse f2 = createFilm(new CreateFilmRequest("Only For U2",
+                                                         "d",
+                                                         LocalDate.of(2020, 1, 1),
+                                                         100,
+                                                         Set.of(new Genre(1L, "Комедия")),
+                                                         new Mpa(1L, "G"),
+                                                         null));
 
       restTemplate.put("/films/{id}/like/{userId}", null, f1.id(), u1.id());
       restTemplate.put("/films/{id}/like/{userId}", null, f2.id(), u2.id());
 
       ResponseEntity<FilmResponse[]> response = restTemplate.getForEntity("/users/{id}/recommendations",
-              FilmResponse[].class, u1.id());
+                                                                          FilmResponse[].class,
+                                                                          u1.id());
 
       assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-      assertThat(response.getBody()).isNotNull().isEmpty();
+      assertThat(response.getBody()).isNotNull()
+                                    .isEmpty();
     }
   }
 }

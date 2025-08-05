@@ -12,56 +12,68 @@ import java.util.*;
 
 @Service
 @RequiredArgsConstructor
-public class RecommendationService implements RecommendationUseCase {
+public class RecommendationService
+    implements RecommendationUseCase {
 
-    private final LikeUseCase likeUseCase;
-    private final FilmUseCase filmUseCase;
+  private final LikeUseCase likeUseCase;
+  private final FilmUseCase filmUseCase;
 
-    @Override
-    public List<Film> getRecommendations(RecommendationQuery query) {
-        Set<Long> targetLikes = likeUseCase.findLikedFilms(query.userId());
-        if (targetLikes.isEmpty()) {
-            return List.of();
-        }
-
-        Map<Long, Set<Long>> allUserLikes = likeUseCase.findAllUserFilmLikes();
-        allUserLikes.remove(query.userId());
-
-        Optional<Long> mostSimilarUserId = allUserLikes.entrySet().stream()
-                .map(entry -> Map.entry(entry.getKey(), jaccard(targetLikes, entry.getValue())))
-                .filter(entry -> entry.getValue() > 0.0)
-                .max(Map.Entry.comparingByValue())
-                .map(Map.Entry::getKey);
-
-        if (mostSimilarUserId.isEmpty()) {
-            return List.of();
-        }
-
-        Set<Long> similarUserLikes = allUserLikes.getOrDefault(mostSimilarUserId.get(), Set.of());
-        Set<Long> recommendedIds = new HashSet<>(similarUserLikes);
-        recommendedIds.removeAll(targetLikes);
-
-        List<Film> candidates = filmUseCase.getFilmsByIds(recommendedIds);
-
-        return candidates.stream()
-                .filter(film -> !film.isDeleted())
-                .filter(film -> query.genreId().isEmpty() || film.genres().stream()
-                        .anyMatch(g -> Objects.equals(query.genreId().get(), g.id())))
-                .filter(film -> query.year().isEmpty() || film.releaseDate().getYear() == query.year().get())
-                .limit(query.limit().orElse(candidates.size()))
-                .toList();
-
+  @Override
+  public List<Film> getRecommendations(RecommendationQuery query) {
+    Set<Long> targetLikes = likeUseCase.findLikedFilms(query.userId());
+    if (targetLikes.isEmpty()) {
+      return List.of();
     }
 
-    private double jaccard(Set<Long> a, Set<Long> b) {
-        if (a.isEmpty() && b.isEmpty()) return 0.0;
+    Map<Long, Set<Long>> allUserLikes = likeUseCase.findAllUserFilmLikes();
+    allUserLikes.remove(query.userId());
 
-        Set<Long> intersection = new HashSet<>(a);
-        intersection.retainAll(b);
+    Optional<Long> mostSimilarUserId = allUserLikes.entrySet()
+                                                   .stream()
+                                                   .map(entry -> Map.entry(entry.getKey(),
+                                                                           jaccard(targetLikes, entry.getValue())))
+                                                   .filter(entry -> entry.getValue() > 0.0)
+                                                   .max(Map.Entry.comparingByValue())
+                                                   .map(Map.Entry::getKey);
 
-        Set<Long> union = new HashSet<>(a);
-        union.addAll(b);
-
-        return (double) intersection.size() / union.size();
+    if (mostSimilarUserId.isEmpty()) {
+      return List.of();
     }
+
+    Set<Long> similarUserLikes = allUserLikes.getOrDefault(mostSimilarUserId.get(), Set.of());
+    Set<Long> recommendedIds = new HashSet<>(similarUserLikes);
+    recommendedIds.removeAll(targetLikes);
+
+    List<Film> candidates = filmUseCase.getFilmsByIds(recommendedIds.stream()
+                                                                    .toList());
+
+    return candidates.stream()
+                     .filter(film -> !film.isDeleted())
+                     .filter(film -> query.genreId()
+                                          .isEmpty() || film.genres()
+                                                            .stream()
+                                                            .anyMatch(g -> Objects.equals(query.genreId()
+                                                                                              .get(), g.id())))
+                     .filter(film -> query.year()
+                                          .isEmpty() || film.releaseDate()
+                                                            .getYear() == query.year()
+                                                                              .get())
+                     .limit(query.limit()
+                                 .orElse(candidates.size()))
+                     .toList();
+
+  }
+
+  private double jaccard(Set<Long> a, Set<Long> b) {
+    if (a.isEmpty() && b.isEmpty())
+      return 0.0;
+
+    Set<Long> intersection = new HashSet<>(a);
+    intersection.retainAll(b);
+
+    Set<Long> union = new HashSet<>(a);
+    union.addAll(b);
+
+    return (double) intersection.size() / union.size();
+  }
 }

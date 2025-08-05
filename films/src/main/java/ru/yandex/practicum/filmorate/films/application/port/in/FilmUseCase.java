@@ -8,7 +8,6 @@ import ru.yandex.practicum.filmorate.films.domain.port.UpdateFilmCommand;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 public interface FilmUseCase {
   Film addFilm(CreateFilmCommand command);
@@ -18,8 +17,6 @@ public interface FilmUseCase {
   Optional<Film> findFilmById(long filmId);
 
   List<Film> getAllFilms();
-
-  Optional<Film> getFilmById(long id);
 
   List<Film> getFilmsByIds(List<Long> ids);
 

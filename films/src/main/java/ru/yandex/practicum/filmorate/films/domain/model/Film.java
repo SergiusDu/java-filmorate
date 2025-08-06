@@ -11,16 +11,16 @@ import java.time.LocalDate;
 import java.util.Set;
 
 /**
- * Represents a film record with validated core information. This record can be constructed using a builder pattern
- * through {@code @Builder} annotation. All fields are validated during construction to ensure data integrity.
+ * Represents a film record with validated core information.
  *
  * @param id          The unique identifier for the film (non-null)
  * @param name        The title of the film (non-blank)
  * @param description The plot summary or description of the film (non-blank)
  * @param releaseDate The original release date of the film (non-null)
  * @param duration    The total runtime length of the film (non-null, positive)
- * @param genres      The set of genres classifying the film (optional)
- * @param mpa         The MPAA rating classification of the film
+ * @param genres      The set of genres classifying the film (never null, may be empty)
+ * @param mpa         The MPAA rating classification of the film (non-null)
+ * @param isDeleted   Marker indicating logical deletion
  */
 @Builder
 public record Film(Long id,
@@ -34,8 +34,6 @@ public record Film(Long id,
 
   /**
    * Validates all fields during record construction.
-   *
-   * @throws InvalidFilmDataException if any required field is null or blank
    */
   public Film {
     ValidationUtils.notNull(id, msg -> new InvalidFilmDataException("Film id must not be null"));
@@ -44,5 +42,18 @@ public record Film(Long id,
     ValidationUtils.notNull(releaseDate, msg -> new InvalidFilmDataException("Film release date must not be null"));
     ValidationUtils.notNull(duration, msg -> new InvalidFilmDataException("Film duration must not be null"));
     ValidationUtils.positive(duration, msg -> new InvalidFilmDataException("Film duration must be positive"));
+    ValidationUtils.notNull(mpa, msg -> new InvalidFilmDataException("MPA rating must not be null"));
+
+    ValidationUtils.notNull(genres, msg -> new InvalidFilmDataException("Genres set must not be null"));
+  }
+
+  /**
+   * Checks if this film has the given genre ID.
+   *
+   * @param genreId the genre ID to check
+   * @return true if the film has the genre, false otherwise
+   */
+  public boolean hasGenre(long genreId) {
+    return genres != null && genres.stream().anyMatch(g -> g.id() == genreId);
   }
 }

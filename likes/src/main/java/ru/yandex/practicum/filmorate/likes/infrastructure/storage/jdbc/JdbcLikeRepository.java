@@ -39,8 +39,17 @@ public class JdbcLikeRepository implements LikeRepository {
 
   @Override
   public LinkedHashSet<Long> getPopularFilmIds(int count) {
-    String sql = "SELECT film_id FROM likes GROUP BY film_id ORDER BY COUNT(user_id) DESC LIMIT ?";
-    List<Long> popularIds = jdbcTemplate.queryForList(sql, Long.class, count);
+    int expandedLimit = Math.max(count * 3, 50);
+
+    String sql = """
+      SELECT film_id
+      FROM likes
+      GROUP BY film_id
+      ORDER BY COUNT(user_id) DESC
+      LIMIT ?
+      """;
+
+    List<Long> popularIds = jdbcTemplate.queryForList(sql, Long.class, expandedLimit);
     return new LinkedHashSet<>(popularIds);
   }
 

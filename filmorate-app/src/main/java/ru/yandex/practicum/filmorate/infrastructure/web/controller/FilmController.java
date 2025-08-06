@@ -24,9 +24,9 @@ public class FilmController {
   @GetMapping
   public List<FilmResponse> getAllFilms() {
     return filmCompositionService.getAllFilms()
-            .stream()
-            .map(filmMapper::toResponse)
-            .toList();
+                                 .stream()
+                                 .map(filmMapper::toResponse)
+                                 .toList();
   }
 
   @PostMapping
@@ -52,9 +52,9 @@ public class FilmController {
   @GetMapping("/popular")
   public List<FilmResponse> getPopularFilms(@RequestParam(defaultValue = "10") int count) {
     return filmCompositionService.getPopularFilms(count)
-            .stream()
-            .map(filmMapper::toResponse)
-            .toList();
+                                 .stream()
+                                 .map(filmMapper::toResponse)
+                                 .toList();
   }
 
   @GetMapping("/{id}")
@@ -66,15 +66,15 @@ public class FilmController {
   public List<FilmResponse> getCommonFilms(@RequestParam long userId,
                                            @RequestParam long friendId) {
     return filmCompositionService.getCommonFilms(userId, friendId)
-            .stream()
-            .map(filmMapper::toResponse)
-            .toList();
+                                 .stream()
+                                 .map(filmMapper::toResponse)
+                                 .toList();
   }
 
   @GetMapping("/director/{directorId}")
   public List<FilmResponse> getDirectorFilms(@PathVariable long directorId,
-                                             @RequestParam(defaultValue = "year") String sortBy) {
-    return filmCompositionService.getDirectorFilms(directorId, SortBy.fromString(sortBy))
+                                             @RequestParam(defaultValue = "YEAR") SortBy sortBy) {
+    return filmCompositionService.getDirectorFilms(directorId, sortBy)
                                  .stream()
                                  .map(filmMapper::toResponse)
                                  .toList();

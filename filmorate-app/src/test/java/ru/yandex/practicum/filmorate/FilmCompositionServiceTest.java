@@ -25,18 +25,26 @@ import ru.yandex.practicum.filmorate.users.domain.model.value.Login;
 
 import java.time.Duration;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class FilmCompositionServiceTest {
 
-    @Mock private FilmUseCase filmUseCase;
-    @Mock private LikeUseCase likeService;
-    @Mock private UserUseCase userUseCase;
-    @Mock private DomainEventPublisher eventPublisher;
+    @Mock
+    private FilmUseCase filmUseCase;
+    @Mock
+    private LikeUseCase likeService;
+    @Mock
+    private UserUseCase userUseCase;
+    @Mock
+    private DomainEventPublisher eventPublisher;
     @InjectMocks
     private FilmCompositionService filmCompositionService;
 
@@ -46,23 +54,8 @@ class FilmCompositionServiceTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        film = new Film(
-                1L,
-                "Test Film",
-                "Description",
-                LocalDate.of(2020, 1, 1),
-                Duration.ofMinutes(90),
-                Set.of(new Genre(1L, "Drama")),
-                false,
-                new Mpa(1L, "G")
-        );
-        user = new User(
-                2L,
-                new Email("user@example.com"),
-                new Login("userLogin"),
-                "User Name",
-                LocalDate.of(1990, 1, 1)
-        );
+        film = new Film(1L, "Test Film", "Description", LocalDate.of(2020, 1, 1), Duration.ofMinutes(90), Set.of(new Genre(1L, "Drama")), false, new Mpa(1L, "G"));
+        user = new User(2L, new Email("user@example.com"), new Login("userLogin"), "User Name", LocalDate.of(1990, 1, 1));
     }
 
     @Test
@@ -214,14 +207,7 @@ class FilmCompositionServiceTest {
 
         @Test
         void shouldReturnPopularFilmsFilteredByGenreAndYear() {
-            Film matchingFilm = new Film(
-                    1L, "Match", "Desc",
-                    LocalDate.of(2020, 1, 1),
-                    Duration.ofMinutes(90),
-                    Set.of(new Genre(10L, "Comedy")),
-                    false,
-                    new Mpa(1L, "PG")
-            );
+            Film matchingFilm = new Film(1L, "Match", "Desc", LocalDate.of(2020, 1, 1), Duration.ofMinutes(90), Set.of(new Genre(10L, "Comedy")), false, new Mpa(1L, "PG"));
             FilmRatingQuery query = FilmRatingQuery.of(5, 10L, 2020, null, null);
             when(filmUseCase.findPopularFilms(query)).thenReturn(List.of(matchingFilm));
 
@@ -231,14 +217,7 @@ class FilmCompositionServiceTest {
 
         @Test
         void shouldReturnAllWhenNoFilters() {
-            Film f = new Film(
-                    1L, "Test Film", "Description",
-                    LocalDate.of(2020, 1, 1),
-                    Duration.ofMinutes(90),
-                    Set.of(new Genre(1L, "Drama")),
-                    false,
-                    new Mpa(1L, "G")
-            );
+            Film f = new Film(1L, "Test Film", "Description", LocalDate.of(2020, 1, 1), Duration.ofMinutes(90), Set.of(new Genre(1L, "Drama")), false, new Mpa(1L, "G"));
             FilmRatingQuery query = FilmRatingQuery.of(5, null, null, null, null);
             when(filmUseCase.findPopularFilms(query)).thenReturn(List.of(f));
 

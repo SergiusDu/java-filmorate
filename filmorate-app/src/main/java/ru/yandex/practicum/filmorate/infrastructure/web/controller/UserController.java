@@ -88,12 +88,6 @@ public class UserController {
     return userMapper.toResponse(userCompositionService.getUserById(id));
   }
 
-  @DeleteMapping("/{id}")
-  @ResponseStatus(HttpStatus.NO_CONTENT)
-  public void delete(@PathVariable long id) {
-    userCompositionService.deleteUserById(id);
-  }
-
   /**
    * Returns a list of recommended films for the user with optional filters.
    *

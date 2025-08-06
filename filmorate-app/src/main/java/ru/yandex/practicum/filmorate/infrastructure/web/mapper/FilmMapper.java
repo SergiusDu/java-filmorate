@@ -4,7 +4,6 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.directors.domain.model.Director;
 import ru.yandex.practicum.filmorate.films.domain.model.Film;
 import ru.yandex.practicum.filmorate.films.domain.model.value.Genre;
-import ru.yandex.practicum.filmorate.films.domain.model.value.Mpa;
 import ru.yandex.practicum.filmorate.films.domain.port.CreateFilmCommand;
 import ru.yandex.practicum.filmorate.films.domain.port.UpdateFilmCommand;
 import ru.yandex.practicum.filmorate.infrastructure.web.dto.*;
@@ -22,16 +21,16 @@ public class FilmMapper {
                                      .stream()
                                      .map(DirectorIdDto::id)
                                      .collect(Collectors.toSet());
-    Mpa mpaCreate = (request.mpa() == null)
-                    ? null
-                    : new Mpa(request.mpa()
-                                     .id(), null);
+    Long mpaId = request.mpa() == null
+                 ? null
+                 : request.mpa()
+                          .id();
     return new CreateFilmCommand(request.name(),
                                  request.description(),
                                  request.releaseDate(),
                                  request.duration(),
                                  request.genres(),
-                                 mpaCreate,
+                                 mpaId,
                                  directorIds);
   }
 
@@ -42,17 +41,17 @@ public class FilmMapper {
                                      .stream()
                                      .map(DirectorIdDto::id)
                                      .collect(Collectors.toSet());
-    Mpa mpaUpdate = (request.mpa() == null)
-                    ? null
-                    : new Mpa(request.mpa()
-                                     .id(), null);
+    Long mpaId = request.mpa() == null
+                 ? null
+                 : request.mpa()
+                          .id();
     return new UpdateFilmCommand(request.id(),
                                  request.name(),
                                  request.description(),
                                  request.releaseDate(),
                                  request.duration(),
                                  request.genres(),
-                                 mpaUpdate,
+                                 mpaId,
                                  directorIds);
   }
 
@@ -64,7 +63,7 @@ public class FilmMapper {
     final Film film = dto.film();
     final Set<Genre> genres = film.genres();
     final Set<Genre> sortedGenres = (genres == null)
-                                    ? null
+                                    ? Collections.emptySet()
                                     : genres.stream()
                                             .sorted(Comparator.comparing(Genre::id))
                                             .collect(Collectors.toCollection(LinkedHashSet::new));

@@ -71,7 +71,7 @@ class FilmCompositionServiceTest {
                                               LocalDate.of(2020, 1, 1),
                                               90L,
                                               genres,
-                                              mpa,
+                                              mpa.id(),
                                               Collections.emptySet());
 
     updateFilmCommand = new UpdateFilmCommand(1L,
@@ -80,7 +80,7 @@ class FilmCompositionServiceTest {
                                               LocalDate.of(2021, 1, 1),
                                               100L,
                                               genres,
-                                              mpa,
+                                              mpa.id(),
                                               Collections.emptySet());
 
     user = User.builder()

@@ -74,11 +74,11 @@ public class FilmService
     return mpaRepository.findById(id);
   }
 
-  private void validateFilmDependencies(Set<Genre> genres, Mpa mpa) {
-    if (mpa != null && mpaRepository
-                           .findById(mpa.id())
-                           .isEmpty()) {
-      throw new ResourceNotFoundException("Mpa with id " + mpa.id() + " not found");
+  private void validateFilmDependencies(Set<Genre> genres, Long mpaId) {
+    if (mpaId != null && mpaRepository
+                             .findById(mpaId)
+                             .isEmpty()) {
+      throw new ResourceNotFoundException("Mpa with id " + mpaId + " not found");
     }
 
     if (genres != null) {

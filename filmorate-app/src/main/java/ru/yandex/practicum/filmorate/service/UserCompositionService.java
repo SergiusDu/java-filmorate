@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.common.exception.ResourceNotFoundException;
 import ru.yandex.practicum.filmorate.friendships.application.port.in.FriendshipsUseCase;
-import ru.yandex.practicum.filmorate.likes.application.port.in.LikeUseCase;
 import ru.yandex.practicum.filmorate.users.application.port.in.UserUseCase;
 import ru.yandex.practicum.filmorate.users.domain.model.User;
 
@@ -17,7 +16,6 @@ import java.util.Set;
 public class UserCompositionService {
   private final UserUseCase userUseCase;
   private final FriendshipsUseCase friendshipsUseCase;
-  private final LikeUseCase likeUseCase;
 
   public List<User> getFriendsOfUser(long userId) {
     validateUserExists(userId);
@@ -63,15 +61,5 @@ public class UserCompositionService {
                                friendId));
     friendshipsUseCase.removeFriend(userId,
                                     friendId);
-  }
-
-  public User getUserById(long id) {
-    return userUseCase.findUserById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("User with id " + id + " not found."));
-  }
-
-  public void deleteUserById(long userId) {
-    likeUseCase.deleteLikesByUserId(userId);
-    userUseCase.deleteUserById(userId);
   }
 }

@@ -5,6 +5,7 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.filmorate.common.exception.ResourceNotFoundException;
+import ru.yandex.practicum.filmorate.events.domain.service.DomainEventPublisher;
 import ru.yandex.practicum.filmorate.reaction.application.port.in.ReactionUseCase;
 import ru.yandex.practicum.filmorate.reaction.domain.model.Reaction;
 import ru.yandex.practicum.filmorate.reaction.domain.model.ReactionType;
@@ -12,6 +13,7 @@ import ru.yandex.practicum.filmorate.reviews.domain.model.Review;
 import ru.yandex.practicum.filmorate.reviews.domain.port.CreateReviewCommand;
 import ru.yandex.practicum.filmorate.reviews.domain.port.UpdateReviewCommand;
 import ru.yandex.practicum.filmorate.reviews.application.port.in.ReviewUseCase;
+import ru.yandex.practicum.filmorate.events.domain.model.value.Operation;
 
 import java.util.Comparator;
 import java.util.List;
@@ -24,24 +26,41 @@ public class ReviewCompositionService {
     private final ReactionUseCase reactionUseCase;
     private final FilmCompositionService filmService;
     private final UserCompositionService userService;
+    private final DomainEventPublisher domainEventPublisher;
 
+    @Transactional
     public Review addReview(CreateReviewCommand command) {
         filmService.validateFilmId(command.filmId());
         userService.validateUserExists(command.userId());
 
-        if (reviewUseCase.checkReviewForFilmExists(command).isPresent()) {
-            long reviewId = reviewUseCase.checkReviewForFilmExists(command).get();
+        Optional<Long> existingReviewId = reviewUseCase.checkReviewForFilmExists(command);
+        if (existingReviewId.isPresent()) {
+            long reviewId = existingReviewId.get();
             reviewUseCase.removeReview(reviewId);
+            domainEventPublisher.publishReviewEvent(command.userId(), Operation.REMOVE, reviewId);
         }
-        return reviewUseCase.addReview(command);
+
+        Review review = reviewUseCase.addReview(command);
+        domainEventPublisher.publishReviewEvent(command.userId(), Operation.ADD, review.reviewId());
+        return review;
     }
 
+    @Transactional
     public Review updateReview(UpdateReviewCommand command) {
-        return reviewUseCase.updateReview(command);
+        Review review = reviewUseCase.updateReview(command);
+        domainEventPublisher.publishReviewEvent(command.userId(), Operation.UPDATE, command.reviewId());
+        return review;
     }
 
+    @Transactional
     public boolean removeReview(long reviewId) {
-        return reviewUseCase.removeReview(reviewId);
+        Review review = reviewUseCase.getReviewById(reviewId)
+                .orElseThrow(() -> new ResourceNotFoundException("Review with id " + reviewId + " was not found"));
+        boolean removed = reviewUseCase.removeReview(reviewId);
+        if (removed) {
+            domainEventPublisher.publishReviewEvent(review.userId(), Operation.REMOVE, reviewId);
+        }
+        return removed;
     }
 
     public Review getReviewById(long reviewId) {

@@ -202,9 +202,10 @@ class ValidationUtilsTest {
 
     @Test
     void shouldThrowException_whenDurationIsNull() {
-      var exception = assertThrows(InvalidFilmDataException.class,
-                                   () -> ValidationUtils.positive(null,
-                                                                  InvalidFilmDataException::new));
+      var exception = assertThrows(
+              InvalidFilmDataException.class,
+              () -> ValidationUtils.positive((Duration) null, InvalidFilmDataException::new)
+      );
       assertThat(exception.getMessage()).isEqualTo("Duration must be positive");
     }
 

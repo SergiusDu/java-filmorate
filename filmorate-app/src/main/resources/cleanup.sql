@@ -8,6 +8,8 @@ DELETE
 FROM films;
 DELETE
 FROM users;
+DELETE
+FROM events;
 
 ALTER TABLE films
     ALTER COLUMN film_id RESTART WITH 1;

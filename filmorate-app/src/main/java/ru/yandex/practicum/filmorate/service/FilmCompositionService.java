@@ -12,6 +12,8 @@ import ru.yandex.practicum.filmorate.films.domain.port.CreateFilmCommand;
 import ru.yandex.practicum.filmorate.films.domain.port.UpdateFilmCommand;
 import ru.yandex.practicum.filmorate.likes.application.port.in.LikeUseCase;
 import ru.yandex.practicum.filmorate.users.application.port.in.UserUseCase;
+import ru.yandex.practicum.filmorate.events.domain.service.DomainEventPublisher;
+import ru.yandex.practicum.filmorate.events.domain.model.value.Operation;
 
 import java.util.*;
 
@@ -21,7 +23,7 @@ public class FilmCompositionService {
   private final FilmUseCase filmUseCase;
   private final LikeUseCase likeService;
   private final UserUseCase userUseCase;
-
+  private final DomainEventPublisher eventPublisher;
 
   public List<Film> getAllFilms() {
     return filmUseCase.getAllFilms();
@@ -39,8 +41,11 @@ public class FilmCompositionService {
                          long userId) {
     validateFilmId(filmId);
     validateUserId(userId);
-    return likeService.addLike(filmId,
-                               userId);
+    boolean result = likeService.addLike(filmId, userId);
+    if (result) {
+      eventPublisher.publishLikeEvent(userId, Operation.ADD, filmId);
+    }
+    return result;
   }
 
   public void validateFilmId(long filmId) {
@@ -59,8 +64,11 @@ public class FilmCompositionService {
                             long userId) {
     validateFilmId(filmId);
     validateUserId(userId);
-    return likeService.removeLike(filmId,
-                                  userId);
+    boolean result = likeService.removeLike(filmId, userId);
+    if (result) {
+      eventPublisher.publishLikeEvent(userId, Operation.REMOVE, filmId);
+    }
+    return result;
   }
 
   public List<Film> getPopularFilms(int count) {

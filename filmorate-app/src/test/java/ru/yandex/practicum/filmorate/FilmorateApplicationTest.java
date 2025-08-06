@@ -13,6 +13,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
+import ru.yandex.practicum.filmorate.events.domain.model.value.EventType;
+import ru.yandex.practicum.filmorate.events.domain.model.value.Operation;
 import ru.yandex.practicum.filmorate.films.domain.model.value.Genre;
 import ru.yandex.practicum.filmorate.films.domain.model.value.Mpa;
 import ru.yandex.practicum.filmorate.infrastructure.web.dto.*;
@@ -47,6 +49,12 @@ class FilmorateApplicationTest {
 
   private FilmResponse createFilm(CreateFilmRequest request) {
     ResponseEntity<FilmResponse> response = restTemplate.postForEntity("/films", request, FilmResponse.class);
+    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+    return response.getBody();
+  }
+
+  private ReviewResponse createReview(CreateReviewRequest request) {
+    ResponseEntity<ReviewResponse> response = restTemplate.postForEntity("/reviews", request, ReviewResponse.class);
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     return response.getBody();
   }
@@ -551,6 +559,39 @@ class FilmorateApplicationTest {
       ResponseEntity<ReviewResponse> afterDislikeRemoveResponse = restTemplate.getForEntity("/reviews/{reviewId}", ReviewResponse.class, reviewId);
       assertThat(afterDislikeRemoveResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
       assertEquals(result, afterDislikeRemoveResponse.getBody().useful(), "Useful should increment again");
+    }
+  }
+  @Nested
+  @DisplayName("Event Feed API Tests")
+  class EventFeedTests {
+
+    private UserResponse user;
+
+      @BeforeEach
+    void setUp() {
+      user = createUser(new CreateUserRequest("u1@a.com", "u1", "User1", LocalDate.of(1990, 1, 1)));
+        UserResponse friend = createUser(new CreateUserRequest("u2@a.com", "u2", "User2", LocalDate.of(1990, 2, 2)));
+      restTemplate.put("/users/{id}/friends/{friendId}", null, user.id(), friend.id());
+      restTemplate.delete("/users/{id}/friends/{friendId}", user.id(), friend.id());
+        FilmResponse film = createFilm(new CreateFilmRequest("Film", "desc", LocalDate.of(2000, 1, 1), 100, Set.of(new Genre(1L, "Комедия")), new Mpa(1L, "G")));
+          ReviewResponse review = createReview(new CreateReviewRequest("content", false, user.id(), film.id()));
+      restTemplate.put("/reviews", new HttpEntity<>(new UpdateReviewRequest(review.reviewId(), "updated", true, user.id(), film.id())));
+      restTemplate.delete("/reviews/{id}", review.reviewId());
+      restTemplate.put("/films/{id}/like/{userId}", null, film.id(), user.id());
+      restTemplate.delete("/films/{id}/like/{userId}", film.id(), user.id());
+    }
+
+    @Test
+    @DisplayName("Should return 7 events in chronological order")
+    void shouldReturnSevenEvents() {
+      ResponseEntity<EventResponse[]> response = restTemplate.getForEntity("/users/{id}/feed", EventResponse[].class, user.id());
+      assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+      EventResponse[] feed = response.getBody();
+      assertThat(feed).hasSize(7);
+      assertThat(feed[0].eventType()).isEqualTo(EventType.FRIEND);
+      assertThat(feed[0].operation()).isEqualTo(Operation.ADD);
+      assertThat(feed[6].eventType()).isEqualTo(EventType.LIKE);
+      assertThat(feed[6].operation()).isEqualTo(Operation.REMOVE);
     }
   }
 }

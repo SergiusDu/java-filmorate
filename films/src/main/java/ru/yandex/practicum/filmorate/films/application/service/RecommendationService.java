@@ -48,7 +48,6 @@ public class RecommendationService
                                                                     .toList());
 
     return candidates.stream()
-                     .filter(film -> !film.isDeleted())
                      .filter(film -> query.genreId()
                                           .isEmpty() || film.genres()
                                                             .stream()

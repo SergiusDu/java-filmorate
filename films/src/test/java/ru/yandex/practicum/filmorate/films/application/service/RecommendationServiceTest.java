@@ -83,7 +83,6 @@ class RecommendationServiceTest {
                .duration(Duration.ofMinutes(100))
                .genres(Set.of(new Genre(genreId, genreName)))
                .mpa(new Mpa(1L, "PG"))
-               .isDeleted(false)
                .build();
   }
 

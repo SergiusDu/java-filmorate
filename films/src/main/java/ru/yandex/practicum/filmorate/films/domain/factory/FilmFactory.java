@@ -18,7 +18,6 @@ public class FilmFactory {
                .releaseDate(command.releaseDate())
                .duration(Duration.ofMinutes(command.duration()))
                .genres(command.genres())
-               .isDeleted(false)
                .mpa(null)
                .build();
   }

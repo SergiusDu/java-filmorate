@@ -63,7 +63,6 @@ class FilmCompositionServiceTest {
                     LocalDate.of(2020, 1, 1),
                     Duration.ofMinutes(90),
                     genres,
-                    false,
                     mpa);
 
     createFilmCommand = new CreateFilmCommand("Test Film",
@@ -122,7 +121,6 @@ class FilmCompositionServiceTest {
                                 LocalDate.of(2021, 1, 1),
                                 Duration.ofMinutes(100L),
                                 film.genres(),
-                                false,
                                 film.mpa());
     when(filmUseCase.updateFilm(updateFilmCommand)).thenReturn(updatedFilm);
     when(directorUseCase.getDirectorsForFilmIds(Set.of(updatedFilm.id()))).thenReturn(Collections.emptyMap());
@@ -264,7 +262,6 @@ class FilmCompositionServiceTest {
                                  LocalDate.of(2020, 1, 1),
                                  Duration.ofMinutes(120),
                                  Set.of(),
-                                 false,
                                  new Mpa(1L, "G"));
 
       when(userUseCase.findUserById(1L)).thenReturn(Optional.of(user1));

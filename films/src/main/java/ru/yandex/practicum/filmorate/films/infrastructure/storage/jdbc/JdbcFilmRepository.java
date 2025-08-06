@@ -129,7 +129,6 @@ public class JdbcFilmRepository
                             .duration(Duration.ofMinutes((Integer) row.get("duration")))
                             .genres(genres)
                             .mpa(new Mpa((Long) row.get("mpa_id"), (String) row.get("mpa_name")))
-                            .isDeleted(isDeleted)
                             .build();
                })
                .toList();

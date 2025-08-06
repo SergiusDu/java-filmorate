@@ -11,17 +11,16 @@ import java.time.LocalDate;
 import java.util.Set;
 
 /**
- * Represents a film record with validated core information. This record can be constructed using a builder pattern
- * through {@code @Builder} annotation. All fields are validated during construction to ensure data integrity.
- *
- * @param id          The unique identifier for the film (non-null)
- * @param name        The title of the film (non-blank)
- * @param description The plot summary or description of the film (non-blank)
- * @param releaseDate The original release date of the film (non-null)
- * @param duration    The total runtime length of the film (non-null, positive)
- * @param genres      The set of genres classifying the film (optional)
- * @param mpa         The MPAA rating classification of the film
- */
+ Represents a film record with validated core information. This record can be constructed using a builder pattern
+ through
+ {@code @Builder} annotation. All fields are validated during construction to ensure data integrity.
+ @param id The unique identifier for the film (non-null)
+ @param name The title of the film (non-blank)
+ @param description The plot summary or description of the film (non-blank)
+ @param releaseDate The original release date of the film (non-null)
+ @param duration The total runtime length of the film (non-null, positive)
+ @param genres The set of genres classifying the film (optional)
+ @param mpa The MPAA rating classification of the film */
 @Builder
 public record Film(Long id,
                    String name,
@@ -29,13 +28,11 @@ public record Film(Long id,
                    LocalDate releaseDate,
                    Duration duration,
                    Set<Genre> genres,
-                   boolean isDeleted,
                    Mpa mpa) {
 
   /**
-   * Validates all fields during record construction.
-   *
-   * @throws InvalidFilmDataException if any required field is null or blank
+   Validates all fields during record construction.
+   @throws InvalidFilmDataException if any required field is null or blank
    */
   public Film {
     ValidationUtils.notNull(id, msg -> new InvalidFilmDataException("Film id must not be null"));

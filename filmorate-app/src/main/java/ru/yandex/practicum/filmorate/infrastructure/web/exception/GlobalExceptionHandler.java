@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.infrastructure.web.exception;
 
+import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -58,6 +59,15 @@ public class GlobalExceptionHandler {
                                                                            ? fieldError.getDefaultMessage()
                                                                            : "Invalid name"));
     return new ResponseEntity<>(new ValidationErrorResponse(errors),
+                                HttpStatus.BAD_REQUEST);
+  }
+
+  @ExceptionHandler(ConstraintViolationException.class)
+  public ResponseEntity<ErrorResponse> handleConstraintViolationException(ConstraintViolationException ex) {
+    log.error("Constraint violation error: {}",
+              ex.getMessage(),
+              ex);
+    return new ResponseEntity<>(new ErrorResponse(ex.getMessage()),
                                 HttpStatus.BAD_REQUEST);
   }
 

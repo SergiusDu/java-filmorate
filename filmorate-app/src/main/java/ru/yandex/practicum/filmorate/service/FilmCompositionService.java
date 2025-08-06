@@ -17,6 +17,7 @@ import ru.yandex.practicum.filmorate.films.domain.port.UpdateFilmCommand;
 import ru.yandex.practicum.filmorate.infrastructure.web.dto.FilmWithDirectors;
 import ru.yandex.practicum.filmorate.likes.application.port.in.LikeUseCase;
 import ru.yandex.practicum.filmorate.users.application.port.in.UserUseCase;
+import ru.yandex.practicum.filmorate.users.domain.model.User;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -103,9 +104,9 @@ public class FilmCompositionService {
     return enrichFilmsWithDirectors(films);
   }
 
-  public List<Genre> getGenres() {
-    return filmUseCase.getGeners();
-  }
+    public List<Genre> getGenres() {
+        return filmUseCase.getGenres();
+    }
 
   public Genre getGenreById(long id) {
     return filmUseCase.getGenreById(id)
@@ -162,4 +163,9 @@ public class FilmCompositionService {
     List<Film> films = filmUseCase.getFilmsByIds(filmIds);
     return enrichFilmsWithDirectors(films);
   }
+
+    public User getUserOrThrow(long id) {
+        return userUseCase.findUserById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User with id " + id + " not found"));
+    }
 }

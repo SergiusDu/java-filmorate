@@ -11,6 +11,7 @@ import ru.yandex.practicum.filmorate.common.exception.ValidationException;
 import ru.yandex.practicum.filmorate.directors.application.port.in.DirectorUseCase;
 import ru.yandex.practicum.filmorate.directors.domain.model.Director;
 import ru.yandex.practicum.filmorate.films.application.port.in.FilmUseCase;
+import ru.yandex.practicum.filmorate.users.application.port.in.UserUseCase;
 import ru.yandex.practicum.filmorate.films.domain.model.Film;
 import ru.yandex.practicum.filmorate.films.domain.model.value.Genre;
 import ru.yandex.practicum.filmorate.films.domain.model.value.Mpa;
@@ -30,7 +31,8 @@ import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
+
 
 class FilmCompositionServiceTest {
 
@@ -270,9 +272,29 @@ class FilmCompositionServiceTest {
       when(likeService.findLikedFilms(2L)).thenReturn(Set.of(20L, 30L));
       when(filmUseCase.getFilmsByIds(List.of(20L))).thenReturn(List.of(commonFilm));
       when(likeService.getLikeCountsForFilms(Set.of(20L))).thenReturn(Map.of(20L, 2));
-
-      List<Film> result = filmCompositionService.getCommonFilms(1L, 2L);
-      assertThat(result).containsExactly(commonFilm);
-    }
-  }
 }
+        @Test
+        void shouldReturnAllWhenNoFilters() {
+            Film film = new Film(1L, "Test Film", "Description", LocalDate.of(2020, 1, 1),
+                    Duration.ofMinutes(90), Set.of(new Genre(1L, "Drama")), false, new Mpa(1L, "G"));
+
+            FilmRatingQuery query = FilmRatingQuery.of(5, null, null, null, null);
+
+            when(filmUseCase.findPopularFilms(query)).thenReturn(List.of(film));
+
+            List<Film> result = filmCompositionService.getPopularFilms(query);
+
+            assertThat(result).containsExactly(film);
+        }
+
+        @Test
+        void shouldReturnEmptyWhenNoMatchingFilms() {
+            when(likeService.getPopularFilmIds(5)).thenReturn(Set.of());
+            when(filmUseCase.getFilmsByIds(Set.of())).thenReturn(List.of());
+
+            List<Film> result = filmCompositionService.getPopularFilms(defaultQuery);
+
+            assertThat(result).isEmpty();
+        }
+    }
+    }

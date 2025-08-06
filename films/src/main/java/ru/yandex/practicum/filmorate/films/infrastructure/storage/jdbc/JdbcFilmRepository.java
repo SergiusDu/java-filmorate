@@ -166,3 +166,41 @@ public class JdbcFilmRepository
     }
   }
 }
+    private void updateFilmGenres(long filmId, Set<Genre> genres) {
+        jdbcTemplate.update("DELETE FROM film_genres WHERE film_id = ?", filmId);
+        if (genres != null && !genres.isEmpty()) {
+            List<Object[]> batchArgs = genres.stream()
+                    .map(genre -> new Object[]{filmId, genre.id()})
+                    .toList();
+            jdbcTemplate.batchUpdate("INSERT INTO film_genres (film_id, genre_id) VALUES (?, ?)", batchArgs);
+        }
+    }
+
+    public List<Film> findFilmsByGenreIdAndYear(Long genreId, Integer year, Integer count) {
+        List<Film> filmsList = new ArrayList<>();
+
+        String sqlFirstPart = "SELECT f.* " +
+                "FROM likes l " +
+                "JOIN films f ON l.film_id = f.film_id " +
+                "JOIN film_genres fg ON f.film_id = fg.film_id " +
+                "JOIN genres g ON g.genre_id = fg.genre_id\n";
+
+        String sqlSecondPart = "GROUP BY l.film_id " +
+                "ORDER BY COUNT(l.user_id) DESC LIMIT ?";
+
+        String sql = "";
+
+        if (genreId != null && year != null) {
+            sql = sqlFirstPart + "WHERE g.genre_id = ? AND EXTRACT(YEAR FROM f.release_date) = ? \n" + sqlSecondPart;
+            filmsList = mapRowsToFilms(jdbcTemplate.queryForList(sql, genreId, year, count));
+        } else if (genreId != null) {
+            sql = sqlFirstPart + "WHERE g.genre_id = ? \n" + sqlSecondPart;
+            filmsList = mapRowsToFilms(jdbcTemplate.queryForList(sql, genreId, count));
+        } else if (year != null) {
+            sql = sqlFirstPart + "WHERE EXTRACT(YEAR FROM f.release_date) = ? \n" + sqlSecondPart;
+            filmsList = mapRowsToFilms(jdbcTemplate.queryForList(sql, year, count));
+        }
+
+        return filmsList;
+    }
+}

@@ -1,8 +1,6 @@
 package ru.yandex.practicum.filmorate;
 
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -12,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
+import org.springframework.web.client.RestClientException;
 import ru.yandex.practicum.filmorate.films.domain.model.value.Genre;
 import ru.yandex.practicum.filmorate.infrastructure.web.dto.*;
 import ru.yandex.practicum.filmorate.infrastructure.web.exception.ErrorResponse;
@@ -24,21 +23,19 @@ import java.util.stream.Collectors;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ActiveProfiles({"test",
-                 "db"
-})
+@ActiveProfiles({"test", "db"})
 @Sql(scripts = "/cleanup.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 @DisplayName("Filmorate Integration Tests")
 class FilmorateApplicationTest {
 
-  @Autowired
-  private TestRestTemplate restTemplate;
+    @Autowired
+    private TestRestTemplate restTemplate;
 
-  private UserResponse createUser(CreateUserRequest request) {
-    ResponseEntity<UserResponse> response = restTemplate.postForEntity("/users", request, UserResponse.class);
-    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
-    return response.getBody();
-  }
+    private UserResponse createUser(CreateUserRequest request) {
+        ResponseEntity<UserResponse> response = restTemplate.postForEntity("/users", request, UserResponse.class);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        return response.getBody();
+    }
 
   private DirectorResponse createDirector(CreateDirectorRequest request) {
     ResponseEntity<DirectorResponse> response = restTemplate.postForEntity("/directors",
@@ -48,15 +45,15 @@ class FilmorateApplicationTest {
     return response.getBody();
   }
 
-  private FilmResponse createFilm(CreateFilmRequest request) {
-    ResponseEntity<FilmResponse> response = restTemplate.postForEntity("/films", request, FilmResponse.class);
-    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-    return response.getBody();
-  }
+    private FilmResponse createFilm(CreateFilmRequest request) {
+        ResponseEntity<FilmResponse> response = restTemplate.postForEntity("/films", request, FilmResponse.class);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        return response.getBody();
+    }
 
-  @Nested
-  @DisplayName("User API Tests")
-  class UserTests {
+    @Nested
+    @DisplayName("User API Tests")
+    class UserTests {
 
     @Test
     @DisplayName("Should create user successfully")
@@ -66,17 +63,17 @@ class FilmorateApplicationTest {
                                                         "Test User",
                                                         LocalDate.of(1990, 5, 15));
 
-      ResponseEntity<UserResponse> response = restTemplate.postForEntity("/users", request, UserResponse.class);
+            ResponseEntity<UserResponse> response = restTemplate.postForEntity("/users", request, UserResponse.class);
 
-      assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
-      UserResponse body = response.getBody();
-      assertThat(body).isNotNull();
-      assertThat(body.id()).isNotNull();
-      assertThat(body.email()).isEqualTo(request.email());
-      assertThat(body.login()).isEqualTo(request.login());
-      assertThat(body.name()).isEqualTo(request.name());
-      assertThat(body.birthday()).isEqualTo(request.birthday());
-    }
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+            UserResponse body = response.getBody();
+            assertThat(body).isNotNull();
+            assertThat(body.id()).isNotNull();
+            assertThat(body.email()).isEqualTo(request.email());
+            assertThat(body.login()).isEqualTo(request.login());
+            assertThat(body.name()).isEqualTo(request.name());
+            assertThat(body.birthday()).isEqualTo(request.birthday());
+        }
 
     @Test
     @DisplayName("Should fail to create user with invalid login")
@@ -133,13 +130,13 @@ class FilmorateApplicationTest {
                                                                     new HttpEntity<>(updateRequest),
                                                                     UserResponse.class);
 
-      assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-      UserResponse body = response.getBody();
-      assertThat(body).isNotNull();
-      assertThat(body.id()).isEqualTo(createdUser.id());
-      assertThat(body.email()).isEqualTo(updateRequest.email());
-      assertThat(body.login()).isEqualTo(updateRequest.login());
-    }
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+            UserResponse body = response.getBody();
+            assertThat(body).isNotNull();
+            assertThat(body.id()).isEqualTo(createdUser.id());
+            assertThat(body.email()).isEqualTo(updateRequest.email());
+            assertThat(body.login()).isEqualTo(updateRequest.login());
+        }
 
     @Test
     @DisplayName("Should return 404 when updating a non-existent user")
@@ -156,23 +153,23 @@ class FilmorateApplicationTest {
       assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
     }
 
-    @Test
-    @DisplayName("Should get all users")
-    void shouldGetAllUsers() {
-      createUser(new CreateUserRequest("user1@test.com", "user1", "User One", LocalDate.of(1991, 1, 1)));
-      createUser(new CreateUserRequest("user2@test.com", "user2", "User Two", LocalDate.of(1992, 2, 2)));
+        @Test
+        @DisplayName("Should get all users")
+        void shouldGetAllUsers() {
+            createUser(new CreateUserRequest("user1@test.com", "user1", "User One", LocalDate.of(1991, 1, 1)));
+            createUser(new CreateUserRequest("user2@test.com", "user2", "User Two", LocalDate.of(1992, 2, 2)));
 
-      ResponseEntity<UserResponse[]> response = restTemplate.getForEntity("/users", UserResponse[].class);
+            ResponseEntity<UserResponse[]> response = restTemplate.getForEntity("/users", UserResponse[].class);
 
-      assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-      assertThat(response.getBody()).isNotNull();
-      assertThat(response.getBody()).hasSize(2);
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+            assertThat(response.getBody()).isNotNull();
+            assertThat(response.getBody()).hasSize(2);
+        }
     }
-  }
 
-  @Nested
-  @DisplayName("Friendship API Tests")
-  class FriendshipTests {
+    @Nested
+    @DisplayName("Friendship API Tests")
+    class FriendshipTests {
 
     @Test
     @DisplayName("Should add a friend and create a pending request")
@@ -186,7 +183,7 @@ class FilmorateApplicationTest {
                                                             "User Two",
                                                             LocalDate.of(1992, 2, 2)));
 
-      ResponseEntity<Void> response = restTemplate.exchange("/users/{id}/friends/{friendId}",
+            ResponseEntity<Void> response = restTemplate.exchange("/users/{id}/friends/{friendId}",
                                                             HttpMethod.PUT,
                                                             null,
                                                             Void.class,
@@ -218,8 +215,8 @@ class FilmorateApplicationTest {
                                                             "User Two",
                                                             LocalDate.of(1992, 2, 2)));
 
-      restTemplate.put("/users/{id}/friends/{friendId}", null, user1.id(), user2.id());
-      restTemplate.put("/users/{id}/friends/{friendId}", null, user2.id(), user1.id());
+            restTemplate.put("/users/{id}/friends/{friendId}", null, user1.id(), user2.id());
+            restTemplate.put("/users/{id}/friends/{friendId}", null, user2.id(), user1.id());
 
       ResponseEntity<UserResponse[]> user1Friends = restTemplate.getForEntity("/users/{id}/friends",
                                                                               UserResponse[].class,
@@ -245,7 +242,7 @@ class FilmorateApplicationTest {
                                                             LocalDate.of(1992, 2, 2)));
       restTemplate.put("/users/{id}/friends/{friendId}", null, user1.id(), user2.id());
 
-      ResponseEntity<Void> response = restTemplate.exchange("/users/{id}/friends/{friendId}",
+            ResponseEntity<Void> response = restTemplate.exchange("/users/{id}/friends/{friendId}",
                                                             HttpMethod.DELETE,
                                                             null,
                                                             Void.class,
@@ -269,24 +266,24 @@ class FilmorateApplicationTest {
                                                                    "CF",
                                                                    LocalDate.of(1993, 3, 3)));
 
-      restTemplate.put("/users/{id}/friends/{friendId}", null, user1.id(), commonFriend.id());
-      restTemplate.put("/users/{id}/friends/{friendId}", null, commonFriend.id(), user1.id());
-      restTemplate.put("/users/{id}/friends/{friendId}", null, user2.id(), commonFriend.id());
-      restTemplate.put("/users/{id}/friends/{friendId}", null, commonFriend.id(), user2.id());
+            restTemplate.put("/users/{id}/friends/{friendId}", null, user1.id(), commonFriend.id());
+            restTemplate.put("/users/{id}/friends/{friendId}", null, commonFriend.id(), user1.id());
+            restTemplate.put("/users/{id}/friends/{friendId}", null, user2.id(), commonFriend.id());
+            restTemplate.put("/users/{id}/friends/{friendId}", null, commonFriend.id(), user2.id());
 
       ResponseEntity<UserResponse[]> response = restTemplate.getForEntity("/users/{id}/friends/common/{otherId}",
                                                                           UserResponse[].class,
                                                                           user1.id(),
                                                                           user2.id());
 
-      assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-      assertThat(response.getBody()).hasSize(1);
-      assertThat(response.getBody()[0].id()).isEqualTo(commonFriend.id());
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+            assertThat(response.getBody()).hasSize(1);
+            assertThat(response.getBody()[0].id()).isEqualTo(commonFriend.id());
+        }
     }
-  }
 
-  @Nested
-  @DisplayName("Director API Tests")
+    @Nested
+   @DisplayName("Director API Tests")
   class DirectorTests {
     @Test
     @DisplayName("Should create, get, update, and delete a director")
@@ -336,11 +333,11 @@ class FilmorateApplicationTest {
   }
 
   @Nested
-  @DisplayName("Film API Tests")
-  class FilmTests {
+    @DisplayName("Film API Tests")
+    class FilmTests {
 
-    @Test
-    @DisplayName("Should create a film with directors successfully")
+        @Test
+        @DisplayName("Should create a film with directors successfully")
     void shouldCreateFilmWithDirectors() {
       DirectorResponse director = createDirector(new CreateDirectorRequest("Christopher Nolan"));
       Set<DirectorIdDto> directors = Set.of(new DirectorIdDto(director.id()));
@@ -352,9 +349,9 @@ class FilmorateApplicationTest {
                                                         new MpaIdDto(3L),
                                                         directors);
 
-      FilmResponse body = createFilm(request);
+            FilmResponse body = createFilm(request);
 
-      assertThat(body).isNotNull();
+            assertThat(body).isNotNull();
       assertThat(body.id()).isPositive();
       assertThat(body.name()).isEqualTo(request.name());
       assertThat(body.directors()).hasSize(1);
@@ -398,15 +395,15 @@ class FilmorateApplicationTest {
 
       assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
       FilmResponse updatedFilm = response.getBody();
-      assertThat(updatedFilm).isNotNull();
-      assertThat(updatedFilm.name()).isEqualTo("Updated Film");
+            assertThat(updatedFilm).isNotNull();
+            assertThat(updatedFilm.name()).isEqualTo("Updated Film");
       assertThat(updatedFilm.directors()).extracting(DirectorResponse::id)
                                          .containsExactly(dir2.id());
-    }
+        }
 
-    @Test
-    @DisplayName("Should fail to create film with blank name")
-    void shouldFailWithBlankName() {
+        @Test
+        @DisplayName("Should fail to create film with blank name")
+        void shouldFailWithBlankName() {
       CreateFilmRequest request = new CreateFilmRequest(" ",
                                                         "Desc",
                                                         LocalDate.of(2020, 1, 1),
@@ -420,10 +417,10 @@ class FilmorateApplicationTest {
       assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     }
 
-    @Test
-    @DisplayName("Should fail to create film with too long description")
-    void shouldFailWithLongDescription() {
-      String longDesc = "a".repeat(201);
+        @Test
+        @DisplayName("Should fail to create film with too long description")
+        void shouldFailWithLongDescription() {
+            String longDesc = "a".repeat(201);
       CreateFilmRequest request = new CreateFilmRequest("Film",
                                                         longDesc,
                                                         LocalDate.of(2020, 1, 1),
@@ -431,13 +428,13 @@ class FilmorateApplicationTest {
                                                         null,
                                                         new MpaIdDto(1L),
                                                         null);
-      ResponseEntity<ErrorResponse> response = restTemplate.postForEntity("/films", request, ErrorResponse.class);
-      assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-    }
+            ResponseEntity<ErrorResponse> response = restTemplate.postForEntity("/films", request, ErrorResponse.class);
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        }
 
-    @Test
-    @DisplayName("Should fail to create film with invalid release date")
-    void shouldFailWithInvalidDate() {
+        @Test
+        @DisplayName("Should fail to create film with invalid release date")
+        void shouldFailWithInvalidDate() {
       CreateFilmRequest request = new CreateFilmRequest("Film",
                                                         "Desc",
                                                         LocalDate.of(1890, 1, 1),
@@ -451,9 +448,9 @@ class FilmorateApplicationTest {
       assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     }
 
-    @Test
-    @DisplayName("Should fail to create film with non-existent MPA")
-    void shouldFailWithInvalidMpa() {
+        @Test
+        @DisplayName("Should fail to create film with non-existent MPA")
+        void shouldFailWithInvalidMpa() {
       CreateFilmRequest request = new CreateFilmRequest("Film",
                                                         "Desc",
                                                         LocalDate.of(2000, 1, 1),
@@ -476,9 +473,9 @@ class FilmorateApplicationTest {
                                                         genres,
                                                         new MpaIdDto(1L),
                                                         null);
-      ResponseEntity<ErrorResponse> response = restTemplate.postForEntity("/films", request, ErrorResponse.class);
-      assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
-    }
+            ResponseEntity<ErrorResponse> response = restTemplate.postForEntity("/films", request, ErrorResponse.class);
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        }
 
     @Test
     @DisplayName("Should get popular films")
@@ -508,14 +505,15 @@ class FilmorateApplicationTest {
                                                          new MpaIdDto(1L),
                                                          null));
 
-      restTemplate.put("/films/{id}/like/{userId}", null, f2.id(), u1.id());
-      restTemplate.put("/films/{id}/like/{userId}", null, f2.id(), u2.id());
-      restTemplate.put("/films/{id}/like/{userId}", null, f2.id(), u3.id());
+            // Likes: f2 (3), f3 (2), f1 (1)
+            restTemplate.put("/films/{id}/like/{userId}", null, f2.id(), u1.id());
+            restTemplate.put("/films/{id}/like/{userId}", null, f2.id(), u2.id());
+            restTemplate.put("/films/{id}/like/{userId}", null, f2.id(), u3.id());
 
-      restTemplate.put("/films/{id}/like/{userId}", null, f3.id(), u1.id());
-      restTemplate.put("/films/{id}/like/{userId}", null, f3.id(), u2.id());
+            restTemplate.put("/films/{id}/like/{userId}", null, f3.id(), u1.id());
+            restTemplate.put("/films/{id}/like/{userId}", null, f3.id(), u2.id());
 
-      restTemplate.put("/films/{id}/like/{userId}", null, f1.id(), u1.id());
+            restTemplate.put("/films/{id}/like/{userId}", null, f1.id(), u1.id());
 
       ResponseEntity<FilmResponse[]> response = restTemplate.getForEntity("/films/popular?count=3",
                                                                           FilmResponse[].class);
@@ -526,12 +524,12 @@ class FilmorateApplicationTest {
       assertThat(popularIds).containsExactly(f2.id(), f3.id(), f1.id());
     }
 
-    @Test
-    @DisplayName("Should get director's films sorted by year")
-    void shouldGetDirectorFilmsSortedByYear() {
+        @Test
+        @DisplayName("Should get director's films sorted by year")
+        void shouldGetDirectorFilmsSortedByYear() {
       DirectorResponse director = createDirector(new CreateDirectorRequest("Test Director"));
       Set<DirectorIdDto> directorSet = Set.of(new DirectorIdDto(director.id()));
-      FilmResponse film2000 = createFilm(new CreateFilmRequest("Film 2000",
+            FilmResponse film2000 = createFilm(new CreateFilmRequest("Film 2000",
                                                                "d",
                                                                LocalDate.of(2000, 1, 1),
                                                                100L,
@@ -546,11 +544,11 @@ class FilmorateApplicationTest {
                                                                new MpaIdDto(1L),
                                                                directorSet));
 
-      ResponseEntity<FilmResponse[]> response = restTemplate.getForEntity("/films/director/{id}?sortBy=year",
+            ResponseEntity<FilmResponse[]> response = restTemplate.getForEntity("/films/director/{id}?sortBy=year",
                                                                           FilmResponse[].class,
                                                                           director.id());
 
-      assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
       assertThat(response.getBody()).isNotNull();
       assertThat(Arrays.stream(response.getBody())
                        .map(FilmResponse::id)
@@ -579,19 +577,20 @@ class FilmorateApplicationTest {
                                                             new MpaIdDto(1L),
                                                             directorSet));
 
-      restTemplate.put("/films/{id}/like/{userId}", null, film2.id(), user1.id());
-      restTemplate.put("/films/{id}/like/{userId}", null, film2.id(), user2.id());
+            restTemplate.put("/films/{id}/like/{userId}", null, film2.id(), user1.id());
+            restTemplate.put("/films/{id}/like/{userId}", null, film2.id(), user2.id());
       restTemplate.put("/films/{id}/like/{userId}", null, film1.id(), user1.id());
 
       ResponseEntity<FilmResponse[]> response = restTemplate.getForEntity("/films/director/{id}?sortBy=likes",
                                                                           FilmResponse[].class,
                                                                           director.id());
 
-      assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-      assertThat(response.getBody()).isNotNull();
-      assertThat(Arrays.stream(response.getBody())
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+            assertThat(response.getBody()).isNotNull();
+            assertThat(Arrays.stream(response.getBody())
                        .map(FilmResponse::id)
                        .collect(Collectors.toList())).containsExactly(film2.id(), film1.id());
+        }
     }
   }
 
@@ -675,20 +674,159 @@ class FilmorateApplicationTest {
 
       ResponseEntity<FilmResponse> response = restTemplate.postForEntity("/films", request, FilmResponse.class);
       assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-      assertThat(response.getBody()
+        assertThat(response.getBody()
                          .duration()).isEqualTo(durationInMinutes);
     }
-  }
 
-  @Nested
-  @DisplayName("Recommendation API Tests")
-  class RecommendationTests {
+    @Nested
+    @DisplayName("Most Popular API Tests")
+    class MostPopularTests {
 
-    @Test
-    @DisplayName("Should return recommended films based on similar user")
-    void shouldReturnRecommendedFilms() {
-      UserResponse user1 = createUser(new CreateUserRequest("u1@test.com", "u1", "User 1", LocalDate.of(1990, 1, 1)));
-      UserResponse user2 = createUser(new CreateUserRequest("u2@test.com", "u2", "User 2", LocalDate.of(1991, 1, 1)));
+        private UserResponse user1;
+        private UserResponse user2;
+        private UserResponse user3;
+
+        private FilmResponse film1;
+        private FilmResponse film2;
+        private FilmResponse film3;
+        private FilmResponse film4;
+        private FilmResponse film5;
+
+        @BeforeEach
+        void setUp() {
+            user1 = createUser(new CreateUserRequest("newuser1@mail.com", "user1", "user", LocalDate.of(1990, 1, 1)));
+            user2 = createUser(new CreateUserRequest("newuser2@mail.com", "user2", "user", LocalDate.of(1990, 1, 1)));
+            user3 = createUser(new CreateUserRequest("newuser3@mail.com", "user3", "user", LocalDate.of(1990, 1, 1)));
+
+            film1 = createFilm(new CreateFilmRequest("Film One", "desc", LocalDate.of(1990, 1, 1), 100,
+                    Set.of(new Genre(1L, "Комедия")), new Mpa(1L, "G")));
+            film2 = createFilm(new CreateFilmRequest("Film Two", "desc", LocalDate.of(1990, 1, 1), 100,
+                    Set.of(new Genre(1L, "Комедия")), new Mpa(1L, "G")));
+            film3 = createFilm(new CreateFilmRequest("Film Three", "desc", LocalDate.of(2000, 1, 1), 100,
+                    Set.of(new Genre(1L, "Комедия")), new Mpa(1L, "G")));
+            film4 = createFilm(new CreateFilmRequest("Film Four", "desc", LocalDate.of(2000, 1, 1), 100,
+                    Set.of(new Genre(2L, "Драма")), new Mpa(1L, "G")));
+            film5 = createFilm(new CreateFilmRequest("Film Five", "desc", LocalDate.of(2000, 1, 1), 100,
+                    Set.of(new Genre(2L, "Драма")), new Mpa(1L, "G")));
+
+            like(film1, user1);
+            like(film1, user2);
+            like(film2, user1);
+            like(film2, user3);
+            like(film3, user1);
+            like(film4, user1);
+            like(film4, user3);
+            like(film5, user1);
+            like(film5, user2);
+            like(film5, user3);
+        }
+
+        @Test
+        @DisplayName("Should return top 2 films for Комедия / 1990")
+        void shouldFindTopPopularFilmsByGenreAndYear() {
+            // Setup: ensure film1 receives 2 likes, film2 receives 1 like
+            like(film1, user1);
+            like(film1, user2);
+            like(film2, user1);
+
+            ResponseEntity<FilmResponse[]> response = restTemplate.getForEntity(
+                    "/films/popular?count=2&genreId=1&year=1990", FilmResponse[].class
+            );
+
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+            List<Long> returnedIds = Arrays.stream(Objects.requireNonNull(response.getBody()))
+                    .map(FilmResponse::id).toList();
+
+            assertThat(returnedIds)
+                    .containsExactly(film1.id(), film2.id());
+            assertThat(response.getBody()).hasSize(2);
+        }
+
+        @Test
+        @DisplayName("Most popular films Genre")
+        void shouldFindFilmsByGenre() {
+            ResponseEntity<FilmResponse[]> getResponse = restTemplate.getForEntity(
+                    "/films/popular?genreId={genreId}", FilmResponse[].class, 1L);
+            assertThat(getResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
+            assertThat(getResponse.getBody()).hasSize(3);
+        }
+
+        @Test
+        @DisplayName("Most popular films year")
+        void shouldFindFilmsByYear() {
+            ResponseEntity<FilmResponse[]> getResponse = restTemplate.getForEntity(
+                    "/films/popular?year={year}", FilmResponse[].class, 2000);
+            assertThat(getResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
+            assertThat(getResponse.getBody()).hasSize(3);
+        }
+
+        @Test
+        @DisplayName("Most popular films Genre/Year invalid count")
+        void shouldFindFilmsInvalidCount() {
+            Assertions.assertThrows(RestClientException.class, () -> {
+                restTemplate.getForEntity(
+                        "/films/popular?count={count}&genreId={genreId}&year={year}",
+                        FilmResponse[].class,
+                        -1,
+                        1L,
+                        1990);
+            });
+        }
+
+        @Test
+        @DisplayName("Most popular films Genre/Year invalid year")
+        void shouldFindFilmsInvalidYear() {
+            int nextYear = LocalDate.now().getYear() + 1;
+
+            Assertions.assertThrows(RestClientException.class, () -> {
+                restTemplate.getForEntity(
+                        "/films/popular?count={count}&genreId={genreId}&year={year}",
+                        FilmResponse[].class,
+                        10,
+                        1L,
+                        nextYear);
+            });
+
+            Assertions.assertThrows(RestClientException.class, () -> {
+                restTemplate.getForEntity(
+                        "/films/popular?count={count}&genreId={genreId}&year={year}",
+                        FilmResponse[].class,
+                        10,
+                        1L,
+                        1850);
+            });
+        }
+
+        @Test
+        @DisplayName("Should return 200 with empty list for unknown genre")
+        void shouldReturnEmptyListForUnknownGenre() {
+            ResponseEntity<FilmResponse[]> response = restTemplate.getForEntity(
+                    "/films/popular?count={count}&genreId={genreId}&year={year}",
+                    FilmResponse[].class,
+                    10,
+                    999999999L,
+                    1990);
+
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+            assertThat(response.getBody()).isEmpty();
+        }
+
+        private void like(FilmResponse film, UserResponse user) {
+            restTemplate.put("/films/{id}/like/{userId}", null, film.id(), user.id());
+        }
+    }
+
+
+    @Nested
+    @DisplayName("Recommendation API Tests")
+    class RecommendationTests {
+
+        @Test
+        @DisplayName("Should return recommended films based on similar user")
+        void shouldReturnRecommendedFilms() {
+            UserResponse user1 = createUser(new CreateUserRequest("u1@test.com", "u1", "User 1", LocalDate.of(1990, 1, 1)));
+            UserResponse user2 = createUser(new CreateUserRequest("u2@test.com", "u2", "User 2", LocalDate.of(1991, 1, 1)));
 
       FilmResponse film1 = createFilm(new CreateFilmRequest("Film 1",
                                                             "desc",
@@ -712,31 +850,31 @@ class FilmorateApplicationTest {
                                                             new MpaIdDto(1L),
                                                             null));
 
-      restTemplate.put("/films/{id}/like/{userId}", null, film1.id(), user1.id());
-      restTemplate.put("/films/{id}/like/{userId}", null, film1.id(), user2.id());
-      restTemplate.put("/films/{id}/like/{userId}", null, film2.id(), user2.id());
-      restTemplate.put("/films/{id}/like/{userId}", null, film3.id(), user2.id());
+            restTemplate.put("/films/{id}/like/{userId}", null, film1.id(), user1.id());
+            restTemplate.put("/films/{id}/like/{userId}", null, film1.id(), user2.id());
+            restTemplate.put("/films/{id}/like/{userId}", null, film2.id(), user2.id());
+            restTemplate.put("/films/{id}/like/{userId}", null, film3.id(), user2.id());
 
       ResponseEntity<FilmResponse[]> response = restTemplate.getForEntity("/users/{id}/recommendations",
                                                                           FilmResponse[].class,
                                                                           user1.id());
 
-      assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-      FilmResponse[] recommendations = response.getBody();
-      assertThat(recommendations).isNotNull();
-      assertThat(recommendations).hasSize(2);
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+            FilmResponse[] recommendations = response.getBody();
+            assertThat(recommendations).isNotNull();
+            assertThat(recommendations).hasSize(2);
 
-      List<Long> recommendedIds = Arrays.stream(recommendations)
+            List<Long> recommendedIds = Arrays.stream(recommendations)
                                         .map(FilmResponse::id)
                                         .toList();
-      assertThat(recommendedIds).containsExactlyInAnyOrder(film2.id(), film3.id());
-    }
+            assertThat(recommendedIds).containsExactlyInAnyOrder(film2.id(), film3.id());
+        }
 
-    @Test
-    @DisplayName("Should apply filters in recommendation query")
-    void shouldApplyFilters() {
-      UserResponse user1 = createUser(new CreateUserRequest("filter1@test.com", "f1", "F1", LocalDate.of(1990, 1, 1)));
-      UserResponse user2 = createUser(new CreateUserRequest("filter2@test.com", "f2", "F2", LocalDate.of(1991, 1, 1)));
+        @Test
+        @DisplayName("Should apply filters in recommendation query")
+        void shouldApplyFilters() {
+            UserResponse user1 = createUser(new CreateUserRequest("filter1@test.com", "f1", "F1", LocalDate.of(1990, 1, 1)));
+            UserResponse user2 = createUser(new CreateUserRequest("filter2@test.com", "f2", "F2", LocalDate.of(1991, 1, 1)));
 
       FilmResponse film1 = createFilm(new CreateFilmRequest("F1",
                                                             "d",
@@ -760,26 +898,26 @@ class FilmorateApplicationTest {
                                                             new MpaIdDto(1L),
                                                             null));
 
-      restTemplate.put("/films/{id}/like/{userId}", null, film2.id(), user1.id());
+            restTemplate.put("/films/{id}/like/{userId}", null, film2.id(), user1.id());
 
-      restTemplate.put("/films/{id}/like/{userId}", null, film1.id(), user2.id());
-      restTemplate.put("/films/{id}/like/{userId}", null, film2.id(), user2.id());
-      restTemplate.put("/films/{id}/like/{userId}", null, film3.id(), user2.id());
+            restTemplate.put("/films/{id}/like/{userId}", null, film1.id(), user2.id());
+            restTemplate.put("/films/{id}/like/{userId}", null, film2.id(), user2.id());
+            restTemplate.put("/films/{id}/like/{userId}", null, film3.id(), user2.id());
 
-      String url = "/users/{id}/recommendations?genreId=1&year=2020&limit=1";
-      ResponseEntity<FilmResponse[]> response = restTemplate.getForEntity(url, FilmResponse[].class, user1.id());
+            String url = "/users/{id}/recommendations?genreId=1&year=2020&limit=1";
+            ResponseEntity<FilmResponse[]> response = restTemplate.getForEntity(url, FilmResponse[].class, user1.id());
 
-      assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-      FilmResponse[] recommendations = response.getBody();
-      assertThat(recommendations).isNotNull();
-      assertThat(recommendations).hasSize(1);
-      assertThat(recommendations[0].id()).isEqualTo(film1.id());
-    }
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+            FilmResponse[] recommendations = response.getBody();
+            assertThat(recommendations).isNotNull();
+            assertThat(recommendations).hasSize(1);
+            assertThat(recommendations[0].id()).isEqualTo(film1.id());
+        }
 
-    @Test
-    @DisplayName("Should return empty list if user has no liked films")
-    void shouldReturnEmptyIfNoLikes() {
-      UserResponse user = createUser(new CreateUserRequest("nolikes@test.com",
+        @Test
+        @DisplayName("Should return empty list if user has no liked films")
+        void shouldReturnEmptyIfNoLikes() {
+            UserResponse user = createUser(new CreateUserRequest("nolikes@test.com",
                                                            "nolikes",
                                                            "No Likes",
                                                            LocalDate.of(1990, 1, 1)));
@@ -788,16 +926,16 @@ class FilmorateApplicationTest {
                                                                           FilmResponse[].class,
                                                                           user.id());
 
-      assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-      assertThat(response.getBody()).isNotNull()
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+            assertThat(response.getBody()).isNotNull()
                                     .isEmpty();
-    }
+        }
 
-    @Test
-    @DisplayName("Should return empty list if no similar user found")
-    void shouldReturnEmptyIfNoSimilarUser() {
-      UserResponse u1 = createUser(new CreateUserRequest("s1@test.com", "s1", "Solo 1", LocalDate.of(1990, 1, 1)));
-      UserResponse u2 = createUser(new CreateUserRequest("s2@test.com", "s2", "Solo 2", LocalDate.of(1991, 1, 1)));
+        @Test
+        @DisplayName("Should return empty list if no similar user found")
+        void shouldReturnEmptyIfNoSimilarUser() {
+            UserResponse u1 = createUser(new CreateUserRequest("s1@test.com", "s1", "Solo 1", LocalDate.of(1990, 1, 1)));
+            UserResponse u2 = createUser(new CreateUserRequest("s2@test.com", "s2", "Solo 2", LocalDate.of(1991, 1, 1)));
 
       FilmResponse f1 = createFilm(new CreateFilmRequest("Only For U1",
                                                          "d",
@@ -814,16 +952,16 @@ class FilmorateApplicationTest {
                                                          new MpaIdDto(1L),
                                                          null));
 
-      restTemplate.put("/films/{id}/like/{userId}", null, f1.id(), u1.id());
-      restTemplate.put("/films/{id}/like/{userId}", null, f2.id(), u2.id());
+            restTemplate.put("/films/{id}/like/{userId}", null, f1.id(), u1.id());
+            restTemplate.put("/films/{id}/like/{userId}", null, f2.id(), u2.id());
 
       ResponseEntity<FilmResponse[]> response = restTemplate.getForEntity("/users/{id}/recommendations",
                                                                           FilmResponse[].class,
                                                                           u1.id());
 
-      assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-      assertThat(response.getBody()).isNotNull()
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+            assertThat(response.getBody()).isNotNull()
                                     .isEmpty();
+        }
     }
-  }
 }

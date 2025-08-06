@@ -7,6 +7,7 @@ import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.common.events.UserCreatedEvent;
+import ru.yandex.practicum.filmorate.common.exception.ResourceNotFoundException;
 import ru.yandex.practicum.filmorate.users.application.port.in.UserUseCase;
 import ru.yandex.practicum.filmorate.users.domain.model.User;
 import ru.yandex.practicum.filmorate.users.domain.port.CreateUserCommand;
@@ -20,7 +21,8 @@ import java.util.Set;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class UserService implements UserUseCase {
+public class UserService
+    implements UserUseCase {
   private final UserRepository userRepository;
   private final ApplicationEventPublisher eventPublisher;
 
@@ -59,5 +61,12 @@ public class UserService implements UserUseCase {
   @Override
   public List<User> findUsersByIds(Set<Long> ids) {
     return userRepository.findByIds(ids);
+  }
+
+  @Override
+  public void deleteUserById(long userId) {
+    if (!userRepository.deleteById(userId)) {
+      throw new ResourceNotFoundException("User with id " + userId + " not found.");
+    }
   }
 }

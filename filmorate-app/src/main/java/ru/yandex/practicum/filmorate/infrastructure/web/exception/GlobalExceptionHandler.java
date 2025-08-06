@@ -74,7 +74,6 @@ public class GlobalExceptionHandler {
     log.error("Constraint violation error: {}", ex.getMessage(), ex);
     return new ResponseEntity<>(new ErrorResponse(ex.getMessage()), HttpStatus.BAD_REQUEST);
   }
-  }
 
   @ExceptionHandler(Throwable.class)
   public ResponseEntity<ErrorResponse> handleUncaughtException(Throwable e) {

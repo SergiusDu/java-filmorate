@@ -47,21 +47,21 @@ class FilmCompositionServiceTest {
     void setUp() {
         MockitoAnnotations.openMocks(this);
         film = new Film(
-            1L,
-            "Test Film",
-            "Description",
-            LocalDate.of(2020, 1, 1),
-            Duration.ofMinutes(90),
-            Set.of(new Genre(1L, "Drama")),
-            false,
-            new Mpa(1L, "G")
+                1L,
+                "Test Film",
+                "Description",
+                LocalDate.of(2020, 1, 1),
+                Duration.ofMinutes(90),
+                Set.of(new Genre(1L, "Drama")),
+                false,
+                new Mpa(1L, "G")
         );
         user = new User(
-            2L,
-            new Email("user@example.com"),
-            new Login("userLogin"),
-            "User Name",
-            LocalDate.of(1990, 1, 1)
+                2L,
+                new Email("user@example.com"),
+                new Login("userLogin"),
+                "User Name",
+                LocalDate.of(1990, 1, 1)
         );
     }
 
@@ -215,12 +215,12 @@ class FilmCompositionServiceTest {
         @Test
         void shouldReturnPopularFilmsFilteredByGenreAndYear() {
             Film matchingFilm = new Film(
-                1L, "Match", "Desc",
-                LocalDate.of(2020, 1, 1),
-                Duration.ofMinutes(90),
-                Set.of(new Genre(10L, "Comedy")),
-                false,
-                new Mpa(1L, "PG")
+                    1L, "Match", "Desc",
+                    LocalDate.of(2020, 1, 1),
+                    Duration.ofMinutes(90),
+                    Set.of(new Genre(10L, "Comedy")),
+                    false,
+                    new Mpa(1L, "PG")
             );
             FilmRatingQuery query = FilmRatingQuery.of(5, 10L, 2020, null, null);
             when(filmUseCase.findPopularFilms(query)).thenReturn(List.of(matchingFilm));
@@ -232,12 +232,12 @@ class FilmCompositionServiceTest {
         @Test
         void shouldReturnAllWhenNoFilters() {
             Film f = new Film(
-                1L, "Test Film", "Description",
-                LocalDate.of(2020, 1, 1),
-                Duration.ofMinutes(90),
-                Set.of(new Genre(1L, "Drama")),
-                false,
-                new Mpa(1L, "G")
+                    1L, "Test Film", "Description",
+                    LocalDate.of(2020, 1, 1),
+                    Duration.ofMinutes(90),
+                    Set.of(new Genre(1L, "Drama")),
+                    false,
+                    new Mpa(1L, "G")
             );
             FilmRatingQuery query = FilmRatingQuery.of(5, null, null, null, null);
             when(filmUseCase.findPopularFilms(query)).thenReturn(List.of(f));

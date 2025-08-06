@@ -30,8 +30,8 @@ public interface FilmUseCase {
     Optional<Mpa> getMpaById(long id);
 
     List<Film> findPopularFilms(FilmRatingQuery query);
-    
+
     List<Film> getRecommendations(RecommendationQuery query);
-    
-    void deleteFilmById(long filmId);
+
+    List<Mpa> getMpas();
 }

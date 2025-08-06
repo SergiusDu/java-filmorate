@@ -112,13 +112,4 @@ public class FilmService implements FilmUseCase {
             }
         }
     }
-
-  }
-    @Override
-    public void deleteFilmById(long filmId) {
-        if (!filmRepository.deleteById(filmId)) {
-            throw new ResourceNotFoundException("Film with id " + filmId + " not found");
-        }
-    }
-
 }

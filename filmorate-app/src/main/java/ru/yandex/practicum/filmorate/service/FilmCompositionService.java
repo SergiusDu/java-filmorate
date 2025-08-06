@@ -15,6 +15,7 @@ import ru.yandex.practicum.filmorate.films.domain.port.CreateFilmCommand;
 import ru.yandex.practicum.filmorate.films.domain.port.UpdateFilmCommand;
 import ru.yandex.practicum.filmorate.likes.application.port.in.LikeUseCase;
 import ru.yandex.practicum.filmorate.users.application.port.in.UserUseCase;
+import ru.yandex.practicum.filmorate.users.domain.model.User;
 
 import java.util.*;
 
@@ -118,12 +119,12 @@ public class FilmCompositionService {
                 .toList();
     }
 
-    private Film getFilmOrThrow(long id) {
+    public Film getFilmOrThrow(long id) {
         return filmUseCase.findFilmById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Film with id " + id + " not found"));
     }
 
-    private ru.yandex.practicum.filmorate.users.domain.model.User getUserOrThrow(long id) {
+    public User getUserOrThrow(long id) {
         return userUseCase.findUserById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User with id " + id + " not found"));
     }

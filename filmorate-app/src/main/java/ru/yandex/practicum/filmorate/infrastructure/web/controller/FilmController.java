@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.common.enums.SortBy;
+import ru.yandex.practicum.filmorate.films.application.port.in.FilmRatingQuery;
 import ru.yandex.practicum.filmorate.films.application.port.in.RecommendationQuery;
 import ru.yandex.practicum.filmorate.infrastructure.web.dto.CreateFilmRequest;
 import ru.yandex.practicum.filmorate.infrastructure.web.dto.FilmResponse;
@@ -38,6 +39,7 @@ public class FilmController {
   }
 
   @PostMapping
+  @ResponseStatus(HttpStatus.CREATED)
   public FilmResponse createFilm(@Valid @RequestBody CreateFilmRequest request) {
     return filmMapper.toResponse(filmCompositionService.createFilm(filmMapper.toCommand(request)));
   }
@@ -59,27 +61,20 @@ public class FilmController {
   }
 
   @GetMapping("/popular")
-  public List<FilmResponse> getPopularFilms(@RequestParam(defaultValue = "10") int count) {
-    return filmCompositionService.getPopularFilms(count)
+  public List<FilmResponse> getPopularFilmsWithFilters(
+      @RequestParam(defaultValue = "10") @Min(1) @Max(1000) Integer count,
+      @RequestParam(required = false) Long genreId,
+      @RequestParam(required = false) Integer year,
+      @RequestParam(required = false) Long directorId,
+      @RequestParam(defaultValue = "LIKES") FilmRatingQuery.SortBy sortBy
+                                                      ) {
+    var query = FilmRatingQuery.of(count, genreId, year, directorId, sortBy);
+
+    return filmCompositionService.getPopularFilms(query)
                                  .stream()
                                  .map(filmMapper::toResponse)
                                  .toList();
   }
-
-    @GetMapping("/popular")
-    public List<FilmResponse> getPopularFilmsWithFilters(
-            @RequestParam(defaultValue = "10") @Min(1) @Max(1000) Integer count,
-            @RequestParam(required = false) Long genreId,
-            @RequestParam(required = false) Integer year,
-            @RequestParam(required = false) Long directorId,
-            @RequestParam(defaultValue = "LIKES") FilmRatingQuery.SortBy sortBy // ← по умолчанию сортируем по лайкам, как требует бриф
-    ) {
-        var query = FilmRatingQuery.of(count, genreId, year, directorId, sortBy);
-
-        return filmCompositionService.getPopularFilms(query).stream()
-                .map(filmMapper::toResponse)
-                .toList();
-    }
 
   @GetMapping("/{id}")
   public FilmResponse getFilmById(@PathVariable long id) {
@@ -90,9 +85,9 @@ public class FilmController {
   public List<FilmResponse> getCommonFilms(@RequestParam long userId,
                                            @RequestParam long friendId) {
     return filmCompositionService.getCommonFilms(userId, friendId)
-            .stream()
-            .map(filmMapper::toResponse)
-            .toList();
+                                 .stream()
+                                 .map(filmMapper::toResponse)
+                                 .toList();
   }
 
   @GetMapping("/director/{directorId}")
@@ -116,7 +111,8 @@ public class FilmController {
         Optional.ofNullable(year)
     );
 
-    return filmCompositionService.getRecommendations(query).stream()
+    return filmCompositionService.getRecommendations(query)
+                                 .stream()
                                  .map(filmMapper::toResponse)
                                  .toList();
   }

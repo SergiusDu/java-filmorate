@@ -114,33 +114,7 @@ class RecommendationServiceTest {
 
     var result = service.getRecommendations(query);
 
-        assertThat(result).extracting(Film::id).containsExactly(2L);
-    }
-
-    private Film film(Long id) {
-        return filmWith(id, 2020, 1L, "Комедия");
-    }
-
-    private Film filmWith(Long id, int year, Long genreId, String genreName) {
-        Genre genre = null;
-
-        if (genreId != null && genreName != null) {
-            genre = new Genre(genreId, genreName);
-        }
-
-        Set<Genre> genres = (genre != null)
-                ? Set.of(genre)
-                : Set.of(); // гарантированно не содержит null
-
-        return Film.builder()
-                .id(id)
-                .name("Film " + id)
-                .description("Description")
-                .releaseDate(LocalDate.of(year, 1, 1))
-                .duration(Duration.ofMinutes(100))
-                .genres(genres)
-                .mpa(new Mpa(1L, "PG")) // можно тоже обернуть в защиту, если в будущем параметризуешь
-                .isDeleted(false)
-                .build();
-    }
+    assertThat(result).extracting(Film::id)
+                      .containsExactly(2L);
+  }
 }

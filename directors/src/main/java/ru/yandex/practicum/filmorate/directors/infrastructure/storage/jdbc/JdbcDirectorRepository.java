@@ -30,6 +30,7 @@ public class JdbcDirectorRepository
   private static final String FIND_ALL_SQL = """
                                              SELECT director_id, name
                                              FROM directors
+                                             ORDER BY director_id
                                              """;
 
   private static final String FIND_BY_ID_SQL = """

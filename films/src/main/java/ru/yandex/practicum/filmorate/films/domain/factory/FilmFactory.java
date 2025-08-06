@@ -18,7 +18,6 @@ public class FilmFactory {
                .releaseDate(command.releaseDate())
                .duration(Duration.ofMinutes(command.duration()))
                .genres(command.genres())
-               .mpa(null)
                .build();
   }
 
@@ -30,7 +29,6 @@ public class FilmFactory {
                .releaseDate(command.releaseDate())
                .duration(Duration.ofMinutes(command.duration()))
                .genres(command.genres())
-               .mpa(null)
                .build();
   }
 }

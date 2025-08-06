@@ -21,11 +21,12 @@ import java.util.Set;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class FilmService implements FilmUseCase {
-    private final FilmRepository filmRepository;
-    private final GenreRepository genreRepository;
-    private final MpaRepository mpaRepository;
-    private final FilmValidationService filmValidationService;
+public class FilmService
+    implements FilmUseCase {
+  private final FilmRepository filmRepository;
+  private final GenreRepository genreRepository;
+  private final MpaRepository mpaRepository;
+  private final FilmValidationService filmValidationService;
   private final LikeUseCase likeUseCase;
 
   @Override
@@ -53,7 +54,12 @@ public class FilmService implements FilmUseCase {
   }
 
   @Override
-  public List<Genre> getGeners() {
+  public List<Film> getFilmsByIds(List<Long> ids) {
+    return filmRepository.getByIds(ids);
+  }
+
+  @Override
+  public List<Genre> getGenres() {
     return genreRepository.findAll();
   }
 
@@ -76,27 +82,45 @@ public class FilmService implements FilmUseCase {
   public List<Film> findPopularFilms(FilmRatingQuery query) {
     if (query.sortBy() == FilmRatingQuery.SortBy.LIKES) {
       Set<Long> topIds = likeUseCase.getPopularFilmIds(query.limit());
-      return getFilmsByIds(topIds).stream()
-                                  .filter(film -> query.genreId().map(id -> film.hasGenre(id)).orElse(true))
-                                  .filter(film -> query.year().map(year -> film.releaseDate().getYear() == year).orElse(true))
-                                  .toList();
+      return getFilmsByIds(topIds.stream()
+                                 .toList()).stream()
+                                           .filter(film -> query.genreId()
+                                                                .map(id -> film.hasGenre(id))
+                                                                .orElse(true))
+                                           .filter(film -> query.year()
+                                                                .map(year -> film.releaseDate()
+                                                                                 .getYear() == year)
+                                                                .orElse(true))
+                                           .toList();
     }
     return List.of();
   }
 
+  @Override
+  public List<Film> getRecommendations(RecommendationQuery query) {
+    throw new UnsupportedOperationException("Delegated to RecommendationService.");
+  }
 
+  @Override
+  public List<Long> getFilmIdsByFilters(Long genreId, Integer year) {
+    return filmRepository.findFilmIdsByFilters(genreId, year);
+  }
 
-  private void validateFilmDependencies(Set<Genre> genres, Mpa mpa) {
-    if (mpa != null && mpaRepository.findById(mpa.id()).isEmpty()) {
-      throw new ResourceNotFoundException("Mpa with id " + mpa.id() + " not found");
+  private void validateFilmDependencies(Set<Genre> genres, Long mpaId) {
+    if (mpaId != null && mpaRepository.findById(mpaId)
+                                      .isEmpty()) {
+      throw new ResourceNotFoundException("Mpa with id " + mpaId + " not found");
     }
 
     if (genres != null) {
       for (Genre genre : genres) {
-        if (genreRepository.findById(genre.id()).isEmpty()) {
+        if (genreRepository.findById(genre.id())
+                           .isEmpty()) {
           throw new ResourceNotFoundException("Genre with id " + genre.id() + " not found");
         }
       }
     }
   }
+
+
 }

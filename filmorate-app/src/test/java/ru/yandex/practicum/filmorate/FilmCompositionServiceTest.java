@@ -7,11 +7,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import ru.yandex.practicum.filmorate.common.exception.ResourceNotFoundException;
-import ru.yandex.practicum.filmorate.common.exception.ValidationException;
 import ru.yandex.practicum.filmorate.directors.application.port.in.DirectorUseCase;
-import ru.yandex.practicum.filmorate.directors.domain.model.Director;
+import ru.yandex.practicum.filmorate.films.application.port.in.FilmRatingQuery;
 import ru.yandex.practicum.filmorate.films.application.port.in.FilmUseCase;
-import ru.yandex.practicum.filmorate.users.application.port.in.UserUseCase;
 import ru.yandex.practicum.filmorate.films.domain.model.Film;
 import ru.yandex.practicum.filmorate.films.domain.model.value.Genre;
 import ru.yandex.practicum.filmorate.films.domain.model.value.Mpa;
@@ -31,7 +29,8 @@ import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 
 class FilmCompositionServiceTest {
@@ -55,17 +54,18 @@ class FilmCompositionServiceTest {
   @BeforeEach
   void setUp() {
     MockitoAnnotations.openMocks(this);
-
     Set<Genre> genres = Set.of(new Genre(1L, "Drama"));
     Mpa mpa = new Mpa(1L, "G");
 
-    film = new Film(1L,
-                    "Test Film",
-                    "Description",
-                    LocalDate.of(2020, 1, 1),
-                    Duration.ofMinutes(90),
-                    genres,
-                    mpa);
+    film = Film.builder()
+               .id(1L)
+               .name("Test Film")
+               .description("Description")
+               .releaseDate(LocalDate.of(2020, 1, 1))
+               .duration(Duration.ofMinutes(90))
+               .genres(genres)
+               .mpa(mpa)
+               .build();
 
     createFilmCommand = new CreateFilmCommand("Test Film",
                                               "Description",
@@ -95,46 +95,41 @@ class FilmCompositionServiceTest {
 
   @Test
   void shouldReturnAllFilms() {
-    List<Director> directors = Collections.emptyList();
-    FilmWithDirectors filmWithDirectors = new FilmWithDirectors(film, directors);
-
     when(filmUseCase.getAllFilms()).thenReturn(List.of(film));
     when(directorUseCase.getDirectorsForFilmIds(Set.of(1L))).thenReturn(Collections.emptyMap());
-
-    assertThat(filmCompositionService.getAllFilms()).containsExactly(filmWithDirectors);
+    FilmWithDirectors expected = new FilmWithDirectors(film, Collections.emptyList());
+    assertThat(filmCompositionService.getAllFilms()).containsExactly(expected);
   }
 
   @Test
   void shouldCreateFilm() {
     when(filmUseCase.addFilm(createFilmCommand)).thenReturn(film);
     when(directorUseCase.getDirectorsForFilmIds(Set.of(film.id()))).thenReturn(Collections.emptyMap());
-
     FilmWithDirectors expected = new FilmWithDirectors(film, Collections.emptyList());
     FilmWithDirectors actual = filmCompositionService.createFilm(createFilmCommand);
-
     assertThat(actual).isEqualTo(expected);
   }
 
   @Test
   void shouldUpdateFilm() {
-    Film updatedFilm = new Film(1L,
-                                "Updated Film",
-                                "Updated Desc",
-                                LocalDate.of(2021, 1, 1),
-                                Duration.ofMinutes(100L),
-                                film.genres(),
-                                film.mpa());
+    Film updatedFilm = Film.builder()
+                           .id(1L)
+                           .name("Updated Film")
+                           .description("Updated Desc")
+                           .releaseDate(LocalDate.of(2021, 1, 1))
+                           .duration(Duration.ofMinutes(100L))
+                           .genres(film.genres())
+                           .mpa(film.mpa())
+                           .build();
     when(filmUseCase.updateFilm(updateFilmCommand)).thenReturn(updatedFilm);
     when(directorUseCase.getDirectorsForFilmIds(Set.of(updatedFilm.id()))).thenReturn(Collections.emptyMap());
-
     FilmWithDirectors expected = new FilmWithDirectors(updatedFilm, Collections.emptyList());
     FilmWithDirectors actual = filmCompositionService.updateFilm(updateFilmCommand);
-
     assertThat(actual).isEqualTo(expected);
   }
 
   @Nested
-  class LikeOperations {
+  class LikeOperationsTests {
     @Test
     void shouldAddLike() {
       when(filmUseCase.findFilmById(1L)).thenReturn(Optional.of(film));
@@ -166,35 +161,42 @@ class FilmCompositionServiceTest {
   }
 
   @Nested
-  class PopularFilms {
+  class PopularFilmsTests {
     @Test
-    void shouldReturnPopularFilms() {
-      when(likeService.getPopularFilmIds(5)).thenReturn(new LinkedHashSet<>(List.of(1L)));
-      when(filmUseCase.getFilmsByIds(List.of(1L))).thenReturn(List.of(film));
+    void shouldReturnPopularFilmsWithQuery() {
+      FilmRatingQuery query = FilmRatingQuery.of(1, null, null, null, FilmRatingQuery.SortBy.LIKES);
 
-      List<Director> directors = Collections.emptyList();
-      FilmWithDirectors filmWithDirectors = new FilmWithDirectors(film, directors);
-      when(directorUseCase.getDirectorsForFilmIds(Set.of(1L))).thenReturn(Collections.emptyMap());
+      List<Long> filmIds = List.of(film.id());
+      when(filmUseCase.getFilmIdsByFilters(null, null)).thenReturn(filmIds);
+      when(likeService.getLikeCountsForFilms(new HashSet<>(filmIds))).thenReturn(Map.of(film.id(), 10));
+      when(filmUseCase.getFilmsByIds(new ArrayList<>(filmIds))).thenReturn(List.of(film));
+      when(directorUseCase.getDirectorsForFilmIds(Set.of(film.id()))).thenReturn(Collections.emptyMap());
 
-      assertThat(filmCompositionService.getPopularFilms(5)).containsExactly(filmWithDirectors);
+      FilmWithDirectors expected = new FilmWithDirectors(film, Collections.emptyList());
+      List<FilmWithDirectors> result = filmCompositionService.getPopularFilms(query);
+
+      assertThat(result).containsExactly(expected);
     }
 
     @Test
-    void shouldThrowExceptionWhenCountIsNegative() {
-      assertThrows(ValidationException.class, () -> filmCompositionService.getPopularFilms(-1));
+    void shouldReturnEmptyWhenNoMatchingFilmsForQuery() {
+      FilmRatingQuery query = FilmRatingQuery.ofDefault();
+      when(filmUseCase.getFilmIdsByFilters(any(), any())).thenReturn(Collections.emptyList());
+
+      List<FilmWithDirectors> result = filmCompositionService.getPopularFilms(query);
+
+      assertThat(result).isEmpty();
     }
   }
 
   @Nested
-  class Getters {
+  class GetterTests {
     @Test
     void shouldGetFilmById() {
       when(filmUseCase.findFilmById(1L)).thenReturn(Optional.of(film));
       when(directorUseCase.getDirectorsForFilmIds(Set.of(1L))).thenReturn(Collections.emptyMap());
-
       FilmWithDirectors expected = new FilmWithDirectors(film, Collections.emptyList());
       FilmWithDirectors actual = filmCompositionService.getFilmById(1L);
-
       assertThat(actual).isEqualTo(expected);
     }
 
@@ -206,7 +208,7 @@ class FilmCompositionServiceTest {
 
     @Test
     void shouldGetGenres() {
-      when(filmUseCase.getGeners()).thenReturn(List.of());
+      when(filmUseCase.getGenres()).thenReturn(List.of());
       assertThat(filmCompositionService.getGenres()).isEmpty();
     }
 
@@ -258,43 +260,30 @@ class FilmCompositionServiceTest {
                         .name("u2")
                         .birthday(LocalDate.of(1991, 1, 1))
                         .build();
-      Film commonFilm = new Film(20L,
-                                 "Common Film",
-                                 "Desc",
-                                 LocalDate.of(2020, 1, 1),
-                                 Duration.ofMinutes(120),
-                                 Set.of(),
-                                 new Mpa(1L, "G"));
+      Film commonFilm = Film.builder()
+                            .id(20L)
+                            .name("Common Film")
+                            .description("Desc")
+                            .releaseDate(LocalDate.of(2020, 1, 1))
+                            .duration(Duration.ofMinutes(120))
+                            .genres(Set.of())
+                            .mpa(new Mpa(1L, "G"))
+                            .build();
 
       when(userUseCase.findUserById(1L)).thenReturn(Optional.of(user1));
       when(userUseCase.findUserById(2L)).thenReturn(Optional.of(friend));
       when(likeService.findLikedFilms(1L)).thenReturn(Set.of(10L, 20L));
       when(likeService.findLikedFilms(2L)).thenReturn(Set.of(20L, 30L));
-      when(filmUseCase.getFilmsByIds(List.of(20L))).thenReturn(List.of(commonFilm));
-      when(likeService.getLikeCountsForFilms(Set.of(20L))).thenReturn(Map.of(20L, 2));
+
+      List<Long> commonFilmIds = List.of(20L);
+      List<Film> commonFilmsFromRepo = List.of(commonFilm);
+      when(filmUseCase.getFilmsByIds(commonFilmIds)).thenReturn(commonFilmsFromRepo);
+
+      Map<Long, Integer> likeCounts = Map.of(20L, 2);
+      when(likeService.getLikeCountsForFilms(Set.of(20L))).thenReturn(likeCounts);
+
+      List<Film> result = filmCompositionService.getCommonFilms(1L, 2L);
+      assertThat(result).containsExactly(commonFilm);
+    }
+  }
 }
-        @Test
-        void shouldReturnAllWhenNoFilters() {
-            Film film = new Film(1L, "Test Film", "Description", LocalDate.of(2020, 1, 1),
-                    Duration.ofMinutes(90), Set.of(new Genre(1L, "Drama")), false, new Mpa(1L, "G"));
-
-            FilmRatingQuery query = FilmRatingQuery.of(5, null, null, null, null);
-
-            when(filmUseCase.findPopularFilms(query)).thenReturn(List.of(film));
-
-            List<Film> result = filmCompositionService.getPopularFilms(query);
-
-            assertThat(result).containsExactly(film);
-        }
-
-        @Test
-        void shouldReturnEmptyWhenNoMatchingFilms() {
-            when(likeService.getPopularFilmIds(5)).thenReturn(Set.of());
-            when(filmUseCase.getFilmsByIds(Set.of())).thenReturn(List.of());
-
-            List<Film> result = filmCompositionService.getPopularFilms(defaultQuery);
-
-            assertThat(result).isEmpty();
-        }
-    }
-    }

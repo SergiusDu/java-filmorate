@@ -8,7 +8,9 @@ import ru.yandex.practicum.filmorate.common.exception.ResourceNotFoundException;
 import ru.yandex.practicum.filmorate.common.exception.ValidationException;
 import ru.yandex.practicum.filmorate.directors.application.port.in.DirectorUseCase;
 import ru.yandex.practicum.filmorate.directors.domain.model.Director;
+import ru.yandex.practicum.filmorate.films.application.port.in.FilmRatingQuery;
 import ru.yandex.practicum.filmorate.films.application.port.in.FilmUseCase;
+import ru.yandex.practicum.filmorate.films.application.port.in.RecommendationQuery;
 import ru.yandex.practicum.filmorate.films.domain.model.Film;
 import ru.yandex.practicum.filmorate.films.domain.model.value.Genre;
 import ru.yandex.practicum.filmorate.films.domain.model.value.Mpa;
@@ -51,6 +53,10 @@ public class FilmCompositionService {
     return getFilmWithDirectors(film);
   }
 
+  public List<Film> getRecommendations(RecommendationQuery query) {
+    return filmUseCase.getRecommendations(query);
+  }
+
   public List<FilmWithDirectors> getAllFilms() {
     return enrichFilmsWithDirectors(filmUseCase.getAllFilms());
   }
@@ -75,13 +81,13 @@ public class FilmCompositionService {
     return likeService.addLike(filmId, userId);
   }
 
-  private void validateFilmExists(long filmId) {
+  public void validateFilmExists(long filmId) {
     if (filmUseCase.findFilmById(filmId)
                    .isEmpty())
       throw new ResourceNotFoundException("Film with id " + filmId + " not found");
   }
 
-  private void validateUserExists(long userId) {
+  public void validateUserExists(long userId) {
     if (userUseCase.findUserById(userId)
                    .isEmpty())
       throw new ResourceNotFoundException("User with id " + userId + " not found");
@@ -93,20 +99,39 @@ public class FilmCompositionService {
     return likeService.removeLike(filmId, userId);
   }
 
-  public List<FilmWithDirectors> getPopularFilms(int count) {
-    if (count < 0)
-      throw new ValidationException("Count parameter cannot be negative");
+  public List<FilmWithDirectors> getPopularFilms(FilmRatingQuery query) {
+    Long genreId = query.genreId()
+                        .orElse(null);
+    Integer year = query.year()
+                        .orElse(null);
 
-    List<Long> popularFilmIds = likeService.getPopularFilmIds(count)
-                                           .stream()
-                                           .toList();
-    List<Film> films = filmUseCase.getFilmsByIds(popularFilmIds);
-    return enrichFilmsWithDirectors(films);
+    List<Long> filteredFilmIds = filmUseCase.getFilmIdsByFilters(genreId, year);
+
+    if (filteredFilmIds.isEmpty()) {
+      return Collections.emptyList();
+    }
+
+    Map<Long, Integer> likeCounts = likeService.getLikeCountsForFilms(new HashSet<>(filteredFilmIds));
+
+    Set<Long> filmIdsToFetch = new HashSet<>(filteredFilmIds);
+    filmIdsToFetch.addAll(likeCounts.keySet());
+
+    List<Film> films = filmUseCase.getFilmsByIds(new ArrayList<>(filmIdsToFetch));
+
+    List<Film> popularFilms = films.stream()
+                                   .filter(film -> filteredFilmIds.contains(film.id()))
+                                   .sorted(Comparator.comparingInt((Film film) -> likeCounts.getOrDefault(film.id(), 0))
+                                                     .reversed())
+                                   .limit(query.limit())
+                                   .toList();
+
+    return enrichFilmsWithDirectors(popularFilms);
   }
 
-    public List<Genre> getGenres() {
-        return filmUseCase.getGenres();
-    }
+  public List<Genre> getGenres() {
+    return filmUseCase.getGenres();
+  }
+
 
   public Genre getGenreById(long id) {
     return filmUseCase.getGenreById(id)
@@ -164,8 +189,8 @@ public class FilmCompositionService {
     return enrichFilmsWithDirectors(films);
   }
 
-    public User getUserOrThrow(long id) {
-        return userUseCase.findUserById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User with id " + id + " not found"));
-    }
+  public User getUserOrThrow(long id) {
+    return userUseCase.findUserById(id)
+                      .orElseThrow(() -> new ResourceNotFoundException("User with id " + id + " not found"));
+  }
 }

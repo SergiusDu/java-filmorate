@@ -8,7 +8,6 @@ import ru.yandex.practicum.filmorate.films.domain.port.UpdateFilmCommand;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 public interface FilmUseCase {
   Film addFilm(CreateFilmCommand command);
@@ -21,9 +20,7 @@ public interface FilmUseCase {
 
   List<Film> getFilmsByIds(List<Long> ids);
 
-  List<Film> getFilmsByIds(Set<Long> ids);
-
-  List<Genre> getGeners();
+  List<Genre> getGenres();
 
   Optional<Genre> getGenreById(long id);
 
@@ -34,4 +31,6 @@ public interface FilmUseCase {
   List<Film> findPopularFilms(FilmRatingQuery query);
 
   List<Film> getRecommendations(RecommendationQuery query);
+
+  List<Long> getFilmIdsByFilters(Long genreId, Integer year);
 }

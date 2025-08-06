@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.infrastructure.web.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.directors.application.port.in.DirectorUseCase;
 import ru.yandex.practicum.filmorate.infrastructure.web.dto.CreateDirectorRequest;
@@ -33,6 +34,7 @@ public class DirectorController {
   }
 
   @PostMapping
+  @ResponseStatus(HttpStatus.CREATED)
   public DirectorResponse createDirector(@Valid @RequestBody CreateDirectorRequest request) {
     return directorMapper.toResponse(directorUseCase.createDirector(directorMapper.toCommand(request)));
   }

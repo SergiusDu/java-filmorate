@@ -26,6 +26,7 @@
         <module>likes</module>
         <module>reviews</module>
         <module>reaction</module>
+        <module>directors</module>
     </modules>
     <dependencyManagement>
         <dependencies>

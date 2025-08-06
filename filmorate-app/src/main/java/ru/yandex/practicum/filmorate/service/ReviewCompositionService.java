@@ -15,6 +15,7 @@ import ru.yandex.practicum.filmorate.reviews.domain.port.UpdateReviewCommand;
 import ru.yandex.practicum.filmorate.reviews.application.port.in.ReviewUseCase;
 import ru.yandex.practicum.filmorate.events.domain.model.value.Operation;
 
+
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -22,7 +23,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class ReviewCompositionService {
-    private final ReviewUseCase reviewUseCase;
+private final ReviewUseCase reviewUseCase;
     private final ReactionUseCase reactionUseCase;
     private final FilmCompositionService filmService;
     private final UserCompositionService userService;
@@ -32,14 +33,12 @@ public class ReviewCompositionService {
     public Review addReview(CreateReviewCommand command) {
         filmService.validateFilmId(command.filmId());
         userService.validateUserExists(command.userId());
-
-        Optional<Long> existingReviewId = reviewUseCase.checkReviewForFilmExists(command);
-        if (existingReviewId.isPresent()) {
-            long reviewId = existingReviewId.get();
-            reviewUseCase.removeReview(reviewId);
-            domainEventPublisher.publishReviewEvent(command.userId(), Operation.REMOVE, reviewId);
+        Optional<Long> existing = reviewUseCase.checkReviewForFilmExists(command);
+        if (existing.isPresent()) {
+            long id = existing.get();
+            reviewUseCase.removeReview(id);
+            domainEventPublisher.publishReviewEvent(command.userId(), Operation.REMOVE, id);
         }
-
         Review review = reviewUseCase.addReview(command);
         domainEventPublisher.publishReviewEvent(command.userId(), Operation.ADD, review.reviewId());
         return review;
@@ -70,6 +69,7 @@ public class ReviewCompositionService {
 
     public List<Review> getReviewsByFilmId(long filmId) {
         filmService.validateFilmId(filmId);
+
         return reviewUseCase.getReviewsByFilmId(filmId).stream()
                 .sorted(Comparator.comparingInt(Review::useful)).toList();
     }

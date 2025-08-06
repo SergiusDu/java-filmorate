@@ -126,7 +126,5 @@ public class JdbcReviewRepository implements ReviewRepository {
             updateReview(new UpdateReviewCommand(reviewId, review.content(), review.isPositive(),
                     newUseful, review.userId(), review.filmId()));
         }
-        // String sql = "UPDATE reviews SET useful = useful + ? WHERE review_id = ?";
-        // jdbcTemplate.update(sql, delta, reviewId);
     }
 }

@@ -39,8 +39,17 @@ public class JdbcLikeRepository implements LikeRepository {
 
   @Override
   public LinkedHashSet<Long> getPopularFilmIds(int count) {
-    String sql = "SELECT film_id FROM likes GROUP BY film_id ORDER BY COUNT(user_id) DESC LIMIT ?";
-    List<Long> popularIds = jdbcTemplate.queryForList(sql, Long.class, count);
+    int expandedLimit = Math.max(count * 3, 50);
+
+    String sql = """
+      SELECT film_id
+      FROM likes
+      GROUP BY film_id
+      ORDER BY COUNT(user_id) DESC
+      LIMIT ?
+      """;
+
+    List<Long> popularIds = jdbcTemplate.queryForList(sql, Long.class, expandedLimit);
     return new LinkedHashSet<>(popularIds);
   }
 
@@ -56,5 +65,42 @@ public class JdbcLikeRepository implements LikeRepository {
     String sql = "SELECT COUNT(*) FROM likes WHERE film_id = ?";
     Integer count = jdbcTemplate.queryForObject(sql, Integer.class, filmId);
     return count != null && count > 0;
+  }
+
+  @Override
+  public Set<Long> findLikedFilms(long userId) {
+    String sql = "SELECT film_id FROM likes WHERE user_id = ?";
+    return new HashSet<>(jdbcTemplate.queryForList(sql, Long.class, userId));
+  }
+
+  @Override
+  public Map<Long, Integer> getLikeCountsForFilms(Set<Long> filmIds) {
+    if (filmIds == null || filmIds.isEmpty()) return Map.of();
+
+    String inSql = String.join(",", Collections.nCopies(filmIds.size(), "?"));
+    String sql = "SELECT film_id, COUNT(user_id) AS like_count " +
+            "FROM likes WHERE film_id IN (" + inSql + ") " +
+            "GROUP BY film_id";
+
+    Map<Long, Integer> result = new HashMap<>();
+    jdbcTemplate.query(sql, rs -> {
+      result.put(rs.getLong("film_id"), rs.getInt("like_count"));
+    }, filmIds.toArray());
+
+    return result;
+  }
+
+  @Override
+  public Map<Long, Set<Long>> findAllUserFilmLikes() {
+    String sql = "SELECT user_id, film_id FROM likes";
+    List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql);
+
+    Map<Long, Set<Long>> result = new HashMap<>();
+    for (Map<String, Object> row : rows) {
+      Long userId = ((Number) row.get("user_id")).longValue();
+      Long filmId = ((Number) row.get("film_id")).longValue();
+      result.computeIfAbsent(userId, k -> new HashSet<>()).add(filmId);
+    }
+    return result;
   }
 }

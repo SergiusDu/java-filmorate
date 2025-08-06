@@ -26,7 +26,7 @@ public class ReviewCompositionService {
     private final UserCompositionService userService;
 
     public Review addReview(CreateReviewCommand command) {
-        filmService.validateFilmId(command.filmId());
+        filmService.getFilmOrThrow(command.filmId());
         userService.validateUserExists(command.userId());
 
         if (reviewUseCase.checkReviewForFilmExists(command).isPresent()) {
@@ -50,7 +50,7 @@ public class ReviewCompositionService {
     }
 
     public List<Review> getReviewsByFilmId(long filmId) {
-        filmService.validateFilmId(filmId);
+        filmService.getFilmOrThrow(filmId);
         return reviewUseCase.getReviewsByFilmId(filmId).stream()
                 .sorted(Comparator.comparingInt(Review::useful)).toList();
     }

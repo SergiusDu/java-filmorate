@@ -11,23 +11,27 @@ import java.util.Optional;
 import java.util.Set;
 
 public interface FilmUseCase {
-  Film addFilm(CreateFilmCommand command);
+    Film addFilm(CreateFilmCommand command);
 
-  Film updateFilm(UpdateFilmCommand command);
+    Film updateFilm(UpdateFilmCommand command);
 
-  Optional<Film> findFilmById(long filmId);
+    Optional<Film> findFilmById(long filmId);
 
-  List<Film> getAllFilms();
+    List<Film> getAllFilms();
 
-  Optional<Film> getFilmById(long id);
+    Optional<Film> getFilmById(long id);
 
-  List<Film> getFilmsByIds(Set<Long> ids);
+    List<Film> getFilmsByIds(Set<Long> ids);
 
-  List<Genre> getGeners();
+    List<Genre> getGenres();
 
-  Optional<Genre> getGenreById(long id);
+    Optional<Genre> getGenreById(long id);
 
-  List<Mpa> getMpas();
+    List<Mpa> getMpas();
 
-  Optional<Mpa> getMpaById(long id);
+    Optional<Mpa> getMpaById(long id);
+
+    List<Film> findPopularFilms(FilmRatingQuery query);
+
+    List<Film> getRecommendations(RecommendationQuery query);
 }

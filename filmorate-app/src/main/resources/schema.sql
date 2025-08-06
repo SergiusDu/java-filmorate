@@ -70,7 +70,8 @@ CREATE TABLE IF NOT EXISTS reviews
     film_id BIGINT NOT NULL,
     user_id BIGINT NOT NULL,
     FOREIGN KEY (film_id) REFERENCES films (film_id) ON DELETE CASCADE,
-    FOREIGN KEY (user_id) REFERENCES users (user_id) ON DELETE CASCADE
+    FOREIGN KEY (user_id) REFERENCES users (user_id) ON DELETE CASCADE,
+    CONSTRAINT unique_user_film UNIQUE (user_id, film_id)
 );
 
 CREATE TABLE IF NOT EXISTS reactions

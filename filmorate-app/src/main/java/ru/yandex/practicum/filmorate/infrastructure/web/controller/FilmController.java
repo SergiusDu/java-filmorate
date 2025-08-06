@@ -116,4 +116,10 @@ public class FilmController {
                                  .map(filmMapper::toResponse)
                                  .toList();
   }
+
+  @DeleteMapping("/{id}")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public void deleteFilmById(@PathVariable long id) {
+    filmCompositionService.deleteFilmById(id);
+  }
 }

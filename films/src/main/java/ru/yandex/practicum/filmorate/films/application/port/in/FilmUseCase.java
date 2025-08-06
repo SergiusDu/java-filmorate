@@ -33,4 +33,6 @@ public interface FilmUseCase {
   List<Film> getRecommendations(RecommendationQuery query);
 
   List<Long> getFilmIdsByFilters(Long genreId, Integer year);
+
+  void deleteFilmById(long filmId);
 }

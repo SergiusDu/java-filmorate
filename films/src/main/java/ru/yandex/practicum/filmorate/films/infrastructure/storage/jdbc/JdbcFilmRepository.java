@@ -126,6 +126,12 @@ public class JdbcFilmRepository
     return jdbcTemplate.queryForList(sqlBuilder.toString(), Long.class, params.toArray());
   }
 
+  @Override
+  public boolean deleteById(long filmId) {
+    String sql = "DELETE FROM films WHERE film_id = ?";
+    return jdbcTemplate.update(sql, filmId) > 0;
+  }
+
   private void updateFilmGenres(long filmId, Set<Genre> genres) {
     jdbcTemplate.update("DELETE FROM film_genres WHERE film_id = ?", filmId);
     if (genres != null && !genres.isEmpty()) {

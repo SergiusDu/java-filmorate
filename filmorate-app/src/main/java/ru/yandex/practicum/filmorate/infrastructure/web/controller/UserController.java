@@ -5,6 +5,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.common.exception.ResourceNotFoundException;
 import ru.yandex.practicum.filmorate.films.application.port.in.RecommendationQuery;
 import ru.yandex.practicum.filmorate.films.application.port.in.RecommendationUseCase;
 import ru.yandex.practicum.filmorate.infrastructure.web.dto.CreateUserRequest;
@@ -106,5 +107,12 @@ public class UserController {
                                 .stream()
                                 .map(filmMapper::toResponse)
                                 .toList();
+  }
+
+  @GetMapping("/{id}")
+  public UserResponse getUserById(@PathVariable long id) {
+    return userUseCase.findUserById(id)
+                      .map(userMapper::toResponse)
+                      .orElseThrow(() -> new ResourceNotFoundException("User with id " + id + " not found."));
   }
 }

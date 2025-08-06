@@ -47,4 +47,6 @@ public interface FilmRepository {
   List<Film> getByIds(List<Long> ids);
 
   List<Long> findFilmIdsByFilters(Long genreId, Integer year);
+
+  boolean deleteById(long filmId);
 }

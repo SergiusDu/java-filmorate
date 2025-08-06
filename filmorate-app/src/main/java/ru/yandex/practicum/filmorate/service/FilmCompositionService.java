@@ -100,31 +100,38 @@ public class FilmCompositionService {
   }
 
   public List<FilmWithDirectors> getPopularFilms(FilmRatingQuery query) {
-    Long genreId = query.genreId()
-                        .orElse(null);
-    Integer year = query.year()
-                        .orElse(null);
+    List<Long> filmIds = filmUseCase.getFilmIdsByFilters(query.genreId()
+                                                              .orElse(null),
+                                                         query.year()
+                                                              .orElse(null));
 
-    List<Long> filteredFilmIds = filmUseCase.getFilmIdsByFilters(genreId, year);
+    Optional<Long> directorIdOpt = query.directorId();
+    if (directorIdOpt.isPresent()) {
+      Set<Long> directorFilmIds = new HashSet<>(directorUseCase.getFilmIdsByDirector(directorIdOpt.get(),
+                                                                                     SortBy.LIKES));
+      filmIds = filmIds.stream()
+                       .filter(directorFilmIds::contains)
+                       .toList();
+    }
 
-    if (filteredFilmIds.isEmpty()) {
+    if (filmIds.isEmpty()) {
       return Collections.emptyList();
     }
 
-    Map<Long, Integer> likeCounts = likeService.getLikeCountsForFilms(new HashSet<>(filteredFilmIds));
+    Map<Long, Integer> likeCounts = likeService.getLikeCountsForFilms(new HashSet<>(filmIds));
 
-    Set<Long> filmIdsToFetch = new HashSet<>(filteredFilmIds);
-    filmIdsToFetch.addAll(likeCounts.keySet());
+    List<Long> sortedPopularFilmIds = filmIds.stream()
+                                             .sorted(Comparator.comparingInt((Long id) -> likeCounts.getOrDefault(id,
+                                                                                                                  0))
+                                                               .reversed())
+                                             .limit(query.limit())
+                                             .toList();
 
-    List<Film> films = filmUseCase.getFilmsByIds(new ArrayList<>(filmIdsToFetch));
+    if (sortedPopularFilmIds.isEmpty()) {
+      return Collections.emptyList();
+    }
 
-    List<Film> popularFilms = films.stream()
-                                   .filter(film -> filteredFilmIds.contains(film.id()))
-                                   .sorted(Comparator.comparingInt((Film film) -> likeCounts.getOrDefault(film.id(), 0))
-                                                     .reversed())
-                                   .limit(query.limit())
-                                   .toList();
-
+    List<Film> popularFilms = filmUseCase.getFilmsByIds(sortedPopularFilmIds);
     return enrichFilmsWithDirectors(popularFilms);
   }
 
@@ -192,5 +199,9 @@ public class FilmCompositionService {
   public User getUserOrThrow(long id) {
     return userUseCase.findUserById(id)
                       .orElseThrow(() -> new ResourceNotFoundException("User with id " + id + " not found"));
+  }
+
+  public void deleteFilmById(long id) {
+    filmUseCase.deleteFilmById(id);
   }
 }

@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.filmorate.common.events.UserCreatedEvent;
 import ru.yandex.practicum.filmorate.common.exception.ResourceNotFoundException;
 import ru.yandex.practicum.filmorate.users.application.port.in.UserUseCase;
@@ -29,8 +30,7 @@ public class UserService
   @Override
   public User addUser(CreateUserCommand command) {
     User newUser = userRepository.save(command);
-    UserCreatedEvent userCreatedEvent = new UserCreatedEvent(this,
-                                                             newUser.id());
+    UserCreatedEvent userCreatedEvent = new UserCreatedEvent(this, newUser.id());
     logEventPublishing(userCreatedEvent);
     eventPublisher.publishEvent(userCreatedEvent);
     return newUser;
@@ -63,6 +63,7 @@ public class UserService
     return userRepository.findByIds(ids);
   }
 
+  @Transactional
   @Override
   public void deleteUserById(long userId) {
     if (!userRepository.deleteById(userId)) {

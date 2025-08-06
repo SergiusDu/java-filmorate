@@ -106,6 +106,13 @@ public class FilmService
     return filmRepository.findFilmIdsByFilters(genreId, year);
   }
 
+  @Override
+  public void deleteFilmById(long filmId) {
+    if (!filmRepository.deleteById(filmId)) {
+      throw new ResourceNotFoundException("Film with id " + filmId + " not found.");
+    }
+  }
+
   private void validateFilmDependencies(Set<Genre> genres, Long mpaId) {
     if (mpaId != null && mpaRepository.findById(mpaId)
                                       .isEmpty()) {
@@ -121,6 +128,4 @@ public class FilmService
       }
     }
   }
-
-
 }

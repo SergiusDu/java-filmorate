@@ -84,11 +84,6 @@ public class UserController {
                                  .toList();
   }
 
-  @GetMapping("/{id}")
-  public UserResponse getUserById(@PathVariable long id) {
-    return userMapper.toResponse(userCompositionService.getUserById(id));
-  }
-
   /**
    Returns a list of recommended films for the user with optional filters.
    @param id ID of the target user

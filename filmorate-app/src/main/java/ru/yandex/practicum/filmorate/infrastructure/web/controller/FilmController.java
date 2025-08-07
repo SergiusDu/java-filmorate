@@ -3,12 +3,14 @@ package ru.yandex.practicum.filmorate.infrastructure.web.controller;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.common.enums.SortBy;
 import ru.yandex.practicum.filmorate.films.application.port.in.FilmRatingQuery;
+import ru.yandex.practicum.filmorate.films.application.port.in.RecommendationQuery;
 import ru.yandex.practicum.filmorate.infrastructure.web.dto.CreateFilmRequest;
 import ru.yandex.practicum.filmorate.infrastructure.web.dto.FilmResponse;
 import ru.yandex.practicum.filmorate.infrastructure.web.dto.UpdateFilmRequest;
@@ -16,6 +18,7 @@ import ru.yandex.practicum.filmorate.infrastructure.web.mapper.FilmMapper;
 import ru.yandex.practicum.filmorate.service.FilmCompositionService;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/films")

@@ -30,11 +30,11 @@ public class JdbcSearchRepository
     String searchQuery = "%" + query + "%";
 
     if (by.contains("TITLE")) {
-      conditions.add("title LIKE ?");
+      conditions.add("si.title LIKE ?");
       params.add(searchQuery);
     }
     if (by.contains("DIRECTOR")) {
-      conditions.add("directors_names LIKE ?");
+      conditions.add("si.directors_names LIKE ?");
       params.add(searchQuery);
     }
 
@@ -43,7 +43,9 @@ public class JdbcSearchRepository
     }
 
     String whereClause = String.join(" OR ", conditions);
-    String sql = "SELECT film_id FROM search_index WHERE " + whereClause;
+    String sql = "SELECT si.film_id FROM search_index si LEFT JOIN likes l ON si.film_id = l.film_id WHERE " +
+            whereClause + " GROUP BY si.film_id\n" +
+            "ORDER BY COUNT(l.user_id) DESC;";
 
     return jdbcTemplate.queryForList(sql, Long.class, params.toArray());
   }

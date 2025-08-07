@@ -25,7 +25,6 @@ public class JdbcEventRepository implements EventRepository {
             FROM events
             WHERE user_id = ?
             ORDER BY timestamp DESC
-            LIMIT 7
             """;
 
     private static final String FIND_FRIENDS_EVENTS_QUERY = """

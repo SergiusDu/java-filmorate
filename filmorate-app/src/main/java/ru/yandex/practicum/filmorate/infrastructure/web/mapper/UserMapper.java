@@ -15,7 +15,7 @@ public class UserMapper {
     return CreateUserCommand.builder()
                             .email(request.email())
                             .login(request.login())
-                            .name(request.name() != null ? request.name() : request.login())
+                            .name(!request.name().isBlank() ? request.name() : request.login())
                             .birthday(request.birthday())
                             .build();
   }
@@ -25,7 +25,7 @@ public class UserMapper {
                             .id(request.id())
                             .email(request.email())
                             .login(request.login())
-                            .name(request.name() != null ? request.name() : request.login())
+                            .name(!request.name().isBlank() ? request.name() : request.login())
                             .birthday(request.birthday())
                             .build();
   }

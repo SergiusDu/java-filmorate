@@ -78,7 +78,7 @@ public class LikeService implements LikeUseCase {
   /**
    * Returns mapping of filmId to number of likes.
    *
-   * @param filmIds set of film IDs
+   * @param filmId set of film IDs
    * @return map of filmId → like count
    */
   @Override

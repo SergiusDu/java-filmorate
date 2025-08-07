@@ -59,6 +59,12 @@ public class JdbcEventRepository implements EventRepository {
     }
 
     private Event mapRowToEvent(java.sql.ResultSet rs, int rowNum) throws java.sql.SQLException {
-        return Event.builder().eventId(rs.getLong("event_id")).timestamp(rs.getLong("timestamp")).userId(rs.getLong("user_id")).eventType(EventType.valueOf(rs.getString("event_type"))).operation(Operation.valueOf(rs.getString("operation"))).entityId(rs.getLong("entity_id")).build();
-    }
+        return Event.builder()
+                .eventId(rs.getLong("event_id"))
+                .timestamp(rs.getLong("timestamp"))
+                .userId(rs.getLong("user_id"))
+                .eventType(EventType.valueOf(rs.getString("event_type")))
+                .operation(Operation.valueOf(rs.getString("operation")))
+                .entityId(rs.getLong("entity_id"))
+                .build();    }
 }

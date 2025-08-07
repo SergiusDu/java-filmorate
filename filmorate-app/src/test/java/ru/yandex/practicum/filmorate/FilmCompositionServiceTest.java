@@ -53,7 +53,6 @@ class FilmCompositionServiceTest {
   private ApplicationEventPublisher eventPublisher;
   @Mock
   private SearchUseCase searchUseCase;
-  
   private Film film;
   private CreateFilmCommand createFilmCommand;
   private UpdateFilmCommand updateFilmCommand;

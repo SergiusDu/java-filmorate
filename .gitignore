@@ -45,7 +45,4 @@ build/
 *.db
 db/*
 
-# Mac OS system files
-.DS_Store
-
 .junie/

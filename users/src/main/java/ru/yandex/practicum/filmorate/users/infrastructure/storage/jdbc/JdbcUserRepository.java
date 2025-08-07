@@ -89,7 +89,8 @@ public class JdbcUserRepository
 
   @Override
   public boolean deleteById(long userId) {
-    String sql = "DELETE FROM users WHERE user_id = ?";
-    return jdbcTemplate.update(sql, userId) > 0;
+    jdbcTemplate.update("DELETE FROM friendships WHERE user_id = ?", userId);
+    jdbcTemplate.update("DELETE FROM friendships WHERE friend_id = ?", userId);
+    return jdbcTemplate.update("DELETE FROM users WHERE user_id = ?", userId) > 0;
   }
 }

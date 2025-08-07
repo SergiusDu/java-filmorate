@@ -9,6 +9,8 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.context.ApplicationEventPublisher;
 import ru.yandex.practicum.filmorate.common.exception.ResourceNotFoundException;
 import ru.yandex.practicum.filmorate.directors.application.port.in.DirectorUseCase;
+import ru.yandex.practicum.filmorate.events.domain.model.value.Operation;
+import ru.yandex.practicum.filmorate.events.domain.service.DomainEventPublisher;
 import ru.yandex.practicum.filmorate.films.application.port.in.FilmRatingQuery;
 import ru.yandex.practicum.filmorate.films.application.port.in.FilmUseCase;
 import ru.yandex.practicum.filmorate.films.domain.model.Film;
@@ -18,6 +20,7 @@ import ru.yandex.practicum.filmorate.films.domain.port.CreateFilmCommand;
 import ru.yandex.practicum.filmorate.films.domain.port.UpdateFilmCommand;
 import ru.yandex.practicum.filmorate.infrastructure.web.dto.FilmWithDirectors;
 import ru.yandex.practicum.filmorate.likes.application.port.in.LikeUseCase;
+import ru.yandex.practicum.filmorate.search.application.port.in.SearchUseCase;
 import ru.yandex.practicum.filmorate.service.FilmCompositionService;
 import ru.yandex.practicum.filmorate.users.application.port.in.UserUseCase;
 import ru.yandex.practicum.filmorate.users.domain.model.User;
@@ -48,7 +51,8 @@ class FilmCompositionServiceTest {
   private FilmCompositionService filmCompositionService;
   @Mock
   private ApplicationEventPublisher eventPublisher;
-
+  @Mock
+  private SearchUseCase searchUseCase;
   private Film film;
   private CreateFilmCommand createFilmCommand;
   private UpdateFilmCommand updateFilmCommand;
@@ -59,6 +63,21 @@ class FilmCompositionServiceTest {
     MockitoAnnotations.openMocks(this);
     Set<Genre> genres = Set.of(new Genre(1L, "Drama"));
     Mpa mpa = new Mpa(1L, "G");
+
+    DomainEventPublisher noopPublisher = new DomainEventPublisher(eventPublisher) {
+      public void publishLikeEvent(Long userId, Operation operation, Long filmId) {
+      }
+    };
+
+    filmCompositionService = new FilmCompositionService(
+            filmUseCase,
+            likeService,
+            userUseCase,
+            directorUseCase,
+            eventPublisher,
+            searchUseCase,
+            noopPublisher
+    );
 
     film = Film.builder()
                .id(1L)

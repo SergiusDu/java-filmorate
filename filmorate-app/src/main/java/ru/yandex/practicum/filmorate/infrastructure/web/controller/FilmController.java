@@ -24,7 +24,6 @@ import java.util.Optional;
 @RequestMapping("/films")
 @RequiredArgsConstructor
 @Validated
-
 public class FilmController {
 
   private final FilmCompositionService filmCompositionService;

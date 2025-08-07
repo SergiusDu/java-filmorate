@@ -11,6 +11,8 @@ import ru.yandex.practicum.filmorate.common.exception.ResourceNotFoundException;
 import ru.yandex.practicum.filmorate.common.exception.ValidationException;
 import ru.yandex.practicum.filmorate.directors.application.port.in.DirectorUseCase;
 import ru.yandex.practicum.filmorate.directors.domain.model.Director;
+import ru.yandex.practicum.filmorate.events.domain.model.value.Operation;
+import ru.yandex.practicum.filmorate.events.domain.service.DomainEventPublisher;
 import ru.yandex.practicum.filmorate.films.application.port.in.FilmRatingQuery;
 import ru.yandex.practicum.filmorate.films.application.port.in.FilmUseCase;
 import ru.yandex.practicum.filmorate.films.application.port.in.RecommendationQuery;
@@ -38,6 +40,7 @@ public class FilmCompositionService {
   private final DirectorUseCase directorUseCase;
   private final ApplicationEventPublisher eventPublisher;
   private final SearchUseCase searchUseCase;
+  private final DomainEventPublisher domainEventPublisher;
 
   @Transactional
   public FilmWithDirectors createFilm(CreateFilmCommand command) {
@@ -105,7 +108,9 @@ public class FilmCompositionService {
   public boolean addLike(long filmId, long userId) {
     validateFilmExists(filmId);
     validateUserExists(userId);
-    return likeService.addLike(filmId, userId);
+    boolean added = likeService.addLike(filmId, userId);
+    if (added) domainEventPublisher.publishLikeEvent(userId, Operation.ADD, filmId);
+    return added;
   }
 
   public void validateFilmExists(long filmId) {
@@ -123,7 +128,9 @@ public class FilmCompositionService {
   public boolean removeLike(long filmId, long userId) {
     validateFilmExists(filmId);
     validateUserExists(userId);
-    return likeService.removeLike(filmId, userId);
+    boolean removed = likeService.removeLike(filmId, userId);
+    if (removed) domainEventPublisher.publishLikeEvent(userId, Operation.REMOVE, filmId);
+    return removed;
   }
 
   public List<FilmWithDirectors> getPopularFilms(FilmRatingQuery query) {

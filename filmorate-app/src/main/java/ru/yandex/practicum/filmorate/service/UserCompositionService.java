@@ -3,6 +3,8 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.common.exception.ResourceNotFoundException;
+import ru.yandex.practicum.filmorate.events.domain.model.value.Operation;
+import ru.yandex.practicum.filmorate.events.domain.service.DomainEventPublisher;
 import ru.yandex.practicum.filmorate.friendships.application.port.in.FriendshipsUseCase;
 import ru.yandex.practicum.filmorate.users.application.port.in.UserUseCase;
 import ru.yandex.practicum.filmorate.users.domain.model.User;
@@ -16,6 +18,7 @@ import java.util.Set;
 public class UserCompositionService {
   private final UserUseCase userUseCase;
   private final FriendshipsUseCase friendshipsUseCase;
+  private final DomainEventPublisher domainEventPublisher;
 
   public List<User> getFriendsOfUser(long userId) {
     validateUserExists(userId);
@@ -47,6 +50,7 @@ public class UserCompositionService {
                                friendId));
     friendshipsUseCase.addFriend(userId,
                                  friendId);
+    domainEventPublisher.publishFriendEvent(userId, Operation.ADD, friendId);
   }
 
   private void validateUsersExists(Set<Long> userIds) {
@@ -61,5 +65,6 @@ public class UserCompositionService {
                                friendId));
     friendshipsUseCase.removeFriend(userId,
                                     friendId);
+    domainEventPublisher.publishFriendEvent(userId, Operation.REMOVE, friendId);
   }
 }

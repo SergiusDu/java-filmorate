@@ -108,11 +108,9 @@ public class FilmCompositionService {
   public boolean addLike(long filmId, long userId) {
     validateFilmExists(filmId);
     validateUserExists(userId);
-    boolean result = likeService.addLike(filmId, userId);
-    if (result) {
-      domainEventPublisher.publishLikeEvent(userId, Operation.ADD, filmId);
-    }
-    return result;
+    boolean added = likeService.addLike(filmId, userId);
+    if (added) domainEventPublisher.publishLikeEvent(userId, Operation.ADD, filmId);
+    return added;
   }
 
   public void validateFilmExists(long filmId) {
@@ -130,11 +128,9 @@ public class FilmCompositionService {
   public boolean removeLike(long filmId, long userId) {
     validateFilmExists(filmId);
     validateUserExists(userId);
-    boolean result = likeService.removeLike(filmId, userId);
-    if (result) {
-      domainEventPublisher.publishLikeEvent(userId, Operation.REMOVE, filmId);
-    }
-    return result;
+    boolean removed = likeService.removeLike(filmId, userId);
+    if (removed) domainEventPublisher.publishLikeEvent(userId, Operation.REMOVE, filmId);
+    return removed;
   }
 
   public List<FilmWithDirectors> getPopularFilms(FilmRatingQuery query) {

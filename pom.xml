@@ -19,6 +19,7 @@
     </properties>
     <modules>
         <module>common</module>
+        <module>events</module>
         <module>films</module>
         <module>users</module>
         <module>filmorate-app</module>
@@ -35,6 +36,11 @@
             <dependency>
                 <groupId>ru.yandex.practicum</groupId>
                 <artifactId>common</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ru.yandex.practicum</groupId>
+                <artifactId>events</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

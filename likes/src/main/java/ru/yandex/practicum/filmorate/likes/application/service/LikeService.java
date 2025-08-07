@@ -82,6 +82,21 @@ public class LikeService implements LikeUseCase {
    * @return map of filmId → like count
    */
   @Override
+  public void deleteLikesByFilmId(long filmId) {
+    likeRepository.deleteByFilmId(filmId);
+  }
+
+  @Override
+  public void deleteLikesByUserId(long userId) {
+    likeRepository.deleteByUserId(userId);
+  }
+
+  @Override
+  public Map<Long, Long> getLikeCounts() {
+    return likeRepository.getLikeCounts();
+  }
+
+  @Override
   public Map<Long, Integer> getLikeCountsForFilms(Set<Long> filmIds) {
     return likeRepository.getLikeCountsForFilms(filmIds);
   }

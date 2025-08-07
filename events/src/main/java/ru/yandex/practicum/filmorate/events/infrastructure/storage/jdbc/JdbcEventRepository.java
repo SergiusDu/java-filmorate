@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
+import ru.yandex.practicum.filmorate.common.exception.ResourceNotFoundException;
 import ru.yandex.practicum.filmorate.events.domain.factory.EventFactory;
 import ru.yandex.practicum.filmorate.events.domain.model.Event;
 import ru.yandex.practicum.filmorate.events.domain.model.value.EventType;
@@ -49,6 +50,9 @@ public class JdbcEventRepository implements EventRepository {
 
     @Override
     public List<Event> findByUserId(long userId) {
+        if (jdbcTemplate.query(FIND_BY_USER_ID_QUERY, this::mapRowToEvent, userId).isEmpty()) {
+            throw new ResourceNotFoundException("Events for userId:  " + userId + " not found.");
+        }
         return jdbcTemplate.query(FIND_BY_USER_ID_QUERY, this::mapRowToEvent, userId);
     }
 

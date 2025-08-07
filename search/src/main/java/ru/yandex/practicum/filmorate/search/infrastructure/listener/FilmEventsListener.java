@@ -5,8 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.common.events.FilmSearchDataUpdatedEvent;
-import ru.yandex.practicum.filmorate.search.application.port.out.SearchRepository;
 import ru.yandex.practicum.filmorate.search.domain.model.SearchableFilm;
+import ru.yandex.practicum.filmorate.search.domain.port.SearchRepository;
 
 @Slf4j
 @Component

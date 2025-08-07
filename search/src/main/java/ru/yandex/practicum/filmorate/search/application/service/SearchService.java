@@ -3,7 +3,7 @@ package ru.yandex.practicum.filmorate.search.application.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.search.application.port.in.SearchUseCase;
-import ru.yandex.practicum.filmorate.search.application.port.out.SearchRepository;
+import ru.yandex.practicum.filmorate.search.domain.port.SearchRepository;
 
 import java.util.List;
 import java.util.Set;

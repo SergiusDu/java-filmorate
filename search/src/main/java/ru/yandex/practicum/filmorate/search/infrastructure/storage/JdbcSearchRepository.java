@@ -3,8 +3,8 @@ package ru.yandex.practicum.filmorate.search.infrastructure.storage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
-import ru.yandex.practicum.filmorate.search.application.port.out.SearchRepository;
 import ru.yandex.practicum.filmorate.search.domain.model.SearchableFilm;
+import ru.yandex.practicum.filmorate.search.domain.port.SearchRepository;
 
 import java.util.ArrayList;
 import java.util.List;

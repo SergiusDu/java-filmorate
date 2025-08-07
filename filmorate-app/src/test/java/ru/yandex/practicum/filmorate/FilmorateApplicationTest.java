@@ -11,8 +11,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.web.client.RestClientException;
-import ru.yandex.practicum.filmorate.events.domain.model.value.EventType;
-import ru.yandex.practicum.filmorate.events.domain.model.value.Operation;
 import ru.yandex.practicum.filmorate.films.domain.model.value.Genre;
 import ru.yandex.practicum.filmorate.infrastructure.web.dto.*;
 import ru.yandex.practicum.filmorate.infrastructure.web.exception.ErrorResponse;
@@ -23,7 +21,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles({"test",

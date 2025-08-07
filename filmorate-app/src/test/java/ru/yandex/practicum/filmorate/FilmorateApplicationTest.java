@@ -54,6 +54,179 @@ class FilmorateApplicationTest {
   }
 
   @Nested
+  @DisplayName("Search API Tests")
+  class SearchTests {
+
+    @Test
+    @DisplayName("Should search films by both title and director")
+    void shouldSearchByTitleAndDirector() {
+      String query = "searchquery";
+      DirectorResponse director = createDirector(new CreateDirectorRequest("Director With " + query));
+      Set<DirectorIdDto> directorSet = Set.of(new DirectorIdDto(director.id()));
+
+      FilmResponse filmByTitle = createFilm(new CreateFilmRequest("Film With " + query + " In Title",
+                                                                  "desc",
+                                                                  LocalDate.of(2020, 1, 1),
+                                                                  100L,
+                                                                  Set.of(new Genre(1L, "Комедия")),
+                                                                  new MpaIdDto(1L),
+                                                                  null));
+
+      FilmResponse filmByDirector = createFilm(new CreateFilmRequest("Another Film",
+                                                                     "desc",
+                                                                     LocalDate.of(2021, 1, 1),
+                                                                     110L,
+                                                                     Set.of(new Genre(2L, "Драма")),
+                                                                     new MpaIdDto(2L),
+                                                                     directorSet));
+
+      like(filmByDirector, createUser(new CreateUserRequest("u1@a.com", "u1", "u1", LocalDate.of(1990, 1, 1))));
+
+      ResponseEntity<FilmResponse[]> response = restTemplate.getForEntity(
+          "/films/search?query={query}&by=title,director",
+          FilmResponse[].class,
+          query);
+
+      assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+      assertThat(response.getBody()).isNotNull();
+
+      List<Long> filmIds = Arrays.stream(response.getBody())
+                                 .map(FilmResponse::id)
+                                 .toList();
+      assertThat(filmIds).containsExactlyInAnyOrder(filmByTitle.id(), filmByDirector.id());
+    }
+
+    private void like(FilmResponse film, UserResponse user) {
+      restTemplate.put("/films/{id}/like/{userId}", null, film.id(), user.id());
+    }
+
+    @Test
+    @DisplayName("Should search films by title only")
+    void shouldSearchByTitleOnly() {
+      String query = "uniquetitlepart";
+      FilmResponse filmByTitle = createFilm(new CreateFilmRequest("Film With " + query,
+                                                                  "desc",
+                                                                  LocalDate.of(2020, 1, 1),
+                                                                  100L,
+                                                                  Set.of(new Genre(1L, "Комедия")),
+                                                                  new MpaIdDto(1L),
+                                                                  null));
+      createFilm(new CreateFilmRequest("Another Film",
+                                       "desc",
+                                       LocalDate.of(2021, 1, 1),
+                                       110L,
+                                       Set.of(new Genre(2L, "Драма")),
+                                       new MpaIdDto(2L),
+                                       null));
+
+      ResponseEntity<FilmResponse[]> response = restTemplate.getForEntity("/films/search?query={query}&by=title",
+                                                                          FilmResponse[].class,
+                                                                          query);
+
+      assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+      assertThat(response.getBody()).isNotNull();
+      assertThat(response.getBody()).hasSize(1);
+      assertThat(response.getBody()[0].id()).isEqualTo(filmByTitle.id());
+    }
+
+    @Test
+    @DisplayName("Should search films by director only")
+    void shouldSearchByDirectorOnly() {
+      String query = "uniquedirectorpart";
+      DirectorResponse director = createDirector(new CreateDirectorRequest("Director " + query));
+      Set<DirectorIdDto> directorSet = Set.of(new DirectorIdDto(director.id()));
+
+      FilmResponse filmByDirector = createFilm(new CreateFilmRequest("Film by Director",
+                                                                     "desc",
+                                                                     LocalDate.of(2021, 1, 1),
+                                                                     110L,
+                                                                     Set.of(new Genre(2L, "Драма")),
+                                                                     new MpaIdDto(2L),
+                                                                     directorSet));
+      createFilm(new CreateFilmRequest("Another Film",
+                                       "desc",
+                                       LocalDate.of(2020, 1, 1),
+                                       100L,
+                                       Set.of(new Genre(1L, "Комедия")),
+                                       new MpaIdDto(1L),
+                                       null));
+
+      ResponseEntity<FilmResponse[]> response = restTemplate.getForEntity("/films/search?query={query}&by=director",
+                                                                          FilmResponse[].class,
+                                                                          query);
+
+      assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+      assertThat(response.getBody()).isNotNull();
+      assertThat(response.getBody()).hasSize(1);
+      assertThat(response.getBody()[0].id()).isEqualTo(filmByDirector.id());
+    }
+
+    @Test
+    @DisplayName("Should return an empty list for a query that matches nothing")
+    void shouldReturnEmptyForNonExistentQuery() {
+      createFilm(new CreateFilmRequest("Some Film",
+                                       "desc",
+                                       LocalDate.of(2020, 1, 1),
+                                       100L,
+                                       Set.of(new Genre(1L, "Комедия")),
+                                       new MpaIdDto(1L),
+                                       null));
+
+      ResponseEntity<FilmResponse[]> response = restTemplate.getForEntity(
+          "/films/search?query={query}&by=title,director",
+          FilmResponse[].class,
+          "nonexistentstring");
+
+      assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+      assertThat(response.getBody()).isNotNull();
+      assertThat(response.getBody()).isEmpty();
+    }
+
+    @Test
+    @DisplayName("Should return sorted results by popularity")
+    void shouldReturnSortedResults() {
+      UserResponse user1 = createUser(new CreateUserRequest("u1@search.com", "u1s", "u1", LocalDate.of(1990, 1, 1)));
+      UserResponse user2 = createUser(new CreateUserRequest("u2@search.com", "u2s", "u2", LocalDate.of(1991, 1, 1)));
+
+      String query = "partofboth";
+      DirectorResponse director = createDirector(new CreateDirectorRequest("Director " + query));
+      Set<DirectorIdDto> directorSet = Set.of(new DirectorIdDto(director.id()));
+
+      FilmResponse filmByTitle = createFilm(new CreateFilmRequest("Title " + query,
+                                                                  "desc",
+                                                                  LocalDate.of(2020, 1, 1),
+                                                                  100L,
+                                                                  Set.of(new Genre(1L, "Комедия")),
+                                                                  new MpaIdDto(1L),
+                                                                  null));
+
+      FilmResponse filmByDirector = createFilm(new CreateFilmRequest("Film from Director",
+                                                                     "desc",
+                                                                     LocalDate.of(2021, 1, 1),
+                                                                     110L,
+                                                                     Set.of(new Genre(2L, "Драма")),
+                                                                     new MpaIdDto(2L),
+                                                                     directorSet));
+
+      like(filmByTitle, user1);
+      like(filmByTitle, user2);
+      like(filmByDirector, user1);
+
+      ResponseEntity<FilmResponse[]> response = restTemplate.getForEntity(
+          "/films/search?query={query}&by=title,director",
+          FilmResponse[].class,
+          query);
+
+      assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+      assertThat(response.getBody()).isNotNull();
+      List<Long> filmIds = Arrays.stream(response.getBody())
+                                 .map(FilmResponse::id)
+                                 .toList();
+      assertThat(filmIds).containsExactly(filmByTitle.id(), filmByDirector.id());
+    }
+  }
+
+  @Nested
   @DisplayName("User API Tests")
   class UserTests {
 

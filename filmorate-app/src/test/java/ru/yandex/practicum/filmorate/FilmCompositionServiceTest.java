@@ -53,7 +53,7 @@ class FilmCompositionServiceTest {
   private ApplicationEventPublisher eventPublisher;
   @Mock
   private SearchUseCase searchUseCase;
-
+  
   private Film film;
   private CreateFilmCommand createFilmCommand;
   private UpdateFilmCommand updateFilmCommand;
@@ -66,7 +66,8 @@ class FilmCompositionServiceTest {
     Mpa mpa = new Mpa(1L, "G");
 
     DomainEventPublisher noopPublisher = new DomainEventPublisher(eventPublisher) {
-      public void publishLikeEvent(Long userId, Operation operation, Long filmId) {}
+      public void publishLikeEvent(Long userId, Operation operation, Long filmId) {
+      }
     };
 
     filmCompositionService = new FilmCompositionService(

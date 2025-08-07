@@ -3,13 +3,10 @@ package ru.yandex.practicum.filmorate.infrastructure.web.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import ru.yandex.practicum.filmorate.events.application.port.in.EventUseCase;
+import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.infrastructure.web.dto.EventResponse;
 import ru.yandex.practicum.filmorate.infrastructure.web.mapper.EventMapper;
+import ru.yandex.practicum.filmorate.events.application.port.in.EventUseCase;
 
 import java.util.List;
 

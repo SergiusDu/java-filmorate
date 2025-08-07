@@ -20,13 +20,13 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @DisplayName("Film Domain Model")
 class FilmTest {
 
-  private Long validId;
-  private String validName;
-  private String validDescription;
-  private LocalDate validReleaseDate;
-  private Duration validDuration;
-  private Set<Genre> validGenres;
-  private Mpa validRating;
+    private Long validId;
+    private String validName;
+    private String validDescription;
+    private LocalDate validReleaseDate;
+    private Duration validDuration;
+    private Set<Genre> validGenres;
+    private Mpa validRating;
 
   @BeforeEach
   void setUp() {

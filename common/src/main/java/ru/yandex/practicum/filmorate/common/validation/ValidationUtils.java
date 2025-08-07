@@ -206,7 +206,6 @@ public final class ValidationUtils {
                     "Login must not contain spaces");
   }
 
-
   /**
    * Validates that the given Long value is positive (greater than 0) and not null.
    *
@@ -225,4 +224,5 @@ public final class ValidationUtils {
             "Value must be positive"
     );
   }
+
 }

@@ -27,6 +27,7 @@
         <module>reviews</module>
         <module>reaction</module>
         <module>directors</module>
+        <module>events</module>
         <module>search</module>
     </modules>
     <dependencyManagement>
@@ -49,6 +50,11 @@
             <dependency>
                 <groupId>ru.yandex.practicum</groupId>
                 <artifactId>friendships</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ru.yandex.practicum</groupId>
+                <artifactId>events</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

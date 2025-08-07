@@ -32,6 +32,10 @@
         </dependency>
         <dependency>
             <groupId>ru.yandex.practicum</groupId>
+            <artifactId>events</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ru.yandex.practicum</groupId>
             <artifactId>search</artifactId>
             <version>${project.version}</version>
         </dependency>

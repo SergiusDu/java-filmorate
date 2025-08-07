@@ -12,6 +12,8 @@ DELETE
 FROM directors;
 DELETE
 FROM film_directors;
+DELETE
+FROM events;
 
 ALTER TABLE films
     ALTER COLUMN film_id RESTART WITH 1;

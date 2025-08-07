@@ -66,5 +66,6 @@ public class JdbcEventRepository implements EventRepository {
                 .eventType(EventType.valueOf(rs.getString("event_type")))
                 .operation(Operation.valueOf(rs.getString("operation")))
                 .entityId(rs.getLong("entity_id"))
-                .build();    }
+                .build();
+    }
 }

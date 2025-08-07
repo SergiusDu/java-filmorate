@@ -1,9 +1,11 @@
 package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.filmorate.common.enums.SortBy;
+import ru.yandex.practicum.filmorate.common.events.FilmSearchDataUpdatedEvent;
 import ru.yandex.practicum.filmorate.common.exception.ResourceNotFoundException;
 import ru.yandex.practicum.filmorate.common.exception.ValidationException;
 import ru.yandex.practicum.filmorate.directors.application.port.in.DirectorUseCase;
@@ -32,6 +34,7 @@ public class FilmCompositionService {
   private final LikeUseCase likeService;
   private final UserUseCase userUseCase;
   private final DirectorUseCase directorUseCase;
+  private final ApplicationEventPublisher eventPublisher;
 
   @Transactional
   public FilmWithDirectors createFilm(CreateFilmCommand command) {
@@ -43,14 +46,35 @@ public class FilmCompositionService {
   private FilmWithDirectors getFilmWithDirectors(Film film) {
     Map<Long, List<Director>> directorsMap = directorUseCase.getDirectorsForFilmIds(Set.of(film.id()));
     List<Director> directors = directorsMap.getOrDefault(film.id(), Collections.emptyList());
-    return new FilmWithDirectors(film, directors);
+    FilmWithDirectors filmWithDirectors = new FilmWithDirectors(film, directors);
+    publishSearchUpdateEvent(filmWithDirectors);
+    return filmWithDirectors;
+  }
+
+  private void publishSearchUpdateEvent(FilmWithDirectors filmWithDirectors) {
+    Set<String> directorNames = filmWithDirectors.directors() != null
+                                ? filmWithDirectors.directors()
+                                                   .stream()
+                                                   .map(Director::name)
+                                                   .collect(Collectors.toSet())
+                                : Collections.emptySet();
+
+    FilmSearchDataUpdatedEvent event = new FilmSearchDataUpdatedEvent(this,
+                                                                      filmWithDirectors.film()
+                                                                                       .id(),
+                                                                      filmWithDirectors.film()
+                                                                                       .name(),
+                                                                      directorNames);
+    eventPublisher.publishEvent(event);
   }
 
   @Transactional
   public FilmWithDirectors updateFilm(UpdateFilmCommand command) {
     Film film = filmUseCase.updateFilm(command);
     directorUseCase.updateFilmDirectors(film.id(), command.directorIds());
-    return getFilmWithDirectors(film);
+    FilmWithDirectors filmWithDirectors = getFilmWithDirectors(film);
+    publishSearchUpdateEvent(filmWithDirectors);
+    return filmWithDirectors;
   }
 
   public List<Film> getRecommendations(RecommendationQuery query) {
@@ -61,7 +85,7 @@ public class FilmCompositionService {
     return enrichFilmsWithDirectors(filmUseCase.getAllFilms());
   }
 
-  private List<FilmWithDirectors> enrichFilmsWithDirectors(List<Film> films) {
+  public List<FilmWithDirectors> enrichFilmsWithDirectors(List<Film> films) {
     if (films.isEmpty()) {
       return Collections.emptyList();
     }
@@ -139,7 +163,6 @@ public class FilmCompositionService {
     return filmUseCase.getGenres();
   }
 
-
   public Genre getGenreById(long id) {
     return filmUseCase.getGenreById(id)
                       .orElseThrow(() -> new ResourceNotFoundException("Genre with id " + id + " not found"));
@@ -203,5 +226,9 @@ public class FilmCompositionService {
 
   public void deleteFilmById(long id) {
     filmUseCase.deleteFilmById(id);
+  }
+
+  public List<Film> getFilmByIds(List<Long> ids) {
+    return filmUseCase.getFilmsByIds(ids);
   }
 }

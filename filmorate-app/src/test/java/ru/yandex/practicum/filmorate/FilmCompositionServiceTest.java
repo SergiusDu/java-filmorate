@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.context.ApplicationEventPublisher;
 import ru.yandex.practicum.filmorate.common.exception.ResourceNotFoundException;
 import ru.yandex.practicum.filmorate.directors.application.port.in.DirectorUseCase;
 import ru.yandex.practicum.filmorate.films.application.port.in.FilmRatingQuery;
@@ -45,6 +46,8 @@ class FilmCompositionServiceTest {
   private DirectorUseCase directorUseCase;
   @InjectMocks
   private FilmCompositionService filmCompositionService;
+  @Mock
+  private ApplicationEventPublisher eventPublisher;
 
   private Film film;
   private CreateFilmCommand createFilmCommand;

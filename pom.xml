@@ -27,6 +27,7 @@
         <module>reviews</module>
         <module>reaction</module>
         <module>directors</module>
+        <module>search</module>
     </modules>
     <dependencyManagement>
         <dependencies>

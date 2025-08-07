@@ -205,4 +205,24 @@ public final class ValidationUtils {
                     exceptionFactory,
                     "Login must not contain spaces");
   }
+
+
+  /**
+   * Validates that the given Long value is positive (greater than 0) and not null.
+   *
+   * @param value             the Long value to validate
+   * @param exceptionFactory  factory to create exception with a custom message
+   * @param <E>               type of RuntimeException to be thrown
+   * @return                  the same value if validation passes
+   * @throws E                if value is null or <= 0
+   */
+  public static <E extends RuntimeException> Long positive(Long value,
+                                                           Function<String, E> exceptionFactory) {
+    return validate(
+            value,
+            v -> v != null && v > 0,
+            exceptionFactory,
+            "Value must be positive"
+    );
+  }
 }

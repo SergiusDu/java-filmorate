@@ -29,6 +29,7 @@ public record Film(Long id,
                    Duration duration,
                    Set<Genre> genres,
                    Mpa mpa) {
+
   /**
    Validates all fields during record construction.
    @throws InvalidFilmDataException if any required field is null or blank
@@ -40,5 +41,17 @@ public record Film(Long id,
     ValidationUtils.notNull(releaseDate, msg -> new InvalidFilmDataException("Film release date must not be null"));
     ValidationUtils.notNull(duration, msg -> new InvalidFilmDataException("Film duration must not be null"));
     ValidationUtils.positive(duration, msg -> new InvalidFilmDataException("Film duration must be positive"));
+    ValidationUtils.notNull(mpa, msg -> new InvalidFilmDataException("MPA rating must not be null"));
+    ValidationUtils.notNull(genres, msg -> new InvalidFilmDataException("Genres set must not be null"));
+  }
+
+  /**
+   * Checks if this film has the given genre ID.
+   *
+   * @param genreId the genre ID to check
+   * @return true if the film has the genre, false otherwise
+   */
+  public boolean hasGenre(long genreId) {
+    return genres != null && genres.stream().anyMatch(g -> g.id() == genreId);
   }
 }

@@ -8,7 +8,8 @@ import ru.yandex.practicum.filmorate.common.config.AppValidationProperties;
 import java.time.LocalDate;
 
 @Component
-public class ReleaseDateValidator implements ConstraintValidator<ValidReleaseDate, LocalDate> {
+public class ReleaseDateValidator
+    implements ConstraintValidator<ValidReleaseDate, LocalDate> {
   private final LocalDate earliestDate;
 
   public ReleaseDateValidator(AppValidationProperties validationProperties) {
@@ -19,6 +20,6 @@ public class ReleaseDateValidator implements ConstraintValidator<ValidReleaseDat
 
   @Override
   public boolean isValid(LocalDate value, ConstraintValidatorContext context) {
-    return value != null && !value.isBefore(earliestDate) && value.isBefore(LocalDate.now());
+    return value != null && !value.isBefore(earliestDate);
   }
 }

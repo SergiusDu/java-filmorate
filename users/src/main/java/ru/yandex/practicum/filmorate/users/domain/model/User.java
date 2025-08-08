@@ -32,7 +32,7 @@ public record User(long id,
   public User {
     ValidationUtils.notNull(email, msg -> new InvalidUserDataException("User email must not be null"));
     ValidationUtils.notNull(login, msg -> new InvalidUserDataException("User login must not be null"));
-    ValidationUtils.notBlank(name, msg -> new InvalidUserDataException("User name must not be empty"));
+    ValidationUtils.notNull(name, msg -> new InvalidUserDataException("User name must not be null"));
     ValidationUtils.notNull(birthday, msg -> new InvalidUserDataException("User birthday must not be null"));
   }
 }

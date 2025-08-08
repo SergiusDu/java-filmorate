@@ -24,7 +24,8 @@ import java.util.stream.Collectors;
 @Repository
 @Profile("db")
 @RequiredArgsConstructor
-public class JdbcUserRepository implements UserRepository {
+public class JdbcUserRepository
+    implements UserRepository {
 
   private static final RowMapper<User> USER_ROW_MAPPER = (rs, rowNum) -> new User(rs.getLong("user_id"),
                                                                                   new Email(rs.getString("email")),
@@ -38,7 +39,7 @@ public class JdbcUserRepository implements UserRepository {
   @Override
   public User save(CreateUserCommand command) {
     SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate).withTableName("users")
-                                                                          .usingGeneratedKeyColumns("user_id");
+                                            .usingGeneratedKeyColumns("user_id");
 
     Map<String, Object> params = Map.of("email", command.email(), "login", command.login(), "name", command.name(),
                                         "birthday", command.birthday());
@@ -84,5 +85,12 @@ public class JdbcUserRepository implements UserRepository {
                       .collect(Collectors.joining(","));
     String sql = String.format("SELECT * FROM users WHERE user_id IN (%s)", inSql);
     return jdbcTemplate.query(sql, USER_ROW_MAPPER);
+  }
+
+  @Override
+  public boolean deleteById(long userId) {
+    jdbcTemplate.update("DELETE FROM friendships WHERE user_id = ?", userId);
+    jdbcTemplate.update("DELETE FROM friendships WHERE friend_id = ?", userId);
+    return jdbcTemplate.update("DELETE FROM users WHERE user_id = ?", userId) > 0;
   }
 }

@@ -1,9 +1,16 @@
 package ru.yandex.practicum.filmorate.infrastructure.web.controller;
 
-
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.common.enums.SortBy;
+import ru.yandex.practicum.filmorate.films.application.port.in.FilmRatingQuery;
+import ru.yandex.practicum.filmorate.films.application.port.in.RecommendationQuery;
 import ru.yandex.practicum.filmorate.infrastructure.web.dto.CreateFilmRequest;
 import ru.yandex.practicum.filmorate.infrastructure.web.dto.FilmResponse;
 import ru.yandex.practicum.filmorate.infrastructure.web.dto.UpdateFilmRequest;
@@ -15,7 +22,9 @@ import java.util.List;
 @RestController
 @RequestMapping("/films")
 @RequiredArgsConstructor
+@Validated
 public class FilmController {
+
   private final FilmCompositionService filmCompositionService;
   private final FilmMapper filmMapper;
 
@@ -28,6 +37,7 @@ public class FilmController {
   }
 
   @PostMapping
+  @ResponseStatus(HttpStatus.CREATED)
   public FilmResponse createFilm(@Valid @RequestBody CreateFilmRequest request) {
     return filmMapper.toResponse(filmCompositionService.createFilm(filmMapper.toCommand(request)));
   }
@@ -38,6 +48,7 @@ public class FilmController {
   }
 
   @PutMapping("/{id}/like/{userId}")
+  @ResponseStatus(HttpStatus.OK)
   public void likeFilm(@PathVariable long id, @PathVariable long userId) {
     filmCompositionService.addLike(id, userId);
   }
@@ -48,8 +59,16 @@ public class FilmController {
   }
 
   @GetMapping("/popular")
-  public List<FilmResponse> getPopularFilms(@RequestParam(defaultValue = "10") int count) {
-    return filmCompositionService.getPopularFilms(count)
+  public List<FilmResponse> getPopularFilmsWithFilters(
+      @RequestParam(defaultValue = "10") @Min(1) @Max(1000) Integer count,
+      @RequestParam(required = false) Long genreId,
+      @RequestParam(required = false) Integer year,
+      @RequestParam(required = false) Long directorId,
+      @RequestParam(defaultValue = "LIKES") FilmRatingQuery.SortBy sortBy
+                                                      ) {
+    var query = FilmRatingQuery.of(count, genreId, year, directorId, sortBy);
+
+    return filmCompositionService.getPopularFilms(query)
                                  .stream()
                                  .map(filmMapper::toResponse)
                                  .toList();
@@ -58,5 +77,47 @@ public class FilmController {
   @GetMapping("/{id}")
   public FilmResponse getFilmById(@PathVariable long id) {
     return filmMapper.toResponse(filmCompositionService.getFilmById(id));
+  }
+
+  @GetMapping("/common")
+  public List<FilmResponse> getCommonFilms(@RequestParam long userId,
+                                           @RequestParam long friendId) {
+    return filmCompositionService.getCommonFilms(userId, friendId)
+                                 .stream()
+                                 .map(filmMapper::toResponse)
+                                 .toList();
+  }
+
+  @GetMapping("/director/{directorId}")
+  public List<FilmResponse> getDirectorFilms(@PathVariable long directorId,
+                                             @RequestParam(defaultValue = "YEAR") SortBy sortBy) {
+    return filmCompositionService.getDirectorFilms(directorId, sortBy)
+                                 .stream()
+                                 .map(filmMapper::toResponse)
+                                 .toList();
+  }
+
+  @GetMapping("/recommendations")
+  public List<FilmResponse> getRecommendations(@RequestParam long userId,
+                                               @RequestParam(required = false) Long genreId,
+                                               @RequestParam(required = false) Integer year,
+                                               @RequestParam(defaultValue = "10") @Positive Integer limit) {
+    var query = new RecommendationQuery(
+            userId,
+            limit,
+            genreId,
+            year
+    );
+
+    return filmCompositionService.getRecommendations(query)
+                                 .stream()
+                                 .map(filmMapper::toResponse)
+                                 .toList();
+  }
+
+  @DeleteMapping("/{id}")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public void deleteFilmById(@PathVariable long id) {
+    filmCompositionService.deleteFilmById(id);
   }
 }

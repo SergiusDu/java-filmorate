@@ -29,4 +29,12 @@ public interface UserRepository {
   List<User> findAll();
 
   List<User> findByIds(Set<Long> ids);
+
+  /**
+   * Deletes a user by ID.
+   *
+   * @param userId ID of the user to delete
+   * @return true if user was deleted, false if user not found
+   */
+  boolean deleteById(long userId);
 }

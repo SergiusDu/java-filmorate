@@ -1,28 +1,33 @@
 package ru.yandex.practicum.filmorate.films.application.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.common.exception.ResourceNotFoundException;
+import ru.yandex.practicum.filmorate.films.application.port.in.FilmRatingQuery;
 import ru.yandex.practicum.filmorate.films.application.port.in.FilmUseCase;
+import ru.yandex.practicum.filmorate.films.application.port.in.RecommendationQuery;
 import ru.yandex.practicum.filmorate.films.domain.model.Film;
 import ru.yandex.practicum.filmorate.films.domain.model.value.Genre;
 import ru.yandex.practicum.filmorate.films.domain.model.value.Mpa;
 import ru.yandex.practicum.filmorate.films.domain.port.*;
 import ru.yandex.practicum.filmorate.films.domain.service.FilmValidationService;
+import ru.yandex.practicum.filmorate.likes.application.port.in.LikeUseCase;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-
+@Slf4j
 @Service
 @RequiredArgsConstructor
-public class FilmService implements FilmUseCase {
+public class FilmService
+    implements FilmUseCase {
   private final FilmRepository filmRepository;
   private final GenreRepository genreRepository;
   private final MpaRepository mpaRepository;
-
   private final FilmValidationService filmValidationService;
+  private final LikeUseCase likeUseCase;
 
   @Override
   public Film addFilm(CreateFilmCommand command) {
@@ -49,17 +54,12 @@ public class FilmService implements FilmUseCase {
   }
 
   @Override
-  public Optional<Film> getFilmById(long id) {
-    return filmRepository.findById(id);
-  }
-
-  @Override
-  public List<Film> getFilmsByIds(Set<Long> ids) {
+  public List<Film> getFilmsByIds(List<Long> ids) {
     return filmRepository.getByIds(ids);
   }
 
   @Override
-  public List<Genre> getGeners() {
+  public List<Genre> getGenres() {
     return genreRepository.findAll();
   }
 
@@ -78,11 +78,47 @@ public class FilmService implements FilmUseCase {
     return mpaRepository.findById(id);
   }
 
-  private void validateFilmDependencies(Set<Genre> genres, Mpa mpa) {
-    if (mpa != null && mpaRepository.findById(mpa.id())
-                                    .isEmpty()) {
-      throw new ResourceNotFoundException("Mpa with id " + mpa.id() + " not found");
+  @Override
+  public List<Film> findPopularFilms(FilmRatingQuery query) {
+    if (query.sortBy() == FilmRatingQuery.SortBy.LIKES) {
+      Set<Long> topIds = likeUseCase.getPopularFilmIds(query.limit());
+      return getFilmsByIds(topIds.stream()
+                                 .toList()).stream()
+                                           .filter(film -> query.genreId()
+                                                                .map(id -> film.hasGenre(id))
+                                                                .orElse(true))
+                                           .filter(film -> query.year()
+                                                                .map(year -> film.releaseDate()
+                                                                                 .getYear() == year)
+                                                                .orElse(true))
+                                           .toList();
     }
+    return List.of();
+  }
+
+  @Override
+  public List<Film> getRecommendations(RecommendationQuery query) {
+    throw new UnsupportedOperationException("Delegated to RecommendationService.");
+  }
+
+  @Override
+  public List<Long> getFilmIdsByFilters(Long genreId, Integer year) {
+    return filmRepository.findFilmIdsByFilters(genreId, year);
+  }
+
+  @Override
+  public void deleteFilmById(long filmId) {
+    if (!filmRepository.deleteById(filmId)) {
+      throw new ResourceNotFoundException("Film with id " + filmId + " not found.");
+    }
+  }
+
+  private void validateFilmDependencies(Set<Genre> genres, Long mpaId) {
+    if (mpaId != null && mpaRepository.findById(mpaId)
+                                      .isEmpty()) {
+      throw new ResourceNotFoundException("Mpa with id " + mpaId + " not found");
+    }
+
     if (genres != null) {
       for (Genre genre : genres) {
         if (genreRepository.findById(genre.id())

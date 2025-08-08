@@ -1,6 +1,8 @@
 package ru.yandex.practicum.filmorate.infrastructure.web.exception;
 
+import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -61,6 +63,18 @@ public class GlobalExceptionHandler {
                                 HttpStatus.BAD_REQUEST);
   }
 
+@ExceptionHandler(DuplicateKeyException.class)
+  public ResponseEntity<ErrorResponse> handleDuplicateKeyException(DuplicateKeyException ex) {
+    log.error("Duplicate key error: {}", ex.getMessage(), ex);
+    return new ResponseEntity<>(new ErrorResponse(ex.getMessage()), HttpStatus.CONFLICT);
+  }
+
+  @ExceptionHandler(ConstraintViolationException.class)
+  public ResponseEntity<ErrorResponse> handleConstraintViolationException(ConstraintViolationException ex) {
+    log.error("Constraint violation error: {}", ex.getMessage(), ex);
+    return new ResponseEntity<>(new ErrorResponse(ex.getMessage()), HttpStatus.BAD_REQUEST);
+  }
+
   @ExceptionHandler(Throwable.class)
   public ResponseEntity<ErrorResponse> handleUncaughtException(Throwable e) {
     log.error("Uncaught exception: {}",
@@ -68,5 +82,19 @@ public class GlobalExceptionHandler {
               e);
     return new ResponseEntity<>(new ErrorResponse("An unexpected internal server error occurred."),
                                 HttpStatus.INTERNAL_SERVER_ERROR);
+  }
+
+  @ExceptionHandler(IllegalArgumentException.class)
+  public ResponseEntity<ErrorResponse> handleIllegalArgument(IllegalArgumentException ex) {
+    log.warn("Illegal argument: {}", ex.getMessage());
+    ErrorResponse errorResponse = new ErrorResponse(ex.getMessage());
+    return ResponseEntity.badRequest().body(errorResponse);
+  }
+
+  @ExceptionHandler(Exception.class)
+  public ResponseEntity<ErrorResponse> handleGenericError(Exception ex) {
+    log.error("Unexpected error occurred", ex);
+    ErrorResponse errorResponse = new ErrorResponse("Internal server error occurred");
+    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
   }
 }

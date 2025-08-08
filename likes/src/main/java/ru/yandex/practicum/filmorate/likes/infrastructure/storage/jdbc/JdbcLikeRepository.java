@@ -9,52 +9,120 @@ import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.likes.domain.port.LikeRepository;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
 @Profile("db")
 public class JdbcLikeRepository implements LikeRepository {
 
-  private static final RowMapper<Map.Entry<Long, Long>> LIKE_ROW_MAPPER = (rs, rowNum) -> new AbstractMap.SimpleEntry<>(
-      rs.getLong("user_id"), rs.getLong("film_id"));
+    private static final RowMapper<Map.Entry<Long, Long>> LIKE_ROW_MAPPER =
+        (rs, rowNum) -> new AbstractMap.SimpleEntry<>(
+            rs.getLong("user_id"),
+            rs.getLong("film_id")
+        );
 
-  private final JdbcTemplate jdbcTemplate;
+    private final JdbcTemplate jdbcTemplate;
 
-  @Override
-  public boolean addLike(long filmId, long userId) {
-    String sql = "INSERT INTO likes (film_id, user_id) VALUES(?, ?)";
-    try {
-      jdbcTemplate.update(sql, filmId, userId);
-      return true;
-    } catch (DuplicateKeyException e) {
-      return false;
+    @Override
+    public boolean addLike(long filmId, long userId) {
+        String sql = "INSERT INTO likes (film_id, user_id) VALUES (?, ?)";
+        try {
+            jdbcTemplate.update(sql, filmId, userId);
+            return true;
+        } catch (DuplicateKeyException e) {
+            return false;
+        }
     }
-  }
 
-  @Override
-  public boolean removeLike(long filmId, long userId) {
-    String sql = "DELETE FROM likes WHERE user_id = ? AND film_id = ?";
-    return jdbcTemplate.update(sql, userId, filmId) > 0;
-  }
+    @Override
+    public boolean removeLike(long filmId, long userId) {
+        String sql = "DELETE FROM likes WHERE user_id = ? AND film_id = ?";
+        return jdbcTemplate.update(sql, userId, filmId) > 0;
+    }
 
-  @Override
-  public LinkedHashSet<Long> getPopularFilmIds(int count) {
-    String sql = "SELECT film_id FROM likes GROUP BY film_id ORDER BY COUNT(user_id) DESC LIMIT ?";
-    List<Long> popularIds = jdbcTemplate.queryForList(sql, Long.class, count);
-    return new LinkedHashSet<>(popularIds);
-  }
+    @Override
+    public LinkedHashSet<Long> getPopularFilmIds(int count) {
+        int expandedLimit = Math.max(count * 3, 50);
+        String sql = """
+            SELECT film_id
+            FROM likes
+            GROUP BY film_id
+            ORDER BY COUNT(user_id) DESC
+            LIMIT ?
+            """;
+        List<Long> popularIds = jdbcTemplate.queryForList(sql, Long.class, expandedLimit);
+        return new LinkedHashSet<>(popularIds);
+    }
 
-  @Override
-  public Set<Long> findUsersWhoLikedFilm(long filmId) {
-    String sql = "SELECT user_id FROM likes WHERE film_id = ?";
-    List<Long> userIds = jdbcTemplate.queryForList(sql, Long.class, filmId);
-    return new HashSet<>(userIds);
-  }
+    @Override
+    public Set<Long> findUsersWhoLikedFilm(long filmId) {
+        String sql = "SELECT user_id FROM likes WHERE film_id = ?";
+        List<Long> userIds = jdbcTemplate.queryForList(sql, Long.class, filmId);
+        return new HashSet<>(userIds);
+    }
 
-  @Override
-  public boolean contains(long filmId) {
-    String sql = "SELECT COUNT(*) FROM likes WHERE film_id = ?";
-    Integer count = jdbcTemplate.queryForObject(sql, Integer.class, filmId);
-    return count != null && count > 0;
-  }
+    @Override
+    public boolean contains(long filmId) {
+        String sql = "SELECT COUNT(*) FROM likes WHERE film_id = ?";
+        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, filmId);
+        return count != null && count > 0;
+    }
+
+    @Override
+    public Set<Long> findLikedFilms(long userId) {
+        String sql = "SELECT film_id FROM likes WHERE user_id = ?";
+        return new HashSet<>(jdbcTemplate.queryForList(sql, Long.class, userId));
+    }
+
+    @Override
+    public boolean deleteByFilmId(long filmId) {
+        return jdbcTemplate.update("DELETE FROM likes WHERE film_id = ?", filmId) > 0;
+    }
+
+    @Override
+    public boolean deleteByUserId(long userId) {
+        return jdbcTemplate.update("DELETE FROM likes WHERE user_id = ?", userId) > 0;
+    }
+
+    @Override
+    public Map<Long, Long> getLikeCounts() {
+        String sql = "SELECT film_id, COUNT(*) AS cnt FROM likes GROUP BY film_id";
+        RowMapper<Map.Entry<Long, Long>> rowMapper = (rs, rowNum) ->
+            Map.entry(rs.getLong("film_id"), rs.getLong("cnt"));
+        List<Map.Entry<Long, Long>> entries = jdbcTemplate.query(sql, rowMapper);
+        return entries.stream()
+                      .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    }
+
+    @Override
+    public Map<Long, Integer> getLikeCountsForFilms(Set<Long> filmIds) {
+        if (filmIds == null || filmIds.isEmpty()) {
+            return Map.of();
+        }
+        String placeholders = String.join(",", Collections.nCopies(filmIds.size(), "?"));
+        String sql = "SELECT film_id, COUNT(user_id) AS like_count " +
+                     "FROM likes WHERE film_id IN (" + placeholders + ") " +
+                     "GROUP BY film_id";
+
+        Map<Long, Integer> result = new HashMap<>();
+        jdbcTemplate.query(sql, rs -> {
+            result.put(rs.getLong("film_id"), rs.getInt("like_count"));
+        }, filmIds.toArray());
+        return result;
+    }
+
+    @Override
+    public Map<Long, Set<Long>> findAllUserFilmLikes() {
+        String sql = "SELECT user_id, film_id FROM likes";
+        List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql);
+
+        Map<Long, Set<Long>> result = new HashMap<>();
+        for (Map<String, Object> row : rows) {
+            Long userId = ((Number) row.get("user_id")).longValue();
+            Long filmId = ((Number) row.get("film_id")).longValue();
+            result.computeIfAbsent(userId, k -> new HashSet<>()).add(filmId);
+        }
+        return result;
+    }
 }

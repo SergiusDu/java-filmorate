@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.likes.application.port.in;
 
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -35,4 +36,49 @@ public interface LikeUseCase {
    @return set of user IDs who liked the film
    */
   Set<Long> findUsersWhoLikedFilm(long filmId);
+
+  /**
+   * Returns the set of film IDs liked by the given user.
+   *
+   * @param userId ID of the user
+   * @return set of liked film IDs
+   */
+  Set<Long> findLikedFilms(long userId);
+
+  /**
+   * Deletes all likes associated with the specified film ID.
+   *
+   * @param filmId the ID of the film whose likes should be deleted
+   */
+  void deleteLikesByFilmId(long filmId);
+
+  /**
+   * Deletes all likes associated with the specified user ID.
+   *
+   * @param userId the ID of the user whose likes should be deleted
+   */
+  void deleteLikesByUserId(long userId);
+
+  /**
+   * Retrieves the total number of likes for each film.
+   *
+   * @return a map where keys are film IDs and values are their corresponding like counts
+   */
+  Map<Long, Long> getLikeCounts();
+
+  /**
+   * Returns a map of filmId -> number of likes for each film from the given set.
+   *
+   * @param filmIds set of film IDs
+   * @return map where key = film ID, value = total number of likes
+   */
+  Map<Long, Integer> getLikeCountsForFilms(Set<Long> filmIds);
+
+  /**
+   * Returns a mapping from user IDs to their liked film IDs.
+   * Used for collaborative filtering and recommendations.
+   *
+   * @return map of userId → set of liked film IDs
+   */
+  Map<Long, Set<Long>> findAllUserFilmLikes();
 }

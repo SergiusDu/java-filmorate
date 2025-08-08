@@ -1,58 +1,90 @@
 package ru.yandex.practicum.filmorate.infrastructure.web.mapper;
 
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.directors.domain.model.Director;
 import ru.yandex.practicum.filmorate.films.domain.model.Film;
 import ru.yandex.practicum.filmorate.films.domain.model.value.Genre;
 import ru.yandex.practicum.filmorate.films.domain.port.CreateFilmCommand;
 import ru.yandex.practicum.filmorate.films.domain.port.UpdateFilmCommand;
-import ru.yandex.practicum.filmorate.infrastructure.web.dto.CreateFilmRequest;
-import ru.yandex.practicum.filmorate.infrastructure.web.dto.FilmResponse;
-import ru.yandex.practicum.filmorate.infrastructure.web.dto.UpdateFilmRequest;
+import ru.yandex.practicum.filmorate.infrastructure.web.dto.*;
 
-import java.util.Comparator;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
 public class FilmMapper {
+
   public CreateFilmCommand toCommand(CreateFilmRequest request) {
-    return new CreateFilmCommand(request.name(), request.description(), request.releaseDate(), request.duration(),
-                                 request.genres(), request.mpa());
+    Set<Long> directorIds = (request.directors() == null)
+                            ? Collections.emptySet()
+                            : request.directors()
+                                     .stream()
+                                     .map(DirectorIdDto::id)
+                                     .collect(Collectors.toSet());
+    Long mpaId = request.mpa() == null
+                 ? null
+                 : request.mpa()
+                          .id();
+    return new CreateFilmCommand(request.name(),
+                                 request.description(),
+                                 request.releaseDate(),
+                                 request.duration(),
+                                 request.genres(),
+                                 mpaId,
+                                 directorIds);
   }
 
   public UpdateFilmCommand toCommand(UpdateFilmRequest request) {
-    return UpdateFilmCommand.builder()
-                            .id(request.id())
-                            .name(request.name())
-                            .description(request.description())
-                            .releaseDate(request.releaseDate())
-                            .duration(request.duration())
-                            .genres(request.genres())
-                            .mpa(request.mpa())
-                            .build();
+    Set<Long> directorIds = (request.directors() == null)
+                            ? Collections.emptySet()
+                            : request.directors()
+                                     .stream()
+                                     .map(DirectorIdDto::id)
+                                     .collect(Collectors.toSet());
+    Long mpaId = request.mpa() == null
+                 ? null
+                 : request.mpa()
+                          .id();
+    return new UpdateFilmCommand(request.id(),
+                                 request.name(),
+                                 request.description(),
+                                 request.releaseDate(),
+                                 request.duration(),
+                                 request.genres(),
+                                 mpaId,
+                                 directorIds);
   }
 
   public FilmResponse toResponse(Film film) {
-    final Set<Genre> genres = film.genres();
-    final Set<Genre> sortedGenres;
+    return toResponse(new FilmWithDirectors(film, null));
+  }
 
-    if (genres == null) {
-      sortedGenres = null;
-    } else {
-      sortedGenres = genres.stream()
-                           .sorted(Comparator.comparing(Genre::id))
-                           .collect(Collectors.toCollection(LinkedHashSet::new));
+  public FilmResponse toResponse(FilmWithDirectors dto) {
+    final Film film = dto.film();
+    final Set<Genre> genres = film.genres();
+    final Set<Genre> sortedGenres = (genres == null)
+                                    ? Collections.emptySet()
+                                    : genres.stream()
+                                            .sorted(Comparator.comparing(Genre::id))
+                                            .collect(Collectors.toCollection(LinkedHashSet::new));
+
+    return new FilmResponse(film.id(),
+                            film.name(),
+                            film.description(),
+                            film.releaseDate(),
+                            film.duration()
+                                .toMinutes(),
+                            sortedGenres,
+                            film.mpa(),
+                            toDirectorResponses(dto.directors()));
+  }
+
+  private Set<DirectorResponse> toDirectorResponses(List<Director> directors) {
+    if (directors == null) {
+      return Collections.emptySet();
     }
-    return FilmResponse.builder()
-                       .id(film.id())
-                       .name(film.name())
-                       .description(film.description())
-                       .releaseDate(film.releaseDate())
-                       .duration(film.duration()
-                                     .toMinutes())
-                       .genres(sortedGenres)
-                       .mpa(film.mpa())
-                       .build();
+    return directors.stream()
+                    .map(d -> new DirectorResponse(d.id(), d.name()))
+                    .collect(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(DirectorResponse::id))));
   }
 }

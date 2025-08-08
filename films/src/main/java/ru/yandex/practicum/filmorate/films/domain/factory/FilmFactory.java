@@ -9,6 +9,7 @@ import java.time.Duration;
 
 @Component
 public class FilmFactory {
+
   public Film create(long id, CreateFilmCommand command) {
     return Film.builder()
                .id(id)
@@ -17,7 +18,6 @@ public class FilmFactory {
                .releaseDate(command.releaseDate())
                .duration(Duration.ofMinutes(command.duration()))
                .genres(command.genres())
-               .mpa(command.mpa())
                .build();
   }
 
@@ -29,7 +29,6 @@ public class FilmFactory {
                .releaseDate(command.releaseDate())
                .duration(Duration.ofMinutes(command.duration()))
                .genres(command.genres())
-               .mpa(command.mpa())
                .build();
   }
 }

@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate.infrastructure.web.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.events.application.port.in.EventUseCase;
 import ru.yandex.practicum.filmorate.infrastructure.web.dto.EventResponse;
@@ -20,7 +19,7 @@ public class EventController {
     private final EventMapper eventResponseMapper;
 
     @GetMapping("/{userId}/feed")
-    public ResponseEntity<List<EventResponse>> getUserFeed(@PathVariable("userId") Long userId) {
-        return ResponseEntity.ok(eventResponseMapper.toResponseList(eventUseCase.getUserFeed(userId)));
+    public List<EventResponse> getUserFeed(@PathVariable("userId") Long userId) {
+        return eventResponseMapper.toResponseList(eventUseCase.getUserFeed(userId));
     }
 }

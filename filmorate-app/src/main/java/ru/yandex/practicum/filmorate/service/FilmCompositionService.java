@@ -109,7 +109,7 @@ public class FilmCompositionService {
     validateFilmExists(filmId);
     validateUserExists(userId);
     boolean added = likeService.addLike(filmId, userId);
-    if (added) domainEventPublisher.publishLikeEvent(userId, Operation.ADD, filmId);
+    domainEventPublisher.publishLikeEvent(userId, Operation.ADD, filmId);
     return added;
   }
 

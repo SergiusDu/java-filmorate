@@ -106,10 +106,10 @@ class RecommendationServiceTest {
         .thenReturn(List.of(matching, wrongGenre, wrongYear, other));
 
     RecommendationQuery query = new RecommendationQuery(
-        1L,
-        Optional.of(5),
-        Optional.of(1L),
-        Optional.of(2020)
+            1L,
+            5,
+            1L,
+            2020
     );
 
     var result = service.getRecommendations(query);

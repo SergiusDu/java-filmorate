@@ -95,18 +95,20 @@ public class UserController {
 
   @GetMapping("/{id}/recommendations")
   public List<FilmResponse> getRecommendations(@PathVariable long id,
-                                               @RequestParam(required = false) Integer limit,
-                                               @RequestParam(required = false) Long genreId,
-                                               @RequestParam(required = false) Integer year) {
-    RecommendationQuery query = new RecommendationQuery(id,
-                                                        Optional.ofNullable(limit),
-                                                        Optional.ofNullable(genreId),
-                                                        Optional.ofNullable(year));
+                                               Optional<Integer> limit,
+                                               Optional<Long> genreId,
+                                               Optional<Integer> year) {
+    RecommendationQuery query = new RecommendationQuery(
+            id,
+            limit.orElse(null),
+            genreId.orElse(null),
+            year.orElse(null)
+    );
 
     return recommendationUseCase.getRecommendations(query)
-                                .stream()
-                                .map(filmMapper::toResponse)
-                                .toList();
+            .stream()
+            .map(filmMapper::toResponse)
+            .toList();
   }
 
   @GetMapping("/{id}")

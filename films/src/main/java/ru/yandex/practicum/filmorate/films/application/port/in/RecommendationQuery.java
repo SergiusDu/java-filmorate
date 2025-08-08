@@ -13,18 +13,26 @@ import java.util.Optional;
  */
 public record RecommendationQuery(
         long userId,
-        Optional<Integer> limit,
-        Optional<Long> genreId,
-        Optional<Integer> year
+        Integer limit,   // nullable
+        Long genreId,    // nullable
+        Integer year     // nullable
 ) {
-
     public RecommendationQuery {
         if (userId <= 0) {
             throw new IllegalArgumentException("userId must be positive");
         }
-        limit = limit == null ? Optional.empty() : limit;
-        genreId = genreId == null ? Optional.empty() : genreId;
-        year = year == null ? Optional.empty() : year;
+    }
+
+    public Optional<Integer> limitOpt() {
+        return Optional.ofNullable(limit);
+    }
+
+    public Optional<Long> genreIdOpt() {
+        return Optional.ofNullable(genreId);
+    }
+
+    public Optional<Integer> yearOpt() {
+        return Optional.ofNullable(year);
     }
 
     /**
@@ -34,6 +42,6 @@ public record RecommendationQuery(
      * @return a query object with empty filters
      */
     public static RecommendationQuery of(long userId) {
-        return new RecommendationQuery(userId, Optional.empty(), Optional.empty(), Optional.empty());
+        return new RecommendationQuery(userId, null, null, null);
     }
 }

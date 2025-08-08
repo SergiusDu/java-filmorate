@@ -18,7 +18,6 @@ import ru.yandex.practicum.filmorate.infrastructure.web.mapper.FilmMapper;
 import ru.yandex.practicum.filmorate.service.FilmCompositionService;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/films")
@@ -104,10 +103,10 @@ public class FilmController {
                                                @RequestParam(required = false) Integer year,
                                                @RequestParam(defaultValue = "10") @Positive Integer limit) {
     var query = new RecommendationQuery(
-        userId,
-        Optional.ofNullable(limit),
-        Optional.ofNullable(genreId),
-        Optional.ofNullable(year)
+            userId,
+            limit,
+            genreId,
+            year
     );
 
     return filmCompositionService.getRecommendations(query)

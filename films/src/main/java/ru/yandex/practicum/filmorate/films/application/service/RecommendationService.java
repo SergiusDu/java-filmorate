@@ -48,18 +48,12 @@ public class RecommendationService
                                                                     .toList());
 
     return candidates.stream()
-                     .filter(film -> query.genreId()
-                                          .isEmpty() || film.genres()
-                                                            .stream()
-                                                            .anyMatch(g -> Objects.equals(query.genreId()
-                                                                                              .get(), g.id())))
-                     .filter(film -> query.year()
-                                          .isEmpty() || film.releaseDate()
-                                                            .getYear() == query.year()
-                                                                              .get())
-                     .limit(query.limit()
-                                 .orElse(candidates.size()))
-                     .toList();
+            .filter(film -> query.genreId() == null
+                    || film.genres().stream().anyMatch(g -> Objects.equals(g.id(), query.genreId())))
+            .filter(film -> query.year() == null
+                    || film.releaseDate().getYear() == query.year())
+            .limit(query.limit() == null ? candidates.size() : query.limit())
+            .toList();
 
   }
 
